@@ -1,60 +1,153 @@
-# SecureClinic — Capstone (CIS 3353 Computer Systems Security)
+# SwagPc Café — Capstone (CIS 3353 Computer Systems Security)
 
-Defending a small medical clinic against credential attacks and network intrusion, following the **Build → Attack → Defend** pattern.
+Defending a small café against **guest-network compromise, web application attacks, and lateral movement**, following the **Build → Attack → Defend** pattern.
 
-- **Course:** CIS 3353 Computer Systems Security · Dr. Gonzalo D. Parra
-- **Commit approach:** Individual Commits *(unanimous team vote — declared on the proposal)*
-- **Project board:** _add link_ · **Wiki report:** _add link_
+* **Course:** CIS 3353 Computer Systems Security · Dr. Gonzalo D. Parra
+* **Commit approach:** *Individual Commits* or *Delegated Commits* *(unanimous team vote — declared on the proposal)*
+* **Project board:** *add link* · **Wiki report:** *add link*
 
 ---
 
 ## Scenario
 
-**Organization:** *Cedar Valley Family Clinic* — a ~15-person medical clinic with an on-prem Windows domain, clinical workstations holding PHI, and an internet-facing patient portal.
+**Organization:** *SwagPc Café* — a small coffee shop that provides free guest Wi-Fi while maintaining internal employee workstations and a Linux business server hosting a café web application.
 
-**Threat:** An attacker steals a staff credential, escalates inside Active Directory (password spray + Kerberoasting), and exploits the internet-facing patient portal (SQL injection), then pivots from the DMZ into the clinical LAN because the network is flat.
+**Threat:** An attacker connects to the café's guest network, discovers internal systems, accesses a vulnerable web application, and attempts to use that access to reach business resources because the initial environment is poorly segmented.
 
-> A small medical clinic is vulnerable to credential-based attacks and network intrusion. We replicate this environment, demonstrate the attack, and then protect it by implementing network segmentation, Active Directory / IAM hardening, and a web application firewall plus IDS/SIEM monitoring. We verify effectiveness by re-running each attack and confirming it is blocked, denied, or alerted.
+> A small café is vulnerable to unauthorized access and lateral movement from its public guest network. We will replicate this environment, demonstrate the attack against the **undefended** network using a vulnerable web application, and protect it by implementing network segmentation, firewall access controls, application security controls, endpoint hardening, and security monitoring. We will verify effectiveness by re-running the same attacks and confirming that unauthorized access is blocked, restricted, or detected.
 
 ---
 
 ## Build → Attack → Defend
 
-**Build:** pfSense firewall (WAN / LAN / DMZ) · Windows Server 2022 AD DC (`clinic.local`) · Windows 10/11 domain workstation · Linux web server with vulnerable patient portal (DVWA/Juice Shop) · Kali Linux attacker · all on virtual networks.
+**Build:** pfSense firewall/router · Guest network · Business network · Windows employee workstation · Ubuntu business/web server · DVWA vulnerable web application · Kali Linux attacker · virtual networks · optional Wazuh/Suricata monitoring.
 
-**Attack (undefended):** password spray · Kerberoasting · SQL injection with data exfiltration · DMZ→LAN lateral movement.
+**Attack (undefended):** guest-network reconnaissance · host discovery · service enumeration · access to internal DVWA application · controlled web application attack · attempted access toward business resources.
 
 **Defend (with a test for each):**
 
-| Defense | Verification test |
-|---|---|
-| pfSense segmentation (DMZ → LAN deny) | Re-attempt DMZ→LAN connection → blocked + logged |
-| AD hardening: GPO password/lockout, LAPS, Kerberos hardening | Re-run spray → lockout fires; re-run Kerberoast → crack fails |
-| ModSecurity WAF (OWASP CRS) | Re-run SQLi → HTTP 403, no data, logged |
-| Suricata IDS + Wazuh SIEM | Re-run attacks → alerts fire in Wazuh |
+| **Defense**                              | **Verification test**                                                               |
+| ---------------------------------------- | ----------------------------------------------------------------------------------- |
+| Guest/Business network segmentation      | Re-run host discovery from Guest → Business hosts should no longer be reachable     |
+| pfSense firewall access controls         | Re-attempt Guest → Business connections → traffic should be denied + logged         |
+| DVWA/application-layer security controls | Re-run the selected web attack → malicious request should be blocked/restricted     |
+| Windows endpoint hardening               | Re-attempt unauthorized access → endpoint should deny/restrict access               |
+| Wazuh/Suricata security monitoring       | Re-run reconnaissance/web attacks → relevant security events should generate alerts |
+
+### Planned Network
+
+```text
+                         INTERNET
+                             │
+                         pfSense
+                             │
+              ┌──────────────┴──────────────┐
+              │                             │
+        GUEST NETWORK                  BUSINESS NETWORK
+          VLAN 10                         VLAN 20
+              │                             │
+          Kali Linux                  Windows Employee PC
+          Attacker                           │
+              │                             │
+              X                       Ubuntu Server
+        Guest → Business                      │
+              DENIED                         DVWA
+                                             │
+                                         Monitoring
+```
+
+The **undefended environment** will intentionally permit excessive communication between the Guest and Business networks so the attack can be demonstrated.
+
+The **defended environment** will enforce segmentation and access-control rules.
+
+Planned access policy:
+
+```text
+GUEST → INTERNET       ALLOW
+GUEST → BUSINESS       DENY
+GUEST → EMPLOYEE       DENY
+GUEST → ADMIN          DENY
+
+EMPLOYEE → SERVER      ALLOW
+ADMIN → SERVER         ALLOW
+SERVER → INTERNET      AS REQUIRED
+```
+
+Exact IP addresses, VLAN configuration, firewall rules, and services will be documented after implementation.
 
 ---
 
 ## Course Modules Integrated
 
-| Module | Where it appears |
-|---|---|
-| 2 — Pervasive Attack Surfaces & Controls | Attack-surface enumeration; defense-in-depth |
-| 7 — IAM | AD, credential attacks, password/lockout GPO, LAPS, Kerberos hardening |
-| 8 — Infrastructure Threats & Security Monitoring | Suricata IDS + Wazuh SIEM |
-| 9 — Infrastructure Security | pfSense firewall, DMZ, segmentation |
+| **Module**                                                        | **Where it appears**                                                                   |
+| ----------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| **2 — Pervasive Attack Surfaces & Controls**                      | Guest network and web application as attack surfaces; reconnaissance; defense-in-depth |
+| **5 — Endpoint Vulnerabilities, Attacks & Defenses**              | Windows employee workstation hardening and endpoint access controls                    |
+| **8 — Infrastructure Threats & Security Monitoring**              | Security logging, attack detection, Wazuh/Suricata monitoring and alerts               |
+| **9 — Infrastructure Security**                                   | pfSense firewall, VLANs, network segmentation, and access-control rules                |
+| **10 — Wireless Network Attacks & Defenses** *(planned/optional)* | Guest Wi-Fi as the initial attack surface and wireless security controls               |
+
+The project will count only modules whose concepts are **actually implemented and demonstrated** in the environment, not simply mentioned in the report.
+
+The core planned integration is **Modules 2, 8, and 9**, with Modules 5 and 10 providing additional integration if implemented.
 
 ---
 
 ## Repository Structure
 
-```
-/                     README (this file)
-/configs              firewall rules, GPO exports, ModSecurity/Suricata/Wazuh configs
-/scripts              attack + test scripts
-/evidence             screenshots, logs, test output
-/diagrams             network + architecture diagrams
-Wiki                  final report (Build / Attack / Defend, with evidence)
+```text
+/
+├── README.md
+│
+├── configs/
+│   ├── pfsense/
+│   ├── firewall/
+│   ├── endpoints/
+│   ├── dvwa/
+│   └── monitoring/
+│
+├── scripts/
+│   ├── attack/
+│   └── testing/
+│
+├── evidence/
+│   ├── screenshots/
+│   ├── logs/
+│   ├── attack/
+│   ├── defense/
+│   └── test-results/
+│
+├── diagrams/
+│   ├── initial-network.png
+│   ├── secured-network.png
+│   └── architecture.png
+│
+├── build/
+│   ├── virtualization/
+│   ├── network/
+│   ├── server/
+│   └── endpoints/
+│
+├── attack/
+│   ├── reconnaissance/
+│   ├── enumeration/
+│   ├── dvwa/
+│   └── lateral-movement/
+│
+├── defense/
+│   ├── segmentation/
+│   ├── firewall/
+│   ├── application-security/
+│   ├── endpoint-hardening/
+│   └── monitoring/
+│
+├── testing/
+│   ├── before-defense/
+│   ├── after-defense/
+│   └── results/
+│
+└── Wiki
+    └── Final report
 ```
 
 ---
@@ -63,11 +156,35 @@ Wiki                  final report (Build / Attack / Defend, with evidence)
 
 Roles are coordination hats — **every member does hands-on technical work**.
 
-| Member | GitHub | Role |
-|---|---|---|
-| _Name_ | _@handle_ | Project Lead |
-| _Name_ | _@handle_ | System Architect |
-| _Name_ | _@handle_ | Security-Documentation Lead |
+| **Member** | **GitHub** | **Role**                    |
+| ---------- | ---------- | --------------------------- |
+| *Name*     | *@handle*  | Project Lead                |
+| *Name*     | *@handle*  | System Architect            |
+| *Name*     | *@handle*  | Security-Documentation Lead |
+
+### Example technical responsibilities
+
+**Project Lead**
+
+* Coordinate project board and milestones
+* Participate in firewall/segmentation implementation
+* Participate in attack and verification testing
+
+**System Architect**
+
+* Design VM and network architecture
+* Build virtual environment
+* Configure servers and services
+* Participate in attack/defense
+
+**Security-Documentation Lead**
+
+* Configure monitoring/security controls
+* Develop verification tests
+* Maintain technical evidence
+* Participate in attack/defense
+
+Roles do **not** eliminate technical responsibilities. No member should be documentation-only.
 
 ---
 
@@ -75,9 +192,55 @@ Roles are coordination hats — **every member does hands-on technical work**.
 
 Contribution % = a member's story points ÷ team total story points. **This table must match the Project board** — discrepancies are investigated and the board wins. Update it as work completes.
 
-| Member | Story points | Contribution % | Key contributions (link issues/PRs) |
-|---|---|---|---|
-| _Name_ | _0_ | _0%_ | _e.g. #12 pfSense segmentation, #18 Suricata rules_ |
-| _Name_ | _0_ | _0%_ | |
-| _Name_ | _0_ | _0%_ | |
-| **Team total** | **_0_** | **100%** | |
+| **Member**     | **Story points** | **Contribution %** | **Key contributions (link issues/PRs)**               |
+| -------------- | ---------------: | -----------------: | ----------------------------------------------------- |
+| *Name*         |              *0* |               *0%* | *e.g. #12 pfSense segmentation, #18 firewall testing* |
+| *Name*         |              *0* |               *0%* | *e.g. #14 Kali/DVWA attack, #21 endpoint hardening*   |
+| *Name*         |              *0* |               *0%* | *e.g. #16 monitoring, #24 verification testing*       |
+| **Team total** |          ***0*** |           **100%** |                                                       |
+
+**Story points:** 1, 2, 3, 5, or 8 only.
+
+Tasks underneath stories should use **XS, S, M, L, or XL**, not story points.
+
+---
+
+## Core Attack/Defense Demonstration
+
+The final presentation should tell one continuous story:
+
+```text
+BEFORE
+   ↓
+Customer connects to SwagPc Café Guest Wi-Fi
+   ↓
+ATTACK
+   ↓
+Kali performs reconnaissance
+   ↓
+Internal web server discovered
+   ↓
+DVWA discovered
+   ↓
+Controlled web attack demonstrated
+   ↓
+Attempted access toward business resources
+   ↓
+Attack evidence captured
+   ↓
+DEFEND
+   ↓
+Segmentation + Firewall
+Application Security
+Endpoint Hardening
+Monitoring
+   ↓
+AFTER
+   ↓
+Repeat the SAME attack
+   ↓
+Traffic blocked / access restricted
+   ↓
+Security event detected
+   ↓
+Compare BEFORE vs AFTER
