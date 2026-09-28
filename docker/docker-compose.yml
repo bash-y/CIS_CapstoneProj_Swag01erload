@@ -1,0 +1,22 @@
+services:
+  dvwa:
+    image: vulnerables/web-dvwa
+    container_name: swagpc-dvwa
+    ports:
+      - "127.0.0.1:8080:80"
+    networks:
+      - cafe-lab
+    restart: unless-stopped
+
+  kali:
+    image: kalilinux/kali-rolling
+    container_name: swagpc-kali
+    command: ["sleep", "infinity"]
+    tty: true
+    stdin_open: true
+    networks:
+      - cafe-lab
+
+networks:
+  cafe-lab:
+    driver: bridge
