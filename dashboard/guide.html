@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Dashboard Guide</title>
+  <style>
+    :root {
+      --bg: #ffffff; --bg-card: #f7f7f8; --bg-code: #f0f1f3; --fg: #1a1a1a; --fg-mute: #4b5059;
+      --border: #cccccc; --accent: #9e262d; --link: #1d6fb0; --ok: #1a7f4e; --warn-bg: #fdf1d6; --warn: #8a5a00;
+      color-scheme: light;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #16181c; --bg-card: #1e2127; --bg-code: #22252b; --fg: #e8eaed; --fg-mute: #a3a8b0;
+        --border: #3a3f47; --accent: #f08a91; --link: #6cb6f0; --ok: #4cc38a; --warn-bg: #3a2f12; --warn: #f5c451;
+        color-scheme: dark;
+      }
+    }
+    :root[data-theme="dark"] {
+      --bg: #16181c; --bg-card: #1e2127; --bg-code: #22252b; --fg: #e8eaed; --fg-mute: #a3a8b0;
+      --border: #3a3f47; --accent: #f08a91; --link: #6cb6f0; --ok: #4cc38a; --warn-bg: #3a2f12; --warn: #f5c451;
+      color-scheme: dark;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font-size: 17px; line-height: 1.65;
+           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; }
+    .layout { max-width: 1180px; margin: 0 auto; padding: 32px 24px 64px; display: grid;
+              grid-template-columns: 250px minmax(0, 1fr); gap: 40px; }
+    nav.toc { position: sticky; top: 16px; align-self: start; font-size: 15px; }
+    nav.toc ol { padding-left: 20px; margin: 8px 0; }
+    nav.toc li { margin: 4px 0; }
+    @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } nav.toc { position: static; } }
+    a { color: var(--link); }
+    a:focus-visible { outline: 3px solid var(--link); outline-offset: 2px; }
+    header { grid-column: 1 / -1; border-bottom: 1px solid var(--border); padding-bottom: 18px; }
+    h1 { color: var(--accent); }
+    h1 { font-size: 32px; margin: 0 0 6px; line-height: 1.2; }
+    h2 { font-size: 25px; margin: 48px 0 10px; padding-bottom: 6px; border-bottom: 2px solid var(--border); }
+    h3 { font-size: 20px; margin: 28px 0 8px; }
+    p, li { max-width: 78ch; }
+    .lede { color: var(--fg-mute); font-size: 19px; margin: 0; }
+    code { background: var(--bg-code); padding: 1px 6px; border-radius: 4px; font-size: 15px;
+           font-family: "SF Mono", Menlo, Consolas, monospace; }
+    pre { background: var(--bg-code); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px;
+          overflow-x: auto; font-size: 15px; line-height: 1.5; }
+    pre code { background: none; padding: 0; }
+    table { border-collapse: collapse; width: 100%; font-size: 16px; margin: 12px 0; }
+    caption { text-align: left; color: var(--fg-mute); font-size: 15px; padding-bottom: 6px; }
+    th, td { text-align: left; border-bottom: 1px solid var(--border); padding: 8px 10px; vertical-align: top; }
+    th { background: var(--bg-card); }
+    .table-wrap { overflow-x: auto; }
+    .note, .warn { border-radius: 8px; padding: 12px 16px; margin: 16px 0; border: 1px solid var(--border); background: var(--bg-card); }
+    .warn { background: var(--warn-bg); border-color: var(--warn); }
+    .note strong, .warn strong { display: block; margin-bottom: 2px; }
+    ol.steps > li { margin: 10px 0; }
+    .flow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 16px 0; }
+    .flow .box { border: 1px solid var(--border); background: var(--bg-card); border-radius: 8px; padding: 8px 12px; }
+    .flow .arrow { color: var(--fg-mute); }
+    .check { color: var(--ok); font-weight: 700; }
+    .stack-pic { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; max-width: 640px; }
+    .stack-pic div { padding: 8px 14px; border-bottom: 1px solid var(--border); background: var(--bg-card); }
+    .stack-pic div:last-child { border-bottom: 0; }
+    .stack-pic b { display: inline-block; min-width: 130px; }
+    footer { margin-top: 56px; color: var(--fg-mute); font-size: 15px; border-top: 1px solid var(--border); padding-top: 14px; }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <header>
+    <h1>Project dashboard: student guide</h1>
+    <p class="lede">How to set up your team's dashboard, define your software stack, keep it refreshed,
+      and use build tests so broken code never reaches <code>main</code>.</p>
+    <p><a href="index.html">Open the dashboard</a></p>
+  </header>
+
+  <nav class="toc" aria-label="Contents">
+    <strong>Contents</strong>
+    <ol>
+      <li><a href="#what">What the dashboard is</a></li>
+      <li><a href="#start">Start your team repository</a></li>
+      <li><a href="#layers">Define your layers</a></li>
+      <li><a href="#members">Add your team members</a></li>
+      <li><a href="#work">Track work: labels, issues, stories</a></li>
+      <li><a href="#refresh">The refresh workflow</a></li>
+      <li><a href="#local">Build it on your computer</a></li>
+      <li><a href="#tests">Build tests on GitHub</a></li>
+      <li><a href="#protect">Make tests required</a></li>
+      <li><a href="#commits">Commits by member</a></li>
+      <li><a href="#trouble">Troubleshooting</a></li>
+      <li><a href="#checklist">Setup checklist</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <section aria-labelledby="what">
+      <h2 id="what">1. What the dashboard is</h2>
+      <p>The dashboard is one web page that shows the state of your team project: what each layer of your
+        software stack has finished, which pull requests are ready, which build tests failed, how far each
+        milestone has come, and how many commits each teammate has made.</p>
+      <p>You never edit the page by hand. A small Python script reads your GitHub repository and writes the
+        numbers into a file called <code>data.js</code>. The page reads that file and draws the panels.</p>
+      <div class="flow" role="img" aria-label="Data flow: your issues, pull requests, workflow runs and commits on GitHub are read by generate_dashboard.py, which writes data.js, which index.html displays.">
+        <span class="box">Issues, pull requests, workflow runs, commits on GitHub</span><span class="arrow" aria-hidden="true">&rarr;</span>
+        <span class="box"><code>scripts/generate_dashboard.py</code></span><span class="arrow" aria-hidden="true">&rarr;</span>
+        <span class="box"><code>data.js</code></span><span class="arrow" aria-hidden="true">&rarr;</span>
+        <span class="box"><code>index.html</code> (the dashboard)</span>
+      </div>
+      <table>
+        <caption>Files in this template</caption>
+        <thead><tr><th scope="col">File</th><th scope="col">What it does</th><th scope="col">Do you edit it?</th></tr></thead>
+        <tbody>
+          <tr><td><code>dashboard.config.json</code></td><td>Your project name, team members and layers.</td><td>Yes, first thing.</td></tr>
+          <tr><td><code>scripts/generate_dashboard.py</code></td><td>Reads GitHub and writes the site into <code>_site/</code>.</td><td>No.</td></tr>
+          <tr><td><code>scripts/sync_labels.py</code></td><td>Creates the <code>layer:</code>, <code>type:</code> and <code>priority:</code> labels.</td><td>No.</td></tr>
+          <tr><td><code>dashboard/index.html</code></td><td>The dashboard page.</td><td>Only to restyle it.</td></tr>
+          <tr><td><code>dashboard/guide.html</code></td><td>This guide.</td><td>No.</td></tr>
+          <tr><td><code>.github/workflows/dashboard-refresh.yml</code></td><td>Rebuilds and publishes the dashboard.</td><td>Rarely.</td></tr>
+          <tr><td><code>.github/workflows/build-tests.yml</code></td><td>Runs your build tests on every pull request.</td><td>Rarely; tests are set in the config.</td></tr>
+          <tr><td><code>.github/workflows/layer-label-check.yml</code></td><td>Fails a pull request that has no layer label.</td><td>No.</td></tr>
+          <tr><td><code>.github/workflows/labels-sync.yml</code></td><td>Runs <code>sync_labels.py</code> when the config changes.</td><td>No.</td></tr>
+          <tr><td><code>refresh.sh</code>, <code>refresh.ps1</code></td><td>Build the dashboard on your own computer.</td><td>No.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section aria-labelledby="start">
+      <h2 id="start">2. Start your team repository</h2>
+      <p>One teammate does these steps once for the whole team.</p>
+      <ol class="steps">
+        <li>Open the template repository on GitHub and press <strong>Use this template</strong>, then
+          <strong>Create a new repository</strong>.</li>
+        <li>Set the <strong>Owner</strong> your instructor gave you, name the repository after your project,
+          and choose the visibility your instructor asked for. Public repositories can publish the dashboard
+          with GitHub Pages; private ones download it instead (see <a href="#refresh">section 6</a>).</li>
+        <li>In the new repository open <strong>Settings, Collaborators and teams</strong> and add every
+          teammate with the <strong>Write</strong> role.</li>
+        <li>Each teammate clones it:
+<pre><code>git clone https://github.com/OWNER/REPOSITORY.git
+cd REPOSITORY</code></pre></li>
+        <li>Each teammate checks that their commits will be counted (see <a href="#commits">section 10</a>):
+<pre><code>git config user.email</code></pre>
+          The address printed must be one of the emails on your GitHub account.</li>
+      </ol>
+    </section>
+
+    <section aria-labelledby="layers">
+      <h2 id="layers">3. Define your layers</h2>
+      <p>A <strong>layer</strong> is one part of your software that a teammate can own: the web pages, the API,
+        the database, the login system. Your team chooses its own layers, but every layer must sit on a
+        <strong>stack tier</strong>, one of the nine standard levels of a software stack below. That rule keeps
+        every team's dashboard comparable, and it makes you say where each part of your code lives.</p>
+      <div class="table-wrap"><table>
+        <caption>The nine stack tiers, top of the stack first</caption>
+        <thead><tr><th scope="col"><code>stack_tier</code></th><th scope="col">Meaning</th><th scope="col">Example layers</th></tr></thead>
+        <tbody>
+          <tr><td><code>presentation</code></td><td>What the user sees and touches.</td><td>React app, mobile screens, command-line output</td></tr>
+          <tr><td><code>application</code></td><td>Business rules and services.</td><td>REST API, Flask routes, background jobs</td></tr>
+          <tr><td><code>integration</code></td><td>Connections to other systems.</td><td>Payment API, webhooks, message queue</td></tr>
+          <tr><td><code>data</code></td><td>Where information lives.</td><td>PostgreSQL schema, file storage, ETL pipeline</td></tr>
+          <tr><td><code>security</code></td><td>Identity, access, secrets, hardening.</td><td>Login and roles, TLS, secret management, firewall rules</td></tr>
+          <tr><td><code>platform</code></td><td>Where the software runs.</td><td>Docker, virtual machines, cloud account, network</td></tr>
+          <tr><td><code>delivery</code></td><td>How changes ship.</td><td>GitHub Actions, release scripts</td></tr>
+          <tr><td><code>quality</code></td><td>How you know it works.</td><td>Test suite, linters, vulnerability scanner</td></tr>
+          <tr><td><code>observability</code></td><td>How you see it running.</td><td>Logs, metrics, alerts</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>Rules the build tests enforce</h3>
+      <ul>
+        <li>Between 3 and 12 layers, covering at least 3 different stack tiers.</li>
+        <li>Each <code>id</code> is lowercase letters, digits and single hyphens, like <code>web-ui</code>. It becomes the label <code>layer:web-ui</code>.</li>
+        <li>Each layer lists at least one real technology it is built with.</li>
+        <li>Two layers may share a tier. A security-focused team might have <code>auth</code> and <code>secrets</code>, both on <code>security</code>.</li>
+      </ul>
+
+      <h3>Example: a web application with login</h3>
+      <div class="stack-pic" role="img" aria-label="Example stack, top to bottom: presentation tier holds the React web app, application tier holds the Flask API, data tier holds PostgreSQL, security tier holds login and roles, platform tier holds Docker Compose.">
+        <div><b>presentation</b> web-app: React, Vite</div>
+        <div><b>application</b> api: Python, Flask</div>
+        <div><b>data</b> database: PostgreSQL</div>
+        <div><b>security</b> auth: OAuth 2.0, bcrypt</div>
+        <div><b>platform</b> infra: Docker Compose</div>
+      </div>
+      <p>Edit <code>dashboard.config.json</code>. One layer looks like this:</p>
+<pre><code>{
+  "id": "api",
+  "name": "REST API",
+  "stack_tier": "application",
+  "description": "Endpoints that receive requests from the web app and apply the business rules.",
+  "technologies": ["Python", "Flask"],
+  "path": "api",
+  "build": "pip install -r requirements.txt",
+  "test": "python -m pytest -q"
+}</code></pre>
+      <p><code>path</code>, <code>build</code> and <code>test</code> are for build tests and can stay empty
+        until that layer has code (see <a href="#tests">section 8</a>). Check your file before you commit it:</p>
+<pre><code>python3 scripts/generate_dashboard.py --check</code></pre>
+      <p>On Windows use <code>py</code> in place of <code>python3</code> in every command in this guide.</p>
+    </section>
+
+    <section aria-labelledby="members">
+      <h2 id="members">4. Add your team members</h2>
+      <p>List every teammate under <code>members</code>, using their GitHub username. The dashboard shows every
+        listed member in <a href="#commits">Commits by member</a>, including anyone who has not committed yet.</p>
+<pre><code>"members": [
+  { "github": "ana-codes", "name": "Ana Lopez", "role": "Frontend" },
+  { "github": "bnguyen",   "name": "Ben Nguyen", "role": "API and database" }
+]</code></pre>
+      <p>Commit and push the config. The <strong>Labels sync</strong> workflow then creates one
+        <code>layer:</code> label per layer, plus <code>type:story</code>, <code>type:task</code>,
+        <code>type:bug</code> and <code>priority:P1</code> to <code>P3</code>. To create them by hand instead:</p>
+<pre><code>python3 scripts/sync_labels.py</code></pre>
+    </section>
+
+    <section aria-labelledby="work">
+      <h2 id="work">5. Track work: labels, issues, stories</h2>
+      <p>The dashboard only knows what you record on GitHub. Use this flow for every piece of work:</p>
+      <ol class="steps">
+        <li><strong>Milestone.</strong> Under <strong>Issues, Milestones</strong> create one milestone per sprint or deliverable.</li>
+        <li><strong>Story.</strong> Open an issue with the <em>Story</em> template for each user-visible goal. It gets <code>type:story</code>.
+          Add its <code>layer:</code> label, a priority and the milestone.</li>
+        <li><strong>Sub-issues.</strong> On the story press <strong>Create sub-issue</strong> for each task. The story's progress bar
+          counts closed sub-issues.</li>
+        <li><strong>Branch and pull request.</strong> Work on a branch, open a pull request, write <code>Closes #12</code>
+          in its description, and add a <code>layer:</code> label. The <strong>Layer label check</strong> fails until you do.</li>
+        <li><strong>Review and merge.</strong> A teammate reviews. When build tests are green and the review is approved, merge.
+          The issue closes and the layer's progress goes up.</li>
+      </ol>
+      <div class="note"><strong>Work with no layer label does not count.</strong>
+        The dashboard lists unlabeled issues and pull requests in an <em>Unassigned work</em> note so you can fix them.</div>
+    </section>
+
+    <section aria-labelledby="refresh">
+      <h2 id="refresh">6. The refresh workflow</h2>
+      <p>The file <code>.github/workflows/dashboard-refresh.yml</code> is already in your repository. It rebuilds
+        the dashboard every 6 hours, on every push to <code>main</code>, and whenever you press
+        <strong>Run workflow</strong>. The <strong>Refresh now</strong> button on the dashboard opens that page.</p>
+
+      <h3>Turn on publishing</h3>
+      <ol class="steps">
+        <li><strong>Public repository:</strong> open <strong>Settings, Pages</strong> and set <strong>Source</strong> to
+          <strong>GitHub Actions</strong>. Then open <strong>Actions, Dashboard refresh, Run workflow</strong>. When it
+          finishes, the dashboard is at <code>https://OWNER.github.io/REPOSITORY/</code>.</li>
+        <li><strong>Private repository:</strong> a free GitHub organization cannot publish Pages from a private repository.
+          Open the latest <strong>Dashboard refresh</strong> run, download the <code>dashboard</code> artifact, unzip it and
+          open <code>index.html</code>. Or build it on your computer (<a href="#local">section 7</a>).</li>
+      </ol>
+
+      <h3>What each step does</h3>
+      <p>If you ever need to rebuild this workflow yourself, or add one to another repository, this is the whole of it.
+        Create <code>.github/workflows/dashboard-refresh.yml</code> with these parts:</p>
+<pre><code>name: Dashboard refresh
+
+on:
+  schedule:
+    - cron: "23 */6 * * *"     # every 6 hours, at 23 minutes past (times are UTC)
+  workflow_dispatch:            # adds the "Run workflow" button
+  push:
+    branches: [main]            # rebuild after every merge
+
+permissions:                    # the built-in token may only read, plus publish Pages
+  contents: read
+  issues: read
+  pull-requests: read
+  checks: read
+  actions: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4                 # 1. get the repository
+      - uses: actions/setup-python@v5             # 2. install Python
+        with: { python-version: "3.12" }
+      - run: python3 scripts/generate_dashboard.py --out _site   # 3. read GitHub, write the site
+        env:
+          GH_TOKEN: ${{ github.token }}           #    the run's own short-lived token
+      - uses: actions/upload-artifact@v4          # 4. keep a downloadable copy
+        with: { name: dashboard, path: _site }
+      - uses: actions/upload-pages-artifact@v3    # 5. hand the site to Pages
+        with: { path: _site }
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: { name: github-pages }
+    steps:
+      - uses: actions/deploy-pages@v4             # 6. publish it</code></pre>
+      <p>The version in your repository adds three safety steps: it validates the config first, runs the unit
+        tests against the freshly built data, and only deploys when Pages is turned on.</p>
+      <div class="note"><strong>Why no personal token is needed.</strong>
+        Every workflow run gets a temporary <code>GITHUB_TOKEN</code> that expires when the run ends. The
+        <code>permissions</code> block limits it to reading. Never paste a personal access token into a workflow file.</div>
+      <div class="note"><strong>Why nothing is committed back.</strong>
+        The workflow publishes the site instead of committing <code>data.js</code> to <code>main</code>. That keeps your
+        history clean and means branch protection (<a href="#protect">section 9</a>) never blocks the refresh.</div>
+    </section>
+
+    <section aria-labelledby="local">
+      <h2 id="local">7. Build it on your computer</h2>
+      <p>You need Python 3.9 or later and the GitHub CLI. Sign in once:</p>
+<pre><code>gh auth login</code></pre>
+      <div class="table-wrap"><table>
+        <caption>Local refresh commands</caption>
+        <thead><tr><th scope="col">Task</th><th scope="col">macOS or Linux</th><th scope="col">Windows (PowerShell)</th></tr></thead>
+        <tbody>
+          <tr><td>Build from your repository</td><td><code>bash refresh.sh</code></td><td><code>powershell -ExecutionPolicy Bypass -File refresh.ps1</code></td></tr>
+          <tr><td>Build with sample data</td><td><code>bash refresh.sh --demo</code></td><td><code>powershell -ExecutionPolicy Bypass -File refresh.ps1 -Demo</code></td></tr>
+          <tr><td>Only check the config</td><td><code>python3 scripts/generate_dashboard.py --check</code></td><td><code>py scripts\generate_dashboard.py --check</code></td></tr>
+          <tr><td>Run the unit tests</td><td><code>python3 -m unittest discover -s tests</code></td><td><code>py -m unittest discover -s tests</code></td></tr>
+        </tbody>
+      </table></div>
+      <p>Then open <code>_site/index.html</code> in your browser by double-clicking it. The <code>_site</code> folder is
+        ignored by git, so you cannot commit it by mistake.</p>
+      <div class="warn"><strong>Windows: if "python" opens the Microsoft Store.</strong>
+        Install Python from python.org and tick <em>Add python.exe to PATH</em>. <code>refresh.ps1</code> already skips the Store shortcut.</div>
+    </section>
+
+    <section aria-labelledby="tests">
+      <h2 id="tests">8. Build tests on GitHub</h2>
+      <h3>What they are</h3>
+      <p>A <strong>build test</strong> is a command GitHub runs on a clean computer every time someone opens or updates a
+        pull request. It installs your code from scratch, builds it, and runs your tests. If any command fails, the pull
+        request shows a red <strong>X</strong>; if all pass, a green check.</p>
+      <h3>What they are used for</h3>
+      <ul>
+        <li><strong>Catch breakage before it reaches <code>main</code>.</strong> A teammate's change that breaks the API fails its own pull request, not everyone's next pull.</li>
+        <li><strong>End "it works on my machine."</strong> The test computer has nothing installed except what your build commands install, so a missing dependency shows up immediately.</li>
+        <li><strong>Make reviews faster.</strong> The reviewer knows the code builds and the tests pass before reading a line.</li>
+        <li><strong>Keep <code>main</code> always runnable,</strong> so a demo can happen at any moment.</li>
+        <li><strong>Leave evidence.</strong> Every run is logged, and the dashboard shows which pull requests are green and which runs failed.</li>
+      </ul>
+
+      <h3>What runs in your repository</h3>
+      <div class="table-wrap"><table>
+        <caption>Jobs in .github/workflows/build-tests.yml</caption>
+        <thead><tr><th scope="col">Job</th><th scope="col">What it checks</th></tr></thead>
+        <tbody>
+          <tr><td><code>dashboard-checks</code></td><td>The config follows the layer rules, the dashboard builds, and the unit tests in <code>tests/</code> pass.</td></tr>
+          <tr><td><code>layer-tests (name)</code></td><td>One job per layer that has a <code>test</code> command. It goes into the layer's <code>path</code>, runs <code>build</code>, then <code>test</code>.</td></tr>
+          <tr><td><code>all-green</code></td><td>One summary result: passes only if every job above passed or was skipped. This is the one you make required.</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>Add a test for a layer</h3>
+      <p>You do not edit the workflow. Fill in three fields on the layer in <code>dashboard.config.json</code>:</p>
+      <div class="table-wrap"><table>
+        <caption>Build and test commands for common stacks</caption>
+        <thead><tr><th scope="col">Stack</th><th scope="col"><code>build</code></th><th scope="col"><code>test</code></th></tr></thead>
+        <tbody>
+          <tr><td>Python with pytest</td><td><code>pip install -r requirements.txt</code></td><td><code>python -m pytest -q</code></td></tr>
+          <tr><td>Node.js</td><td><code>npm ci</code></td><td><code>npm test</code></td></tr>
+          <tr><td>Static site</td><td><code>npm ci &amp;&amp; npm run build</code></td><td><code>npx html-validate "dist/**/*.html"</code></td></tr>
+          <tr><td>Java with Maven</td><td><code>mvn -B -q compile</code></td><td><code>mvn -B test</code></td></tr>
+          <tr><td>Go</td><td><code>go build ./...</code></td><td><code>go test ./...</code></td></tr>
+          <tr><td>Docker image</td><td><code>docker build -t app .</code></td><td><code>docker run --rm app ./run-tests.sh</code></td></tr>
+          <tr><td>Database schema</td><td><code>docker compose up -d db</code></td><td><code>bash scripts/check-schema.sh</code></td></tr>
+          <tr><td>Security scan</td><td><code>pip install bandit</code></td><td><code>bandit -r src -ll</code></td></tr>
+        </tbody>
+      </table></div>
+      <p><code>path</code> is the folder holding that layer's code, relative to the repository root, for example
+        <code>api</code> or <code>frontend</code>. Leave it empty for the root.</p>
+
+      <h3>Write a first test</h3>
+      <p>A test is code that runs your code and checks the answer. For a Python API layer, create <code>api/test_health.py</code>:</p>
+<pre><code>from app import app
+
+def test_health_endpoint_answers():
+    client = app.test_client()
+    response = client.get("/health")
+    assert response.status_code == 200</code></pre>
+      <p>Run it on your computer first (<code>python -m pytest -q</code> inside <code>api</code>). When it passes locally,
+        push. GitHub runs the same command.</p>
+
+      <h3>Read a failed test</h3>
+      <ol class="steps">
+        <li>On the pull request, press <strong>Details</strong> next to the red check.</li>
+        <li>Open the step with the red <strong>X</strong>. The last lines of the log say what failed.</li>
+        <li>Run the same command on your computer, fix it, commit, and push again. The checks run again on their own.</li>
+      </ol>
+      <div class="warn"><strong>Never make a test pass by deleting it.</strong>
+        If a test is wrong, fix the test in its own commit and explain why in the pull request.</div>
+    </section>
+
+    <section aria-labelledby="protect">
+      <h2 id="protect">9. Make tests required</h2>
+      <p>A failing test only protects <code>main</code> if GitHub refuses to merge while it fails.</p>
+      <ol class="steps">
+        <li>Merge one pull request first, so GitHub has seen the checks run at least once.</li>
+        <li>Open <strong>Settings, Rules, Rulesets, New ruleset, New branch ruleset</strong>.</li>
+        <li>Name it <code>protect main</code>, set <strong>Enforcement status</strong> to <strong>Active</strong>, and under
+          <strong>Target branches</strong> add <strong>Include default branch</strong>.</li>
+        <li>Tick <strong>Require a pull request before merging</strong> with 1 required approval.</li>
+        <li>Tick <strong>Require status checks to pass</strong> and add <code>all-green</code> and <code>layer-label</code>.</li>
+        <li>Tick <strong>Block force pushes</strong>, then <strong>Create</strong>.</li>
+      </ol>
+      <p>Rulesets on private repositories need a paid plan. If the option is missing, agree as a team never to merge a
+        red pull request; the dashboard shows it as <em>Needs attention</em> either way.</p>
+    </section>
+
+    <section aria-labelledby="commits">
+      <h2 id="commits">10. Commits by member</h2>
+      <p>The last panel of the dashboard lists each teammate with:</p>
+      <ul>
+        <li>commits on the default branch, all time and in the last 90 days;</li>
+        <li>a bar for each of the last 12 weeks, so a burst the night before a deadline is easy to see;</li>
+        <li>lines added and removed, pull requests opened and merged, and assigned issues closed;</li>
+        <li>the date of the last commit;</li>
+        <li>a share bar showing each person's part of all commits.</li>
+      </ul>
+      <h3>Make sure your commits are counted</h3>
+      <p>GitHub matches a commit to a person by the commit's email address. If your laptop uses an email that is not
+        on your GitHub account, your commits appear under your computer's user name with the flag
+        <em>Email not linked to GitHub</em>, and they are missing from your row.</p>
+<pre><code>git config --global user.name  "Your Name"
+git config --global user.email "the-email-on-your-github-account@example.com"</code></pre>
+      <p>To keep your address private, use the <code>noreply</code> address shown in GitHub <strong>Settings, Emails</strong>.
+        Commits already made with the wrong address count again once you add that address to your GitHub account.</p>
+      <h3>What the numbers mean, and what they do not</h3>
+      <ul>
+        <li>Only commits that reach the default branch count. Work sitting on a branch appears once its pull request is merged.</li>
+        <li>A squash merge counts as one commit by the pull request's author.</li>
+        <li>Lines changed come from GitHub's contributor statistics. GitHub computes them in the background, so they can lag one refresh behind.</li>
+        <li>Many small commits are not better than a few good ones. Commit whenever one step works, with a message that says what changed.</li>
+        <li>A member flagged <em>No commits in 90 days</em> may be doing design or testing work; record that work in issues assigned to them.</li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="trouble">
+      <h2 id="trouble">11. Troubleshooting</h2>
+      <div class="table-wrap"><table>
+        <caption>Common problems</caption>
+        <thead><tr><th scope="col">What you see</th><th scope="col">Cause and fix</th></tr></thead>
+        <tbody>
+          <tr><td>Yellow banner <em>Sample data</em></td><td>The refresh has not run yet. Run <strong>Dashboard refresh</strong> from the Actions tab.</td></tr>
+          <tr><td><code>dashboard.config.json has problems</code></td><td>The message lists each rule broken. Fix them and run <code>--check</code> again.</td></tr>
+          <tr><td>A layer stays at 0%</td><td>No issues carry its label. Add <code>layer:&lt;id&gt;</code> to the issues.</td></tr>
+          <tr><td><em>Layer label check</em> fails</td><td>Add a <code>layer:</code> label in the pull request sidebar.</td></tr>
+          <tr><td>The labels do not exist</td><td>Run <strong>Labels sync</strong> from the Actions tab, or <code>python3 scripts/sync_labels.py</code>.</td></tr>
+          <tr><td>The Pages URL shows 404</td><td>Settings, Pages, Source must be <strong>GitHub Actions</strong>. Then run the refresh again.</td></tr>
+          <tr><td>A teammate has no commits but did work</td><td>Their git email is not linked. See <a href="#commits">section 10</a>.</td></tr>
+          <tr><td><code>No GitHub token found</code></td><td>Run <code>gh auth login</code> on your computer.</td></tr>
+          <tr><td>A layer test says <code>command not found</code></td><td>The build command did not install that tool. Add it to <code>build</code>, or add an <code>actions/setup-*</code> step in <code>build-tests.yml</code>.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section aria-labelledby="checklist">
+      <h2 id="checklist">12. Setup checklist</h2>
+      <ul>
+        <li>Repository created from the template, every teammate added with Write access.</li>
+        <li><code>dashboard.config.json</code> has your project, every member and your own layers, and <code>--check</code> passes.</li>
+        <li>Labels exist (Labels sync ran green).</li>
+        <li>Every teammate's <code>git config user.email</code> is on their GitHub account.</li>
+        <li>At least one milestone and one story with sub-issues.</li>
+        <li>Pages turned on, or the team knows where to download the artifact.</li>
+        <li>Dashboard refresh ran green and the <em>Sample data</em> banner is gone.</li>
+        <li>Each layer with code has <code>path</code>, <code>build</code> and <code>test</code> filled in.</li>
+        <li>Ruleset requires <code>all-green</code> and <code>layer-label</code> before merging.</li>
+      </ul>
+    </section>
+
+    <footer>Part of the UIW Cyber project dashboard template. Questions go to your instructor.</footer>
+  </main>
+</div>
+</body>
+</html>

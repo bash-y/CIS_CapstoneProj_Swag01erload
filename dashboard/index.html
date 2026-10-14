@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Project Dashboard</title>
+  <style>
+    :root {
+      --bg: #ffffff; --bg-elev: #f3f4f6; --bg-card: #f7f7f8; --fg: #1a1a1a; --fg-mute: #4b5059;
+      --border: #cccccc; --accent: #9e262d; --link: #1d6fb0;
+      --green: #1a7f4e; --amber: #8a5a00; --red: #b42318;
+      --green-bg: #e3f4ea; --amber-bg: #fdf1d6; --red-bg: #fde4e1;
+      --hm0: #e7e8eb; --hm1: #b7e1c8; --hm2: #7cc69c; --hm3: #3f9f69; --hm4: #1a7f4e;
+      color-scheme: light;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #16181c; --bg-elev: #22252b; --bg-card: #1e2127; --fg: #e8eaed; --fg-mute: #a3a8b0;
+        --border: #3a3f47; --accent: #f08a91; --link: #6cb6f0;
+        --green: #4cc38a; --amber: #f5c451; --red: #f08a91;
+        --green-bg: #173326; --amber-bg: #3a2f12; --red-bg: #3d1d20;
+        --hm0: #262a31; --hm1: #1f4a33; --hm2: #2b7049; --hm3: #3b9a64; --hm4: #4cc38a;
+        color-scheme: dark;
+      }
+    }
+    :root[data-theme="dark"] {
+      --bg: #16181c; --bg-elev: #22252b; --bg-card: #1e2127; --fg: #e8eaed; --fg-mute: #a3a8b0;
+      --border: #3a3f47; --accent: #f08a91; --link: #6cb6f0;
+      --green: #4cc38a; --amber: #f5c451; --red: #f08a91;
+      --green-bg: #173326; --amber-bg: #3a2f12; --red-bg: #3d1d20;
+      --hm0: #262a31; --hm1: #1f4a33; --hm2: #2b7049; --hm3: #3b9a64; --hm4: #4cc38a;
+      color-scheme: dark;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg);
+           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+           font-size: 16px; line-height: 1.55; }
+    main { max-width: 1280px; margin: 0 auto; padding: 32px 24px 48px; }
+    a { color: var(--link); }
+    a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px solid var(--link); outline-offset: 2px; }
+    h1 { font-size: 30px; margin: 0 0 4px; line-height: 1.2; }
+    h2 { font-size: 22px; margin: 44px 0 6px; padding-bottom: 8px; border-bottom: 2px solid var(--border); }
+    h3 { font-size: 18px; margin: 0 0 6px; }
+    .lede { color: var(--fg-mute); margin: 0 0 14px; max-width: 75ch; }
+    .hero { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap;
+            border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 24px; }
+    .hero .meta { color: var(--fg-mute); }
+    .hero-actions { text-align: right; }
+    .btn { display: inline-block; background: var(--accent); color: #fff; border: 0; border-radius: 6px;
+           padding: 10px 18px; font-weight: 600; font-size: 16px; text-decoration: none; cursor: pointer; }
+    :root[data-theme="dark"] .btn { color: #16181c; }
+    @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .btn { color: #16181c; } }
+    .mini-btn { background: var(--bg-elev); color: var(--fg); border: 1px solid var(--border);
+                border-radius: 5px; padding: 4px 10px; font-size: 14px; cursor: pointer; }
+    .banner { border: 1px solid var(--amber); background: var(--amber-bg); color: var(--fg);
+              border-radius: 8px; padding: 12px 16px; margin: 0 0 20px; }
+    .banner strong { color: var(--amber); }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+    .stat { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; }
+    .stat .label { font-size: 14px; color: var(--fg-mute); }
+    .stat .value { font-size: 28px; font-weight: 700; }
+    .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
+    .muted { color: var(--fg-mute); }
+    .small { font-size: 14px; }
+    .chip { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 14px;
+            background: var(--bg-elev); border: 1px solid var(--border); white-space: nowrap; }
+    .bar { height: 8px; background: var(--bg-elev); border-radius: 999px; overflow: hidden; margin: 8px 0; }
+    .bar > span { display: block; height: 100%; background: var(--green); }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 15px; }
+    caption { text-align: left; color: var(--fg-mute); font-size: 14px; padding-bottom: 6px; }
+    th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    th { background: var(--bg-elev); font-size: 14px; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .empty { color: var(--fg-mute); font-style: italic; }
+    /* Status: always a word plus a colour, never colour alone. */
+    .status { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 14px; font-weight: 600; white-space: nowrap; }
+    .status.green { background: var(--green-bg); color: var(--green); }
+    .status.amber { background: var(--amber-bg); color: var(--amber); }
+    .status.red { background: var(--red-bg); color: var(--red); }
+    tr.sev-green td:first-child { border-left: 4px solid var(--green); }
+    tr.sev-amber td:first-child { border-left: 4px solid var(--amber); }
+    tr.sev-red td:first-child { border-left: 4px solid var(--red); }
+    /* Stack view */
+    .stack { display: grid; gap: 10px; }
+    .stack-row { display: grid; grid-template-columns: 170px 1fr; gap: 16px; align-items: start; }
+    .tier { font-weight: 700; text-transform: capitalize; padding-top: 16px; }
+    .tier .small { display: block; font-weight: 400; text-transform: none; }
+    .layer-head { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: baseline; }
+    .techs { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+    .pr-links { margin-top: 8px; font-size: 14px; }
+    .pr-links a { margin-right: 10px; }
+    @media (max-width: 700px) { .stack-row { grid-template-columns: 1fr; gap: 0; } .tier { padding-top: 0; } }
+    /* Milestones and stories */
+    .ms-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
+    details.group { margin: 10px 0; }
+    details.group > summary { font-weight: 700; cursor: pointer; padding: 6px 0; }
+    details.story { border: 1px solid var(--border); border-radius: 8px; background: var(--bg-card);
+                    padding: 10px 14px; margin: 8px 0; }
+    details.story > summary { cursor: pointer; }
+    ul.subs { list-style: none; padding: 0; margin: 6px 0 0; }
+    ul.subs li { padding: 2px 0; }
+    ul.subs li.done a { text-decoration: line-through; color: var(--fg-mute); }
+    /* Heatmap */
+    .hm { display: flex; gap: 3px; overflow-x: auto; padding-bottom: 4px; }
+    .hm-col { display: flex; flex-direction: column; gap: 3px; }
+    .hc { width: 14px; height: 14px; border-radius: 3px; background: var(--hm0); }
+    .hc.l1 { background: var(--hm1); } .hc.l2 { background: var(--hm2); }
+    .hc.l3 { background: var(--hm3); } .hc.l4 { background: var(--hm4); }
+    .hc.pad { background: transparent; }
+    .legend { display: flex; gap: 4px; align-items: center; font-size: 14px; color: var(--fg-mute); margin-top: 8px; }
+    /* Members */
+    .share { display: flex; height: 26px; border-radius: 6px; overflow: hidden; border: 1px solid var(--border); margin: 10px 0 4px; }
+    .share span { display: block; height: 100%; }
+    .key { display: flex; gap: 14px; flex-wrap: wrap; font-size: 14px; margin-bottom: 14px; }
+    .swatch { display: inline-block; width: 12px; height: 12px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+    svg.spark rect { fill: var(--green); }
+    svg.spark line { stroke: var(--border); }
+    footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border); color: var(--fg-mute); font-size: 14px; }
+  </style>
+</head>
+<body>
+<main id="app">
+  <noscript><p>This dashboard needs JavaScript to draw its panels.</p></noscript>
+  <p id="loading">Loading dashboard data...</p>
+</main>
+
+<!-- data.js is written by scripts/generate_dashboard.py; it sets window.DASHBOARD_DATA. -->
+<script src="data.js"></script>
+<script>
+(function () {
+  "use strict";
+  const D = window.DASHBOARD_DATA;
+  const app = document.getElementById("app");
+  if (!D) {
+    document.getElementById("loading").textContent =
+      "No data.js found next to this page. Run: python3 scripts/generate_dashboard.py --demo";
+    return;
+  }
+
+  // ---- tiny helpers -------------------------------------------------------------------------
+  const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c =>
+    ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
+  const link = (url, text) => `<a href="${esc(url)}">${esc(text)}</a>`;
+  const fmtDate = iso => iso ? new Date(iso).toLocaleString(undefined,
+    {year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit"}) : "never";
+  const pctBar = (pct, label) =>
+    `<div class="bar" role="img" aria-label="${esc(label)}: ${pct}% complete"><span style="width:${pct}%"></span></div>`;
+  const SEV = {green: "Ready", amber: "In progress", red: "Needs attention"};
+  const REVIEW = {APPROVED: ["green", "Approved"], CHANGES_REQUESTED: ["red", "Changes requested"],
+                  REVIEW_REQUIRED: ["amber", "Review needed"]};
+  const layerName = id => {
+    const l = D.layers.find(x => x.id === id);
+    return l ? l.name : null;
+  };
+  const layerChip = id => id ? `<span class="chip">${esc(layerName(id) || id)}</span>`
+                             : `<span class="chip" title="Add a layer: label">No layer</span>`;
+  const section = (id, title, lede, body) =>
+    `<section aria-labelledby="${id}"><h2 id="${id}">${esc(title)}</h2>` +
+    (lede ? `<p class="lede">${lede}</p>` : "") + body + `</section>`;
+
+  const html = [];
+  const P = D.project, T = D.totals;
+
+  // ---- header -------------------------------------------------------------------------------
+  html.push(`<header class="hero">
+    <div>
+      <h1>${esc(P.name)}</h1>
+      <div class="meta">${esc(P.team)}${P.course ? " · " + esc(P.course) : ""} · ${link(D.repo_url, D.repo)}</div>
+      <p class="lede" style="margin-top:8px">${esc(P.description)}</p>
+    </div>
+    <div class="hero-actions">
+      <a class="btn" href="${esc(D.refresh_url)}">Refresh now</a>
+      <div class="small muted" style="margin-top:6px">Last refresh: ${esc(fmtDate(D.generated_at))}</div>
+      <div class="small" style="margin-top:4px"><a href="guide.html">How this dashboard works</a></div>
+    </div>
+  </header>`);
+  document.title = P.name + " dashboard";
+
+  if (D.demo) {
+    html.push(`<div class="banner" role="note"><strong>Sample data.</strong> Everything below is made up so you can
+      see the layout. Run the refresh workflow, or <code>python3 scripts/generate_dashboard.py</code>,
+      to replace it with your repository's real issues, pull requests and commits.</div>`);
+  }
+  (D.warnings || []).forEach(w => html.push(`<div class="banner" role="note"><strong>Note.</strong> ${esc(w)}</div>`));
+
+  // ---- summary numbers ----------------------------------------------------------------------
+  const stat = (label, value, tone) =>
+    `<div class="stat"><div class="label">${label}</div><div class="value"${tone ? ` style="color:var(--${tone})"` : ""}>${value}</div></div>`;
+  html.push(`<section aria-label="Summary"><div class="stats">
+    ${stat("Overall complete", T.pct_complete + "%", "green")}
+    ${stat("Open pull requests", T.open_prs)}
+    ${stat("Ready to merge", T.ready_prs, "green")}
+    ${stat("Need attention", T.attention_prs, T.attention_prs ? "red" : "")}
+    ${stat("Open stories", T.open_stories)}
+    ${stat("Open issues", T.open_issues)}
+    ${stat("Failed runs (72h)", T.failures_72h, T.failures_72h ? "red" : "")}
+    ${stat("Commits (90 days)", T.commits_90d)}
+  </div></section>`);
+
+  // ---- the stack ----------------------------------------------------------------------------
+  const tiers = Object.keys(D.stack_tiers);
+  const rows = tiers.filter(t => D.layers.some(l => l.stack_tier === t)).map(t => {
+    const cards = D.layers.filter(l => l.stack_tier === t).map(l => {
+      const total = l.open_issues + l.closed_issues;
+      const prs = l.open_prs.length
+        ? `<div class="pr-links">Open PRs: ${l.open_prs.map(p =>
+            `${link(p.url, "#" + p.number)} <span class="status ${p.severity}">${SEV[p.severity]}</span>`).join(" ")}</div>` : "";
+      return `<div class="card">
+        <div class="layer-head"><h3>${esc(l.name)} <span class="chip">layer:${esc(l.id)}</span></h3>
+          <span class="small muted">${l.pct}% · ${l.closed_issues} of ${total} issues closed</span></div>
+        <div class="small muted">${esc(l.description)}</div>
+        ${pctBar(l.pct, l.name)}
+        <div class="techs">${l.technologies.map(x => `<span class="chip">${esc(x)}</span>`).join("")}</div>
+        ${prs}
+      </div>`;
+    }).join("");
+    return `<div class="stack-row"><div class="tier">${esc(t)}<span class="small muted">${esc(D.stack_tiers[t])}</span></div>
+      <div class="stack">${cards}</div></div>`;
+  }).join("");
+  const un = D.unassigned;
+  const unNote = (un.open_issues || un.open_prs)
+    ? `<p class="banner" role="note"><strong>Unassigned work.</strong> ${un.open_issues} open issue(s) and
+       ${un.open_prs} open pull request(s) have no <code>layer:</code> label, so they do not count toward any layer.</p>` : "";
+  html.push(section("stack", "Your stack", "Each layer the team defined in <code>dashboard.config.json</code>, " +
+    "placed on the stack tier it belongs to, top of the stack first. Progress is closed issues over all issues " +
+    "carrying that layer's label.", unNote + `<div class="stack">${rows}</div>`));
+
+  // ---- pull requests ------------------------------------------------------------------------
+  const prRows = D.open_prs.map(p => {
+    const [rTone, rText] = REVIEW[p.review] || ["amber", p.review];
+    const c = p.checks;
+    const checks = c.runs.length ? `${c.passed} passed, ${c.failed} failed, ${c.pending} running` : "No checks ran";
+    return `<tr class="sev-${p.severity}">
+      <td><span class="status ${p.severity}">${SEV[p.severity]}</span>${p.draft ? ' <span class="chip">Draft</span>' : ""}</td>
+      <td>${link(p.url, "#" + p.number)}</td><td>${esc(p.title)}<div class="small muted">by ${esc(p.author)}</div></td>
+      <td>${layerChip(p.layer)}</td><td class="small" title="${esc(c.runs.map(r => r.name + ": " + r.state).join(", "))}">${checks}</td>
+      <td><span class="status ${rTone}">${rText}</span></td>
+      <td class="num small">+${p.additions} / -${p.deletions}</td></tr>`;
+  }).join("");
+  html.push(section("prs", "Open pull requests", "Ready means approved with every check passed. " +
+    "Needs attention means a check failed or a reviewer asked for changes.",
+    `<div class="table-wrap"><table><caption>Open pull requests with build tests and review state</caption>
+     <thead><tr><th scope="col">Status</th><th scope="col">PR</th><th scope="col">Title</th><th scope="col">Layer</th>
+     <th scope="col">Build tests</th><th scope="col">Review</th><th scope="col" class="num">Lines</th></tr></thead>
+     <tbody>${prRows || '<tr><td colspan="7" class="empty">No open pull requests.</td></tr>'}</tbody></table></div>`));
+
+  // ---- milestones ---------------------------------------------------------------------------
+  const ms = D.milestones.map(m => `<div class="card">
+      <div class="layer-head"><h3>${link(m.url, m.title)}</h3><span class="small muted">${m.pct}% · ${m.closed}/${m.total}</span></div>
+      ${pctBar(m.pct, m.title)}
+      <div class="small muted">${esc(m.description)}${m.due_on ? " Due " + esc(new Date(m.due_on).toLocaleDateString()) + "." : ""}
+      ${m.state === "closed" ? ' <span class="status green">Closed</span>' : ""}</div></div>`).join("");
+  html.push(section("milestones", "Milestones", "One milestone per sprint or deliverable. Progress is closed issues over all issues in it.",
+    ms ? `<div class="ms-grid">${ms}</div>` : '<p class="empty">No milestones yet. Create one under Issues, Milestones.</p>'));
+
+  // ---- stories ------------------------------------------------------------------------------
+  const storyHtml = s => `<details class="story"><summary><strong>${esc("#" + s.number + " " + s.title)}</strong>
+      <span class="small muted"> · ${s.pct}% · ${s.sub_closed}/${s.sub_total} sub-issues</span></summary>
+      ${pctBar(s.pct, "Story " + s.number)}
+      <div class="small">${layerChip(s.layer)} ${s.priority ? `<span class="chip">${esc(s.priority)}</span>` : ""}
+        ${s.assignees.length ? "Assigned to " + esc(s.assignees.join(", ")) : '<span class="muted">Unassigned</span>'}
+        · ${link(s.url, "Open on GitHub")}</div>
+      ${s.subs.length ? `<ul class="subs">${s.subs.map(x => `<li class="${x.done ? "done" : ""}">
+          ${x.done ? "Done:" : "To do:"} ${link(x.url, "#" + x.number + " " + x.title)}</li>`).join("")}</ul>`
+        : '<p class="small empty">No sub-issues yet. Break this story into tasks with Create sub-issue.</p>'}
+    </details>`;
+  const groups = {};
+  D.stories.forEach(s => (groups[s.milestone || "No milestone"] ||= []).push(s));
+  const storyGroups = Object.keys(groups).map(g => `<details class="group" open><summary>${esc(g)}
+      <span class="small muted">(${groups[g].length} open)</span></summary>${groups[g].map(storyHtml).join("")}</details>`).join("");
+  html.push(section("stories", "Open stories by milestone",
+    "Issues labeled <code>type:story</code>. Story progress is closed sub-issues over all sub-issues.",
+    storyGroups ? `<p><button type="button" class="mini-btn" data-toggle="stories-box" data-open="1">Expand all</button>
+      <button type="button" class="mini-btn" data-toggle="stories-box" data-open="0">Collapse all</button></p>
+      <div id="stories-box">${storyGroups}</div>` : '<p class="empty">No open stories.</p>'));
+
+  // ---- other open issues --------------------------------------------------------------------
+  const issueRows = D.open_issues.map(i => `<tr><td>${link(i.url, "#" + i.number)}</td><td>${esc(i.title)}</td>
+      <td>${layerChip(i.layer)}</td><td>${esc(i.priority) || '<span class="muted">none</span>'}</td>
+      <td>${esc(i.milestone) || '<span class="muted">none</span>'}</td>
+      <td>${esc(i.assignees.join(", ")) || '<span class="muted">nobody</span>'}</td></tr>`).join("");
+  html.push(section("issues", "Other open issues", "Tasks and bugs that are not stories.",
+    `<div class="table-wrap"><table><caption>Open issues that are not stories</caption>
+     <thead><tr><th scope="col">Issue</th><th scope="col">Title</th><th scope="col">Layer</th><th scope="col">Priority</th>
+     <th scope="col">Milestone</th><th scope="col">Assigned</th></tr></thead>
+     <tbody>${issueRows || '<tr><td colspan="6" class="empty">No other open issues.</td></tr>'}</tbody></table></div>`));
+
+  // ---- failed runs --------------------------------------------------------------------------
+  const failRows = D.recent_failures.map(f => `<tr><td>${link(f.url, f.workflow)}</td><td><code>${esc(f.branch)}</code></td>
+      <td>${esc(f.event)}</td><td>${f.prs.map(n => link(D.repo_url + "/pull/" + n, "#" + n)).join(", ") || '<span class="muted">none</span>'}</td>
+      <td>${esc(fmtDate(f.created_at))}</td></tr>`).join("");
+  html.push(section("failures", "Failed workflow runs, last 72 hours", "Each row is a GitHub Actions run that ended in failure. Open it to read the log.",
+    `<div class="table-wrap"><table><caption>Failed GitHub Actions runs</caption>
+     <thead><tr><th scope="col">Workflow</th><th scope="col">Branch</th><th scope="col">Trigger</th><th scope="col">PR</th><th scope="col">When</th></tr></thead>
+     <tbody>${failRows || '<tr><td colspan="5" class="empty">No failed runs in the last 72 hours.</td></tr>'}</tbody></table></div>`));
+
+  // ---- activity heatmap ---------------------------------------------------------------------
+  const days = Object.keys(D.activity).sort();
+  const maxA = Math.max(1, ...days.map(d => D.activity[d]));
+  const level = n => n === 0 ? 0 : Math.min(4, Math.ceil(4 * n / maxA));
+  const cols = [];
+  const firstDow = days.length ? new Date(days[0] + "T00:00:00Z").getUTCDay() : 0;
+  let col = Array(firstDow).fill('<div class="hc pad"></div>');
+  days.forEach(d => {
+    const n = D.activity[d];
+    col.push(`<div class="hc l${level(n)}" title="${d}: ${n}"></div>`);
+    if (col.length === 7) { cols.push(`<div class="hm-col">${col.join("")}</div>`); col = []; }
+  });
+  if (col.length) cols.push(`<div class="hm-col">${col.join("")}</div>`);
+  const totalAct = days.reduce((a, d) => a + D.activity[d], 0);
+  html.push(section("activity", "Activity, last 90 days", "Commits, merged pull requests and closed issues per day. Hover a square for its count.",
+    `<div class="card"><div class="hm" role="img" aria-label="${totalAct} events in the last 90 days">${cols.join("")}</div>
+     <div class="legend">Less <span class="hc"></span><span class="hc l1"></span><span class="hc l2"></span><span class="hc l3"></span><span class="hc l4"></span> More</div></div>`));
+
+  // ---- commits by member --------------------------------------------------------------------
+  const M = D.members || [];
+  const palette = ["#1d6fb0", "#b0471d", "#2f8f5b", "#7a4bb0", "#a8326b", "#4e7d8a", "#8a6d1d", "#5b5f66"];
+  const allCommits = M.reduce((a, m) => a + m.commits_total, 0);
+  const share = allCommits ? `<div class="share" role="img" aria-label="Share of all commits: ${
+      esc(M.map(m => `${m.name} ${Math.round(100 * m.commits_total / allCommits)}%`).join(", "))}">${
+      M.filter(m => m.commits_total).map((m, i) => `<span style="width:${100 * m.commits_total / allCommits}%;background:${palette[M.indexOf(m) % palette.length]}"></span>`).join("")}</div>
+      <div class="key">${M.map((m, i) => `<span><span class="swatch" style="background:${palette[i % palette.length]}"></span>${esc(m.name)} ${
+      Math.round(100 * m.commits_total / allCommits)}%</span>`).join("")}</div>` : "";
+  const spark = m => {
+    const w = m.weekly, max = Math.max(1, ...w.map(x => x.commits)), bw = 8, gap = 3, h = 28;
+    const bars = w.map((x, i) => {
+      const bh = Math.round(h * x.commits / max);
+      return `<rect x="${i * (bw + gap)}" y="${h - bh}" width="${bw}" height="${bh}"><title>Week of ${x.week}: ${x.commits}</title></rect>`;
+    }).join("");
+    return `<svg class="spark" width="${w.length * (bw + gap)}" height="${h + 1}" role="img"
+      aria-label="Commits per week, last ${w.length} weeks: ${w.map(x => x.commits).join(", ")}">
+      <line x1="0" y1="${h + 0.5}" x2="${w.length * (bw + gap)}" y2="${h + 0.5}"></line>${bars}</svg>`;
+  };
+  const memberRows = M.map(m => {
+    const who = m.login ? link(D.repo_url + "/commits?author=" + encodeURIComponent(m.login), m.name) : esc(m.name);
+    const flags = [
+      !m.linked ? '<span class="status amber">Email not linked to GitHub</span>' : "",
+      m.linked && !m.on_roster ? '<span class="status amber">Not on the team roster</span>' : "",
+      m.on_roster && m.commits_90d === 0 ? '<span class="status red">No commits in 90 days</span>' : "",
+    ].join(" ");
+    return `<tr><th scope="row">${who}<div class="small muted">${esc(m.login ? "@" + m.login : "git author name")}${m.role ? " · " + esc(m.role) : ""}</div>${flags}</th>
+      <td class="num">${m.commits_total}</td><td class="num">${m.commits_90d}</td>
+      <td>${spark(m)}</td>
+      <td class="num small"><span style="color:var(--green)">+${m.additions}</span> / <span style="color:var(--red)">-${m.deletions}</span></td>
+      <td class="num">${m.prs_opened} / ${m.prs_merged}</td><td class="num">${m.issues_closed}</td>
+      <td class="small">${esc(fmtDate(m.last_commit))}</td></tr>`;
+  }).join("");
+  html.push(section("members", "Commits by member",
+    "Commits on the default branch by each teammate. All-time commits and lines changed come from GitHub's " +
+    "contributor statistics; the weekly bars cover the last 12 weeks. Work that lives only on an unmerged branch " +
+    "does not count yet. Commits are a signal of activity, not a grade on their own.",
+    share + `<div class="table-wrap"><table><caption>Contribution by team member</caption>
+     <thead><tr><th scope="col">Member</th><th scope="col" class="num">Commits (all)</th><th scope="col" class="num">Commits (90 days)</th>
+     <th scope="col">Per week, last 12</th><th scope="col" class="num">Lines added / removed</th>
+     <th scope="col" class="num">PRs opened / merged</th><th scope="col" class="num">Assigned issues closed</th><th scope="col">Last commit</th></tr></thead>
+     <tbody>${memberRows || '<tr><td colspan="8" class="empty">No commits yet.</td></tr>'}</tbody></table></div>`));
+
+  html.push(`<footer>Generated by <code>scripts/generate_dashboard.py</code> from ${link(D.repo_url, D.repo)}.
+    Read the <a href="guide.html">student guide</a> to change layers, members or tests.</footer>`);
+
+  app.innerHTML = html.join("\n");
+  app.addEventListener("click", e => {
+    const b = e.target.closest("[data-toggle]");
+    if (!b) return;
+    document.querySelectorAll("#" + b.dataset.toggle + " details").forEach(d => { d.open = b.dataset.open === "1"; });
+  });
+})();
+</script>
+</body>
+</html>
