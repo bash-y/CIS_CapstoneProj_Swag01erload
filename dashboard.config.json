@@ -1,0 +1,85 @@
+{
+  "project": {
+    "name": "SwagPc Café",
+    "team": "Swag01erload",
+    "course": "CIS 3353",
+    "description": "A lab that replicates a small café network and walks Build -> Attack -> Defend: a guest-network compromise and web-app attack against an undefended build, then segmentation, firewall, endpoint and monitoring defenses, each verified by re-running the attack."
+  },
+  "members": [
+    { "github": "bash-y", "name": "Sebastian Cadena", "role": "Project Lead" },
+    { "github": "UiwAntHuynhCIS", "name": "Ant Huynh", "role": "System Architect" },
+    { "github": "joromanii", "name": "Jo Romani", "role": "Security-Documentation Lead" }
+  ],
+  "layers": [
+    {
+      "id": "web-app",
+      "name": "Vulnerable web application",
+      "stack_tier": "application",
+      "description": "The DVWA café web application the attacker reaches from the guest network; target of the controlled web attack.",
+      "technologies": ["DVWA", "PHP", "Apache"],
+      "path": "",
+      "build": "",
+      "test": ""
+    },
+    {
+      "id": "database",
+      "name": "Application database",
+      "stack_tier": "data",
+      "description": "MySQL store behind the web application and the target of the SQL-injection attack.",
+      "technologies": ["MySQL"],
+      "path": "",
+      "build": "",
+      "test": ""
+    },
+    {
+      "id": "network",
+      "name": "Virtual networks and hosting",
+      "stack_tier": "platform",
+      "description": "Segmented virtual networks (Guest VLAN 10, Business VLAN 20) and the hypervisor / Docker host the lab runs on.",
+      "technologies": ["VirtualBox", "Docker", "VLAN"],
+      "path": "docker",
+      "build": "",
+      "test": ""
+    },
+    {
+      "id": "firewall",
+      "name": "Firewall and access control",
+      "stack_tier": "security",
+      "description": "pfSense firewall and access-control rules enforcing Guest -> Business deny and least-privilege flows.",
+      "technologies": ["pfSense"],
+      "path": "",
+      "build": "",
+      "test": ""
+    },
+    {
+      "id": "endpoint",
+      "name": "Endpoint hardening",
+      "stack_tier": "security",
+      "description": "Windows employee workstation hardening and endpoint access controls.",
+      "technologies": ["Windows 10", "Group Policy"],
+      "path": "",
+      "build": "",
+      "test": ""
+    },
+    {
+      "id": "monitoring",
+      "name": "Security monitoring",
+      "stack_tier": "observability",
+      "description": "Security logging, intrusion detection and SIEM alerting on reconnaissance and web attacks.",
+      "technologies": ["Wazuh", "Suricata"],
+      "path": "",
+      "build": "",
+      "test": ""
+    },
+    {
+      "id": "attack",
+      "name": "Attack and verification",
+      "stack_tier": "quality",
+      "description": "Reconnaissance, enumeration, web-exploit and lateral-movement scripts that demonstrate the threat and re-test each defense.",
+      "technologies": ["Kali Linux", "Nmap"],
+      "path": "",
+      "build": "",
+      "test": ""
+    }
+  ]
+}
