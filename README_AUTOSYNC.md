@@ -55,6 +55,26 @@ Open your terminal in this repository folder and run:
 
 ---
 
+## 🔑 One-Time GitHub Sign-In (Mac)
+
+If you have never pushed to GitHub from your Mac's terminal, you only need to sign in **once** so macOS Keychain remembers you:
+
+### Recommended: Using GitHub CLI (Easiest)
+In your terminal, run:
+```bash
+brew install gh
+gh auth login
+```
+1. Choose **GitHub.com**
+2. Choose **HTTPS**
+3. Choose **Yes** to authenticate Git with your credentials
+4. Choose **Login with a web browser** and press Enter
+5. Your browser will open. Confirm the 8-character one-time code and click **Authorize**.
+
+Once done, all Git pushes work automatically without ever prompting for passwords!
+
+---
+
 ## ⚙️ Customizing the Branch Name (Optional)
 
 If you want to use a custom branch name instead of the auto-generated `sync-<username>`, create a file called `.sync_branch` in the root of the project with your desired branch name:
