@@ -17,8 +17,11 @@ import time
 PROTECTED_BRANCHES = {"main", "master"}
 
 
-def run_git(args, check=True, capture=True):
+def run_git(args, check=True, capture=True, disable_terminal_prompt=True):
     """Run a git command and return stdout as string."""
+    env = os.environ.copy()
+    if disable_terminal_prompt:
+        env["GIT_TERMINAL_PROMPT"] = "0"
     try:
         res = subprocess.run(
             ["git"] + args,
@@ -26,6 +29,7 @@ def run_git(args, check=True, capture=True):
             stdout=subprocess.PIPE if capture else None,
             stderr=subprocess.PIPE if capture else None,
             text=True,
+            env=env,
         )
         return res.stdout.strip() if capture and res.stdout else ""
     except subprocess.CalledProcessError as e:
@@ -160,6 +164,14 @@ def sync_changes(target_branch, verbose=False):
         print(f"[✔] Successfully synced to origin/{target_branch}!")
         return True
     except RuntimeError as push_err:
+        err_str = str(push_err).lower()
+        if "terminal prompts disabled" in err_str or "could not read username" in err_str or "authentication failed" in err_str:
+            print("[✖] GitHub Authentication Required:")
+            print("    Your Mac has not saved credentials for GitHub yet.")
+            print("    To fix: Open Terminal and run 'brew install gh && gh auth login' or enter a GitHub Personal Access Token.")
+            print("[*] Local commit saved successfully. Will push once authenticated.")
+            return False
+
         print(f"[!] Push failed: {push_err}")
         print("[*] Attempting pull --rebase before re-pushing...")
         try:
