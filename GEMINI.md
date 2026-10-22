@@ -15,6 +15,9 @@ Whenever you create, modify, or delete project files to complete a task or user 
 6. Commit the changes using `git commit -m "<formatted message>"`.
 7. Do not push to the remote repository unless explicitly asked by the user or when requested to publish changes.
 
+## Rule File Synchronization
+Whenever you create, modify, or update any workspace rule file (`GEMINI.md`, `CLAUDE.md`, or `AGENTS.md`), you must immediately replicate and synchronize the identical changes across all three files (`GEMINI.md`, `CLAUDE.md`, `AGENTS.md`) so that all AI agents and tools maintain 100% parity.
+
 ## Capstone Standards
 - Maintain strict alignment with the **SwagPc Café** scenario (Guest VLAN 10 vs. Business VLAN 20, DVWA, pfSense, Wazuh/Suricata).
 - Follow the course **Build → Attack → Defend** lifecycle.
