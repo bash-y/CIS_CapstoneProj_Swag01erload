@@ -82,14 +82,14 @@
 
 ### Milestone 1 — Proposal Approved
 
-**US-1 (3 pts) — As a team, we want a configured private repo, board, and wiki so that our project is tracked from day one.** *(Sprint 1)*
+**US-1 (#42) (3 pts) — As a team, we want a configured private repo, board, and wiki so that our project is tracked from day one.** *(Sprint 1)*
 - [ ] Create private repository; add collaborators `gdparra-edu` and `cyberknowledge` — *XS* — **A**
 - [ ] Enable Wiki; initialize Home page and documentation structure — *XS* — **C**
 - [ ] Create GitHub Project board with Iterative Development template and 2-week iterations — *S* — **A**
 - [ ] Create the four milestones (M1–M4) in the GitHub repository — *XS* — **B**
 - [ ] Finalize README with team roster, roles, and Individual Contribution Summary Table — *S* — **C**
 
-**US-2 (3 pts) — As a team, we want an approved proposal so that we have formal instructor sign-off to proceed.** *(Sprint 1)*
+**US-2 (#43) (3 pts) — As a team, we want an approved proposal so that we have formal instructor sign-off to proceed.** *(Sprint 1)*
 - [ ] Draft scenario, brainstorm sentence, and problem statement for SwagPc Café — *S* — **B**
 - [ ] Diagram initial vs. segmented network topology (WAN/pfSense/Guest VLAN 10/Business VLAN 20) — *M* — **A**
 - [ ] Map course modules (Modules 2, 5, 8, 9) to specific café infrastructure and defenses — *S* — **C**
@@ -99,29 +99,29 @@
 
 ### Milestone 2 — Environment Built & Attack Demonstrated
 
-**US-3 (5 pts) — As a system architect, I want a dual-network pfSense environment so that the café guest and business networks are realistically replicated.** *(Sprint 2)*
+**US-3 (#44) (5 pts) — As a system architect, I want a dual-network pfSense environment so that the café guest and business networks are realistically replicated.** *(Sprint 2)*
 - [ ] Deploy pfSense firewall router with WAN, Guest (VLAN 10), and Business (VLAN 20) interfaces — *M* — **A**
 - [ ] Configure Docker networks / hypervisor virtual bridges (`guest-net` and `business-net`) — *S* — **B**
 - [ ] Document IP addressing scheme, subnets, and routing table — *S* — **C**
 - [ ] Perform baseline reachability test across subnets in the undefended state — *S* — **A**
 
-**US-4 (5 pts) — As a systems administrator, I want café business endpoints deployed so that target business resources exist.** *(Sprint 2)*
+**US-4 (#45) (5 pts) — As a systems administrator, I want café business endpoints deployed so that target business resources exist.** *(Sprint 2)*
 - [ ] Deploy Ubuntu Linux server VM hosting business services — *M* — **B**
 - [ ] Deploy Windows employee workstation VM on the business network — *M* — **A**
 - [ ] Configure employee accounts and sample business data/files on the workstation — *S* — **C**
 - [ ] Verify employee workstation connectivity to the business server — *XS* — **B**
 
-**US-5 (3 pts) — As a web administrator, I want the café web application and attacker node deployed so that the attack surface is active.** *(Sprint 2)*
+**US-5 (#46) (3 pts) — As a web administrator, I want the café web application and attacker node deployed so that the attack surface is active.** *(Sprint 2)*
 - [ ] Deploy DVWA container on the Linux server representing the café web portal — *S* — **B**
 - [ ] Deploy Kali Linux VM/container connected directly to the guest network — *S* — **C**
 - [ ] Confirm Kali can reach the DVWA application across the undefended network — *XS* — **C**
 
-**US-6 (5 pts) — As a penetration tester, I want to conduct guest-network reconnaissance against the undefended network so that exposure is proven.** *(Sprint 3)*
+**US-6 (#47) (5 pts) — As a penetration tester, I want to conduct guest-network reconnaissance against the undefended network so that exposure is proven.** *(Sprint 3)*
 - [ ] Execute ARP scan and Nmap discovery from Kali across the café network — *M* — **C**
 - [ ] Enumerate open ports and services on the business server and employee workstation — *M* — **B**
 - [ ] Document and capture screenshots/command outputs of all exposed business assets — *S* — **A**
 
-**US-7 (5 pts) — As a penetration tester, I want to exploit the café web application and demonstrate lateral movement so that business risk is proven.** *(Sprint 3)*
+**US-7 (#48) (5 pts) — As a penetration tester, I want to exploit the café web application and demonstrate lateral movement so that business risk is proven.** *(Sprint 3)*
 - [ ] Execute web exploit (command injection / SQLi) on DVWA from the guest position — *M* — **C**
 - [ ] Attempt lateral ping and service connection from guest position toward employee PC — *M* — **A**
 - [ ] Capture all before-defense attack evidence, logs, and screenshots — *S* — **B**
@@ -130,24 +130,24 @@
 
 ### Milestone 3 — Defenses Implemented & Verified
 
-**US-8 (5 pts) — As a network security engineer, I want pfSense firewall segmentation so that guest traffic cannot reach business assets.** *(Sprint 4)*
+**US-8 (#49) (5 pts) — As a network security engineer, I want pfSense firewall segmentation so that guest traffic cannot reach business assets.** *(Sprint 4)*
 - [ ] Configure pfSense firewall rules: `GUEST -> BUSINESS` DENY and LOG — *S* — **A**
 - [ ] Configure rule: `GUEST -> INTERNET` ALLOW (captive/isolated guest access) — *S* — **A**
 - [ ] Configure rule: `BUSINESS -> INTERNET` and `EMPLOYEE -> SERVER` ALLOW — *S* — **B**
 - [ ] **Verification Test:** Re-run Nmap and ping from Kali on Guest to Business; verify packets dropped and logged — *M* — **C**
 
-**US-9 (5 pts) — As an endpoint security engineer, I want endpoint defenses configured on the business workstation so that unauthorized access is blocked.** *(Sprint 4)*
+**US-9 (#50) (5 pts) — As an endpoint security engineer, I want endpoint defenses configured on the business workstation so that unauthorized access is blocked.** *(Sprint 4)*
 - [ ] Configure Windows Defender Firewall rules to restrict incoming connections to authorized subnets — *S* — **B**
 - [ ] Disable unneeded legacy protocols (NetBIOS, LLMNR, SMBv1) on the employee PC — *S* — **A**
 - [ ] Implement local account least-privilege and password policies — *S* — **B**
 - [ ] **Verification Test:** Re-attempt direct connection/access to employee PC from guest node; verify connection rejected — *M* — **C**
 
-**US-10 (3 pts) — As an application security engineer, I want web application defenses implemented so that web exploits are mitigated.** *(Sprint 5)*
+**US-10 (#51) (3 pts) — As an application security engineer, I want web application defenses implemented so that web exploits are mitigated.** *(Sprint 5)*
 - [ ] Harden DVWA security settings (increase security level to High/Impossible or implement input sanitization) — *S* — **C**
 - [ ] Implement reverse proxy / web application access controls restricting web portal management — *S* — **B**
 - [ ] **Verification Test:** Re-run identical web exploit payloads; verify HTTP 403 or sanitized responses with logs — *M* — **A**
 
-**US-11 (5 pts) — As a SOC analyst, I want Suricata IDS and Wazuh SIEM deployed so that network and endpoint attacks generate alerts.** *(Sprint 5)*
+**US-11 (#52) (5 pts) — As a SOC analyst, I want Suricata IDS and Wazuh SIEM deployed so that network and endpoint attacks generate alerts.** *(Sprint 5)*
 - [ ] Deploy Suricata IDS monitoring traffic across the network interfaces — *M* — **A**
 - [ ] Deploy Wazuh manager and configure Wazuh agents on the Linux server and Windows PC — *M* — **C**
 - [ ] Configure custom alert rules for reconnaissance scans and web exploitation attempts — *S* — **B**
@@ -157,12 +157,12 @@
 
 ### Milestone 4 — Documentation & Presentation
 
-**US-12 (4 pts) — As a documentation lead, I want a comprehensive Wiki report with before-and-after evidence so that the capstone is fully documented.** *(Sprint 6)*
+**US-12 (#53) (4 pts) — As a documentation lead, I want a comprehensive Wiki report with before-and-after evidence so that the capstone is fully documented.** *(Sprint 6)*
 - [ ] Compile complete Build, Attack, and Defend sections in the GitHub Wiki — *M* — **C**
 - [ ] Format before vs. after side-by-side comparison tables, screenshots, and log snippets — *M* — **A**
 - [ ] Cross-check that the README contribution table matches the GitHub Project board exactly — *S* — **B**
 
-**US-13 (3 pts) — As a team, we want a polished presentation slide deck and rehearsed demo so that our final presentation succeeds.** *(Sprint 6)*
+**US-13 (#54) (3 pts) — As a team, we want a polished presentation slide deck and rehearsed demo so that our final presentation succeeds.** *(Sprint 6)*
 - [ ] Create capstone presentation slide deck covering scenario, attack, defense, and outcomes — *S* — **B**
 - [ ] Script and rehearse the live/recorded demonstration video backup — *S* — **A**
 - [ ] Conduct full team dry-run rehearsal — *S* — **C**
