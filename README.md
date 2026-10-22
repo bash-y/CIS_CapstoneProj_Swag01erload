@@ -3,8 +3,8 @@
 Defending a small café against **guest-network compromise, web application attacks, and lateral movement**, following the **Build → Attack → Defend** pattern.
 
 * **Course:** CIS 3353 Computer Systems Security · Dr. Gonzalo D. Parra
-* **Commit approach:** *Individual Commits* or *Delegated Commits* *(unanimous team vote — declared on the proposal)*
-* **Project board:** *add link* · **Wiki report:** *add link*
+* **Commit approach:** **Individual Commits** *(unanimous team vote — declared on the proposal)*
+* **Project board:** [GitHub Project Board](https://github.com/users/bash-y/projects) · **Wiki report:** [GitHub Wiki](https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/wiki)
 
 ---
 
@@ -158,9 +158,9 @@ Roles are coordination hats — **every member does hands-on technical work**.
 
 | **Member** | **GitHub** | **Role**                    |
 | ---------- | ---------- | --------------------------- |
-| *Name*     | *@handle*  | Project Lead                |
-| *Name*     | *@handle*  | System Architect            |
-| *Name*     | *@handle*  | Security-Documentation Lead |
+| Ant Huynh | [@UiwAntHuynhCIS](https://github.com/UiwAntHuynhCIS) | Project Lead |
+| Sebastian Cadena | [@bash-y](https://github.com/bash-y) | System Architect |
+| joromanii | [@joromanii](https://github.com/joromanii) | Security-Documentation Lead |
 
 ### Example technical responsibilities
 
@@ -194,10 +194,10 @@ Contribution % = a member's story points ÷ team total story points. **This tabl
 
 | **Member**     | **Story points** | **Contribution %** | **Key contributions (link issues/PRs)**               |
 | -------------- | ---------------: | -----------------: | ----------------------------------------------------- |
-| *Name*         |              *0* |               *0%* | *e.g. #12 pfSense segmentation, #18 firewall testing* |
-| *Name*         |              *0* |               *0%* | *e.g. #14 Kali/DVWA attack, #21 endpoint hardening*   |
-| *Name*         |              *0* |               *0%* | *e.g. #16 monitoring, #24 verification testing*       |
-| **Team total** |          ***0*** |           **100%** |                                                       |
+| Ant Huynh (`@UiwAntHuynhCIS`) | 18 | 33.3% | US-1 Repo & Board Setup, US-3 pfSense Dual-VLAN Architecture, US-8 pfSense Segmentation, US-12 Docs & Evidence |
+| Sebastian Cadena (`@bash-y`) | 18 | 33.3% | US-2 Proposal & Topology, US-4 Business Server & PC, US-9 Windows Endpoint Hardening, US-13 Presentation & Demo |
+| joromanii (`@joromanii`) | 18 | 33.3% | US-5 DVWA & Kali Attacker, US-6 Reconnaissance, US-7 Web Exploit & Pivot, US-10 App Security, US-11 Wazuh Monitoring |
+| **Team total** | **54** | **100%** | Backlog balanced across 13 User Stories |
 
 **Story points:** 1, 2, 3, 5, or 8 only.
 
