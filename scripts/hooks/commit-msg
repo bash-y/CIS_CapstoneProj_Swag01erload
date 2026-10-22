@@ -1,0 +1,28 @@
+#!/bin/sh
+# commit-msg hook for SwagPc Café
+# Enforces that all commits reference a User Story or Issue Number.
+
+COMMIT_MSG_FILE=$1
+COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
+
+# Allow merge commits and version bumps
+if echo "$COMMIT_MSG" | grep -qE "^Merge|^Revert"; then
+    exit 0
+fi
+
+# Check for pattern US-<num> or #<num>
+if echo "$COMMIT_MSG" | grep -qE "(US-[0-9]+|#[0-9]+)"; then
+    exit 0
+fi
+
+echo "======================================================================"
+echo "[ERROR] Invalid Commit Message Format!"
+echo "----------------------------------------------------------------------"
+echo "Every commit must reference a User Story or Issue Number, for example:"
+echo "  US-7 #7: Add SQL injection proof and screenshots"
+echo "  US-3 #3: Deploy pfSense router with dual VLANs"
+echo ""
+echo "If your work does not fit an existing story, create an issue first:"
+echo "  Run: .\\scripts\\new-user-story.ps1"
+echo "======================================================================"
+exit 1
