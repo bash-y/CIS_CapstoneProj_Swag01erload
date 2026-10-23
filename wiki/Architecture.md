@@ -32,12 +32,12 @@ The target topology replicates a realistic small business network consisting of 
 
 | Host / Interface | Role | Subnet / VLAN | Assigned IP | Notes |
 |---|---|---|---|---|
-| **pfSense WAN** | Upstream Internet Gateway | WAN | DHCP / Bridged | Outbound NAT |
-| **pfSense LAN (Business)** | Gateway for Business Segment | VLAN 20 | `192.168.20.1/24` | Default Gateway for business hosts |
-| **pfSense OPT1 (Guest)** | Gateway for Public Wi-Fi | VLAN 10 | `192.168.10.1/24` | Default Gateway for guest clients |
-| **Ubuntu Business Server** | Web & Core Services Host | VLAN 20 | `192.168.20.10/24` | Runs Docker / DVWA |
-| **Windows Workstation** | Employee Office PC | VLAN 20 | `192.168.20.25/24` | Contains simulated customer orders/records |
-| **Kali Linux Attacker** | Untrusted Guest Client | VLAN 10 | `192.168.10.50/24` | Simulates customer on guest Wi-Fi |
+| **Firewall (Business Interface)** | `swagpc-firewall` | VLAN 20 (`business-net`) | `192.168.20.254/24` | Gateway / Router for business hosts |
+| **Firewall (Guest Interface)** | `swagpc-firewall` | VLAN 10 (`guest-net`) | `192.168.10.254/24` | Gateway / Router for guest clients |
+| **Business Web Server** | `swagpc-dvwa` | VLAN 20 (`business-net`) | `192.168.20.10/24` | Hosts DVWA web portal (Port 80/8080) |
+| **Employee Workstation** | `swagpc-workstation` | VLAN 20 (`business-net`) | `192.168.20.25/24` | Contains simulated customer orders/records |
+| **Kali Linux Attacker** | `swagpc-kali` | VLAN 10 (`guest-net`) | `192.168.10.50/24` | Simulates customer on guest Wi-Fi |
+
 
 ---
 
