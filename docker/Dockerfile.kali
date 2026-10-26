@@ -1,0 +1,17 @@
+FROM kalilinux/kali-rolling
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    iputils-ping \
+    iproute2 \
+    curl \
+    nmap \
+    netcat-traditional \
+    dnsutils \
+    sqlmap \
+    nikto \
+    tcpdump \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /scripts
+
+CMD ["sleep", "infinity"]

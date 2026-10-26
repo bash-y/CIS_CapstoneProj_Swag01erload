@@ -1,5 +1,5 @@
 # CIS 3353 Capstone Plan
-## SecureClinic — Defending a Small Medical Clinic Against Credential Attacks and Network Intrusion
+## SwagPc Café — Defending Against Guest-Network Compromise, Web Application Attacks, and Lateral Movement
 
 > Dates are intentionally relative (sprints/weeks). The real due dates live on Canvas — map each milestone to the posted Canvas deadline before you commit to the board.
 
@@ -7,181 +7,187 @@
 
 ## 1. The Project Idea
 
-**Organization:** *Cedar Valley Family Clinic* — a ~15-person medical clinic running an on-prem Windows domain, clinical workstations that hold patient health information (PHI), and an internet-facing patient portal. Realistic setting, clearly something worth protecting.
+**Organization:** *SwagPc Café* — a small coffee shop offering free public guest Wi-Fi while maintaining internal employee business workstations and an on-premise Linux server hosting a café web application (ordering & management).
 
-**Threat:** An attacker steals a staff credential, escalates inside Active Directory (password spray + Kerberoasting), and separately exploits the internet-facing patient portal (SQL injection), then pivots from the DMZ into the clinical LAN because the network is flat.
+**Threat:** An attacker connects to the café's guest network, discovers internal business hosts due to a flat/unsegmented network, exploits a vulnerable café web application (command injection / SQL injection on DVWA), and pivots toward business workstations and administrative resources.
 
 ### Brainstorm Sentence (proposal-ready)
-> "A **small medical clinic** is vulnerable to **credential-based attacks and network intrusion**. We will replicate this environment, demonstrate the attack (password spray, Kerberoasting, and a SQL-injection web exploit that pivots into the clinical LAN), and then protect it by implementing **(1) network segmentation with a pfSense firewall**, **(2) Active Directory / IAM hardening (GPO password policy, account lockout, LAPS, Kerberos hardening)**, and **(3) a web application firewall plus IDS/SIEM monitoring (ModSecurity + Suricata + Wazuh)**. We will verify effectiveness by **re-running each attack and confirming it is blocked, denied, or alerted, with logs and screenshots as evidence**."
+> "A **small café with public guest Wi-Fi** is vulnerable to **unauthorized network reconnaissance, web application exploitation, and lateral movement into business operations**. We will replicate this environment, demonstrate the attack on an undefended flat network (reconnaissance, DVWA exploitation, and unauthorized access to business resources), and protect it by implementing **(1) network segmentation with pfSense (Guest VLAN 10 vs. Business VLAN 20)**, **(2) application-layer security hardening**, **(3) endpoint hardening on Windows workstations**, and **(4) intrusion detection and security monitoring (Suricata + Wazuh)**. We will verify effectiveness by **re-running each attack and proving it is blocked, denied, or alerted, capturing logs and screenshots as evidence**."
 
 ### Build → Attack → Defend
 
 **BUILD (the environment):**
-- pfSense firewall/router — zones: WAN, LAN (clinical), DMZ (patient portal)
-- Windows Server 2022 → Active Directory Domain Controller (`clinic.local`)
-- Windows 10/11 workstation joined to the domain
-- Linux web server hosting a deliberately vulnerable patient portal (DVWA or OWASP Juice Shop as a stand-in)
-- Kali Linux attacker VM (external + internal positions)
-- All on VirtualBox/VMware with internal virtual networks
+- **pfSense firewall/router** — zones: WAN, Guest Network (VLAN 10), Business Network (VLAN 20)
+- **Linux Web Server (Ubuntu)** — hosting the café web application (DVWA containerized via Docker)
+- **Windows Employee PC** — business workstation connected to the business network
+- **Kali Linux attacker VM** — positioned on the guest network
+- **Virtual networks / Docker bridges** — isolating Guest and Business segments with configurable routing
 
-**ATTACK (before any defenses — this demo is required, don't skip it):**
-- Password spray against AD accounts (weak policy)
-- Kerberoast a service account, crack the hash offline
-- SQL injection against the portal to exfiltrate "patient" data
-- Show the DMZ web host can reach the clinical LAN (lateral movement)
+**ATTACK (before any defenses — undefended baseline demo):**
+- Guest network reconnaissance: ARP scanning, Nmap ping sweep, and service enumeration discovering business systems
+- Web exploitation: Attacking DVWA on the web server from the guest network
+- Lateral movement: Demonstrating traffic reaching the employee workstation and business server from the guest network
 
 **DEFEND (implement, then test each one):**
 | Defense | Test that proves it works |
 |---|---|
-| pfSense segmentation (DMZ → LAN deny) | Re-attempt DMZ→LAN connection → blocked + logged |
-| AD hardening: GPO password/lockout policy, LAPS, Kerberos hardening | Re-run spray → lockout fires; re-run Kerberoast → crack fails |
-| ModSecurity WAF (OWASP CRS) on the portal | Re-run SQLi → HTTP 403, no data returned, logged |
-| Suricata IDS + Wazuh SIEM | Re-run all attacks → alerts fire in Wazuh dashboard |
+| pfSense segmentation (Guest VLAN 10 → Business VLAN 20 DENY) | Re-run host discovery/ping from Guest → Business hosts unreachable + firewall logs drop |
+| pfSense firewall access controls | Re-attempt direct connection to business services → connection denied + logged |
+| DVWA / Web application hardening (input validation, restricted access) | Re-run web exploit → HTTP 403 / payload sanitized, attack fails |
+| Windows endpoint hardening (firewall rules, disabled insecure protocols) | Re-attempt unauthorized network access against employee PC → connection rejected |
+| Suricata IDS + Wazuh SIEM monitoring | Re-run attacks → alerts triggered in Wazuh dashboard with corresponding logs |
 
-### Modules Integrated (4 — the floor is 3)
+### Modules Integrated
 | Module | Where it shows up |
 |---|---|
-| **2 — Pervasive Attack Surfaces & Controls** | Attack-surface enumeration; defense-in-depth control choices |
-| **7 — IAM** *(core)* | AD, credential attacks, password/lockout GPO, LAPS, Kerberos hardening |
-| **8 — Infrastructure Threats & Security Monitoring** *(core)* | Suricata IDS + Wazuh SIEM detection and alerting |
-| **9 — Infrastructure Security** *(core)* | pfSense firewall, DMZ, network segmentation |
-| *(Optional 5th)* **12 — Vulnerability Management** | Scan the portal, track/remediate findings |
+| **2 — Pervasive Attack Surfaces & Controls** | Guest Wi-Fi & web application as initial attack surfaces; defense-in-depth architecture |
+| **5 — Endpoint Vulnerabilities, Attacks & Defenses** | Windows employee workstation hardening, local firewall policies, least-privilege controls |
+| **8 — Infrastructure Threats & Security Monitoring** *(core)* | Suricata IDS network signatures + Wazuh SIEM log collection and alert generation |
+| **9 — Infrastructure Security** *(core)* | pfSense firewall, VLAN segmentation (VLAN 10 Guest vs VLAN 20 Business), access rules |
+| **10 — Wireless Network Attacks & Defenses** *(optional/context)* | Public guest Wi-Fi isolation and rogue access mitigation concepts |
 
-### Recommended Commit Approach
-**Individual Commits** — each member pushes their own work; points follow the committer. This protects each contributor and is the safe default. (Delegated Commits only if you fully trust one person to push everyone's real work.) Whatever you pick must be a **unanimous vote declared on the proposal**.
+### Declared Commit Approach
+**Individual Commits** — Each member commits and pushes their own assigned work from their respective GitHub account. Story points follow the individual contributor, maintaining clean accountability and verifying individual effort on the contribution board. *(Unanimously approved by team)*.
 
 ---
 
 ## 2. Milestones
 
-Create these in the repo **before** writing any issues. Rename to fit your scenario if you like.
-
 | # | Milestone | "Done" means | Target |
 |---|---|---|---|
-| M1 | **Proposal Approved** | Repo, board, and wiki are live; proposal signed off by instructor | End of Sprint 1 |
-| M2 | **Environment Built & Attack Demonstrated** | VMs + virtual networks up; all attacks proven against the undefended build | End of Sprint 3 |
-| M3 | **Defenses Implemented & Verified** | All controls in place; every defense has a passing test | End of Sprint 5 |
-| M4 | **Documentation & Presentation** | Wiki report complete; demo dry-run done | End of Sprint 6 |
+| **M1** | **Proposal Approved** | Repo, board, and wiki are live; proposal signed off by instructor | End of Sprint 1 |
+| **M2** | **Environment Built & Attack Demonstrated** | VMs/containers & virtual networks up; undefended attacks proven & evidenced | End of Sprint 3 |
+| **M3** | **Defenses Implemented & Verified** | Segmentation, endpoint hardening, and monitoring in place; all defense verification tests pass | End of Sprint 5 |
+| **M4** | **Documentation & Presentation** | Wiki report complete with before/after evidence; slide deck ready; demo dry-run complete | End of Sprint 6 |
 
 ---
 
-## 3. User Stories, Tasks, and Points
+## 3. Team Roster & Allocation
 
-**Rules baked in below:**
-- Story points (1, 2, 3, 5, 8) live **only on user stories**. No 8s (an 8 is too big — already split).
-- Sizes (XS, S, M, L, XL) live **only on tasks**.
-- Every issue gets **both** a Milestone and an Iteration when you load it on the board.
-- Assignees are shown as A / B / C — spread so **everyone does technical work** (no documentation-only member).
+| Code | Team Member | GitHub Handle | Primary Role |
+|---|---|---|---|
+| **A** | **Ant Huynh** | `@UiwAntHuynhCIS` | Project Lead |
+| **B** | **Sebastian Cadena** | `@bash-y` | System Architect |
+| **C** | **joromanii** | `@joromanii` | Security-Documentation Lead |
+
+*Note: Roles are coordination hats; all members complete hands-on technical work.*
+
+---
+
+## 4. User Stories, Tasks, and Points
+
+- **Story points (1, 2, 3, 5)** live **only on user stories** (no story exceeds 5 points).
+- **Sizes (XS, S, M, L, XL)** live **only on subtasks**.
+- Backlog is balanced: **18 points per team member** (54 points total, 33.3% contribution each).
 
 ### Milestone 1 — Proposal Approved
 
-**US-1 (3 pts) — As a team, we want a configured private repo, board, and wiki so that our work is tracked from day one.**
-- [ ] Create private repo; add collaborators `gdparra-edu` and `cyberknowledge` — *XS* — A
-- [ ] Enable Wiki; create Home page skeleton — *XS* — C
-- [ ] Create Project board from Iterative Development template, 2-week iterations — *S* — A
-- [ ] Create the four milestones in the repo — *XS* — B
-- [ ] Add README with the Individual Contribution Summary Table — *S* — C
+**US-1 (#42) (3 pts) — As a team, we want a configured private repo, board, and wiki so that our project is tracked from day one.** *(Sprint 1)*
+- [ ] Create private repository; add collaborators `gdparra-edu` and `cyberknowledge` — *XS* — **A**
+- [ ] Enable Wiki; initialize Home page and documentation structure — *XS* — **C**
+- [ ] Create GitHub Project board with Iterative Development template and 2-week iterations — *S* — **A**
+- [ ] Create the four milestones (M1–M4) in the GitHub repository — *XS* — **B**
+- [ ] Finalize README with team roster, roles, and Individual Contribution Summary Table — *S* — **C**
 
-**US-2 (3 pts) — As a team, we want an approved proposal so that we can start building with instructor sign-off.**
-- [ ] Draft brainstorm sentence + organization/threat scenario — *S* — B
-- [ ] Diagram the target network topology (WAN/LAN/DMZ) — *M* — A
-- [ ] Map the 3+ modules to specific build/defense items — *S* — C
-- [ ] Define the test method for each defense — *S* — B
+**US-2 (#43) (3 pts) — As a team, we want an approved proposal so that we have formal instructor sign-off to proceed.** *(Sprint 1)*
+- [ ] Draft scenario, brainstorm sentence, and problem statement for SwagPc Café — *S* — **B**
+- [ ] Diagram initial vs. segmented network topology (WAN/pfSense/Guest VLAN 10/Business VLAN 20) — *M* — **A**
+- [ ] Map course modules (Modules 2, 5, 8, 9) to specific café infrastructure and defenses — *S* — **C**
+- [ ] Define the test verification criteria and metrics for each defense — *S* — **B**
+
+---
 
 ### Milestone 2 — Environment Built & Attack Demonstrated
 
-**US-3 (5 pts) — As a system architect, I want a segmented virtual network with pfSense so that the clinic topology is realistically replicated.**
-- [ ] Install pfSense VM; configure WAN/LAN/DMZ interfaces — *M* — A
-- [ ] Create the internal virtual networks in the hypervisor — *S* — A
-- [ ] Document the IP addressing plan — *S* — C
-- [ ] Baseline connectivity test across zones — *S* — B
+**US-3 (#44) (5 pts) — As a system architect, I want a dual-network pfSense environment so that the café guest and business networks are realistically replicated.** *(Sprint 2)*
+- [ ] Deploy pfSense firewall router with WAN, Guest (VLAN 10), and Business (VLAN 20) interfaces — *M* — **A**
+- [ ] Configure Docker networks / hypervisor virtual bridges (`guest-net` and `business-net`) — *S* — **B**
+- [ ] Document IP addressing scheme, subnets, and routing table — *S* — **C**
+- [ ] Perform baseline reachability test across subnets in the undefended state — *S* — **A**
 
-**US-4 (5 pts) — As a system administrator, I want an Active Directory domain with users and a service account so that credential attacks can be demonstrated.**
-- [ ] Install Windows Server 2022; promote to Domain Controller — *M* — B
-- [ ] Create OUs, users, and groups — *S* — B
-- [ ] Create a Kerberoastable service account (SPN set) — *S* — B
-- [ ] Join a Windows 10/11 workstation to the domain — *M* — A
+**US-4 (#45) (5 pts) — As a systems administrator, I want café business endpoints deployed so that target business resources exist.** *(Sprint 2)*
+- [ ] Deploy Ubuntu Linux server VM hosting business services — *M* — **B**
+- [ ] Deploy Windows employee workstation VM on the business network — *M* — **A**
+- [ ] Configure employee accounts and sample business data/files on the workstation — *S* — **C**
+- [ ] Verify employee workstation connectivity to the business server — *XS* — **B**
 
-**US-5 (3 pts) — As a web administrator, I want the patient portal deployed in the DMZ so that a web exploit can be demonstrated.**
-- [ ] Deploy Linux web VM with vulnerable app (DVWA/Juice Shop) — *M* — C
-- [ ] Place in DMZ; expose through pfSense — *S* — A
-- [ ] Confirm reachable from the Kali/WAN position — *S* — C
+**US-5 (#46) (3 pts) — As a web administrator, I want the café web application and attacker node deployed so that the attack surface is active.** *(Sprint 2)*
+- [ ] Deploy DVWA container on the Linux server representing the café web portal — *S* — **B**
+- [ ] Deploy Kali Linux VM/container connected directly to the guest network — *S* — **C**
+- [ ] Confirm Kali can reach the DVWA application across the undefended network — *XS* — **C**
 
-**US-6 (5 pts) — As a penetration tester, I want to demonstrate credential attacks against undefended AD so that the threat is proven before defenses.**
-- [ ] Password spray with kerbrute / CrackMapExec — *M* — B
-- [ ] Kerberoast a service account; crack with hashcat — *M* — B
-- [ ] Capture screenshots + logs as evidence — *S* — C
+**US-6 (#47) (5 pts) — As a penetration tester, I want to conduct guest-network reconnaissance against the undefended network so that exposure is proven.** *(Sprint 3)*
+- [ ] Execute ARP scan and Nmap discovery from Kali across the café network — *M* — **C**
+- [ ] Enumerate open ports and services on the business server and employee workstation — *M* — **B**
+- [ ] Document and capture screenshots/command outputs of all exposed business assets — *S* — **A**
 
-**US-7 (5 pts) — As a penetration tester, I want to exploit the portal and pivot so that lateral-movement risk is proven.**
-- [ ] SQL injection to exfiltrate "patient" data — *M* — C
-- [ ] Demonstrate DMZ→LAN reachability from the web host — *S* — A
-- [ ] Capture evidence of the pivot — *S* — B
+**US-7 (#48) (5 pts) — As a penetration tester, I want to exploit the café web application and demonstrate lateral movement so that business risk is proven.** *(Sprint 3)*
+- [ ] Execute web exploit (command injection / SQLi) on DVWA from the guest position — *M* — **C**
+- [ ] Attempt lateral ping and service connection from guest position toward employee PC — *M* — **A**
+- [ ] Capture all before-defense attack evidence, logs, and screenshots — *S* — **B**
+
+---
 
 ### Milestone 3 — Defenses Implemented & Verified
 
-**US-8 (5 pts) — As a network engineer, I want firewall segmentation so that a compromised DMZ host cannot reach the clinical LAN.**
-- [ ] Write pfSense rules: DMZ→LAN deny — *S* — A
-- [ ] Allow only required flows (least privilege) — *S* — A
-- [ ] **Test:** re-attempt DMZ→LAN, confirm blocked + logged — *M* — B
+**US-8 (#49) (5 pts) — As a network security engineer, I want pfSense firewall segmentation so that guest traffic cannot reach business assets.** *(Sprint 4)*
+- [ ] Configure pfSense firewall rules: `GUEST -> BUSINESS` DENY and LOG — *S* — **A**
+- [ ] Configure rule: `GUEST -> INTERNET` ALLOW (captive/isolated guest access) — *S* — **A**
+- [ ] Configure rule: `BUSINESS -> INTERNET` and `EMPLOYEE -> SERVER` ALLOW — *S* — **B**
+- [ ] **Verification Test:** Re-run Nmap and ping from Kali on Guest to Business; verify packets dropped and logged — *M* — **C**
 
-**US-9 (5 pts) — As an identity administrator, I want AD hardened so that credential attacks fail.**
-- [ ] GPO: strong password + account lockout policy — *S* — B
-- [ ] Deploy LAPS for local admin passwords — *M* — B
-- [ ] Harden service account / Kerberos encryption — *S* — A
-- [ ] **Test:** re-run spray + Kerberoast, confirm failure — *M* — C
+**US-9 (#50) (5 pts) — As an endpoint security engineer, I want endpoint defenses configured on the business workstation so that unauthorized access is blocked.** *(Sprint 4)*
+- [ ] Configure Windows Defender Firewall rules to restrict incoming connections to authorized subnets — *S* — **B**
+- [ ] Disable unneeded legacy protocols (NetBIOS, LLMNR, SMBv1) on the employee PC — *S* — **A**
+- [ ] Implement local account least-privilege and password policies — *S* — **B**
+- [ ] **Verification Test:** Re-attempt direct connection/access to employee PC from guest node; verify connection rejected — *M* — **C**
 
-**US-10 (3 pts) — As a security engineer, I want a WAF in front of the portal so that web exploits are blocked.**
-- [ ] Install ModSecurity + OWASP Core Rule Set — *M* — C
-- [ ] Tune rules to the app — *S* — C
-- [ ] **Test:** re-run SQLi, confirm 403 + logged — *S* — A
+**US-10 (#51) (3 pts) — As an application security engineer, I want web application defenses implemented so that web exploits are mitigated.** *(Sprint 5)*
+- [ ] Harden DVWA security settings (increase security level to High/Impossible or implement input sanitization) — *S* — **C**
+- [ ] Implement reverse proxy / web application access controls restricting web portal management — *S* — **B**
+- [ ] **Verification Test:** Re-run identical web exploit payloads; verify HTTP 403 or sanitized responses with logs — *M* — **A**
 
-**US-11 (5 pts) — As a SOC analyst, I want IDS + SIEM monitoring so that attacks raise alerts.**
-- [ ] Deploy Suricata on the perimeter — *M* — A
-- [ ] Deploy Wazuh manager + agents — *M* — C
-- [ ] Build detection rules (spray / Kerberoast / web attack) — *M* — B
-- [ ] **Test:** re-run all attacks, confirm alerts fire — *M* — C
+**US-11 (#52) (5 pts) — As a SOC analyst, I want Suricata IDS and Wazuh SIEM deployed so that network and endpoint attacks generate alerts.** *(Sprint 5)*
+- [ ] Deploy Suricata IDS monitoring traffic across the network interfaces — *M* — **A**
+- [ ] Deploy Wazuh manager and configure Wazuh agents on the Linux server and Windows PC — *M* — **C**
+- [ ] Configure custom alert rules for reconnaissance scans and web exploitation attempts — *S* — **B**
+- [ ] **Verification Test:** Re-run attack sequence; capture Wazuh dashboard alerts and log entries demonstrating detection — *M* — **B**
+
+---
 
 ### Milestone 4 — Documentation & Presentation
 
-**US-12 (3 pts) — As a documentation lead, I want a complete wiki report so that the work is fully evidenced.**
-- [ ] Write Build/Attack/Defend sections with screenshots — *M* — C
-- [ ] Add architecture diagram + module mapping — *S* — A
-- [ ] Verify README contribution table matches the board — *S* — B
+**US-12 (#53) (4 pts) — As a documentation lead, I want a comprehensive Wiki report with before-and-after evidence so that the capstone is fully documented.** *(Sprint 6)*
+- [ ] Compile complete Build, Attack, and Defend sections in the GitHub Wiki — *M* — **C**
+- [ ] Format before vs. after side-by-side comparison tables, screenshots, and log snippets — *M* — **A**
+- [ ] Cross-check that the README contribution table matches the GitHub Project board exactly — *S* — **B**
 
-**US-13 (3 pts) — As a team, we want a rehearsed presentation so that the demo runs smoothly on presentation day.**
-- [ ] Build the slide deck — *S* — B
-- [ ] Prepare the live demo flow / recording backup — *S* — A
-- [ ] Full dry-run — *S* — C
-
-**Backlog total: 58 story points across 13 stories.**
+**US-13 (#54) (3 pts) — As a team, we want a polished presentation slide deck and rehearsed demo so that our final presentation succeeds.** *(Sprint 6)*
+- [ ] Create capstone presentation slide deck covering scenario, attack, defense, and outcomes — *S* — **B**
+- [ ] Script and rehearse the live/recorded demonstration video backup — *S* — **A**
+- [ ] Conduct full team dry-run rehearsal — *S* — **C**
 
 ---
 
-## 4. Timeline (6 sprints × 2 weeks)
+## 5. Story Points Balance Summary
 
-Set the actual iteration dates to match the Canvas schedule. Each sprint is one Iteration on the board.
-
-| Sprint | Weeks | Focus | Stories | Closes |
+| Team Member | GitHub | Assigned Stories | Total Points | % Contribution |
 |---|---|---|---|---|
-| Sprint 1 | 1–2 | Team setup, repo/board/wiki, proposal | US-1, US-2 | **M1** |
-| Sprint 2 | 3–4 | Build environment (pfSense, AD, portal) | US-3, US-4, US-5 | — |
-| Sprint 3 | 5–6 | Undefended attack demos | US-6, US-7 | **M2** |
-| Sprint 4 | 7–8 | Segmentation + AD hardening | US-8, US-9 | — |
-| Sprint 5 | 9–10 | WAF + monitoring + verification | US-10, US-11 | **M3** |
-| Sprint 6 | 11–12 | Wiki report + presentation prep & dry-run | US-12, US-13 | **M4** |
-| Buffer | 13+ | Freeze wiki, tidy board, rehearse, **present** | — | — |
-
-> **Final deliverables (wiki, repo, board, presentation) are not accepted late** — no grace period. Freeze everything before the posted Canvas deadline.
+| **Ant Huynh** | `@UiwAntHuynhCIS` | US-1 (3), US-3 (5), US-8 (5), US-12 (partial / 5) | **18 pts** | **33.3%** |
+| **Sebastian Cadena** | `@bash-y` | US-2 (3), US-4 (5), US-9 (5), US-13 (partial / 5) | **18 pts** | **33.3%** |
+| **joromanii** | `@joromanii` | US-5 (3), US-6 (5), US-7 (5), US-10 (partial / 5) | **18 pts** | **33.3%** |
+| **Total Team Backlog** | | **13 User Stories** | **54 pts** | **100%** |
 
 ---
 
-## 5. Setup Checklist (do this week)
+## 6. Sprint Schedule (6 Sprints × 2 Weeks)
 
-1. Confirm a 2–3 person team; fill the availability grid; lock a weekly meeting block.
-2. Create the **private** repo; add `gdparra-edu` and `cyberknowledge`.
-3. Enable the Wiki; add the README with the Individual Contribution Summary Table.
-4. Create the Project board (Iterative Development template) with 2-week iterations.
-5. Create the four milestones **before** any issues.
-6. Vote on the commit approach (recommend Individual); declare it on the proposal.
-7. Load Sprint 1 with US-1 and US-2 and their tasks — each tagged with **a Milestone AND an Iteration**.
-8. Commit in small, honest pieces every week — steady beats an all-nighter.
+| Sprint | Timeline | Primary Objective | User Stories | Target Milestone |
+|---|---|---|---|---|
+| **Sprint 1** | Weeks 1–2 | Project Setup, Proposal Sign-off, Topology Design | US-1, US-2 | **M1: Proposal Approved** |
+| **Sprint 2** | Weeks 3–4 | Environment Build: pfSense, Networks, DVWA, Workstation | US-3, US-4, US-5 | — |
+| **Sprint 3** | Weeks 5–6 | Undefended Attacks: Reconnaissance, DVWA Exploit, Evidence | US-6, US-7 | **M2: Build & Attack Demo** |
+| **Sprint 4** | Weeks 7–8 | Defenses Part 1: pfSense Segmentation & Endpoint Hardening | US-8, US-9 | — |
+| **Sprint 5** | Weeks 9–10 | Defenses Part 2: App Hardening, Wazuh/Suricata & Verification | US-10, US-11 | **M3: Defenses Verified** |
+| **Sprint 6** | Weeks 11–12 | Wiki Report Finalization, Slide Deck, Demo Rehearsal | US-12, US-13 | **M4: Docs & Presentation** |
+| **Buffer** | Finals Week | Freeze Wiki, Freeze Board, Deliver Capstone Presentation | — | **Final Submission** |
