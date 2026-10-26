@@ -1,0 +1,27 @@
+# macOS system files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows system files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Auto-sync local state & logs
+auto_sync.log
+.auto_sync.pid
+.sync_config
+.sync_branch
+
+# Editor directories
+.vscode/
+.idea/
+*.swp
+*~
+
+# Python cache
+__pycache__/
+*.py[cod]
