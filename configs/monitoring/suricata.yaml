@@ -1,0 +1,62 @@
+%YAML 1.1
+---
+# Suricata configuration for SwagPc Café IDS
+# Monitors eth0 (business-net) and eth1 (guest-net) on the firewall container
+
+vars:
+  address-groups:
+    HOME_NET: "[192.168.10.0/24,192.168.20.0/24]"
+    EXTERNAL_NET: "!$HOME_NET"
+    GUEST_NET: "[192.168.10.0/24]"
+    BUSINESS_NET: "[192.168.20.0/24]"
+    HTTP_SERVERS: "$BUSINESS_NET"
+    SQL_SERVERS: "$BUSINESS_NET"
+
+  port-groups:
+    HTTP_PORTS: "80,8080"
+    SHELLCODE_PORTS: "!80"
+    ORACLE_PORTS: 1521
+    SSH_PORTS: 22
+
+# AF-PACKET capture on both interfaces
+af-packet:
+  - interface: eth0
+    threads: auto
+    defrag: yes
+    cluster-type: cluster_flow
+  - interface: eth1
+    threads: auto
+    defrag: yes
+    cluster-type: cluster_flow
+
+# Logging output
+outputs:
+  - fast:
+      enabled: yes
+      filename: /var/log/suricata/fast.log
+  - eve-log:
+      enabled: yes
+      filetype: regular
+      filename: /var/log/suricata/eve.json
+      types:
+        - alert:
+            tagged-packets: yes
+        - dns
+        - http:
+            extended: yes
+        - tls:
+            extended: yes
+        - files:
+            force-magic: no
+
+# Rule files
+rule-files:
+  - suricata.rules
+  - /etc/suricata/rules/swagpc-custom.rules
+
+# Detect nmap scans and SQLi from guest network
+detection:
+  profile: medium
+  custom-values:
+    toclient-groups: 3
+    toserver-groups: 25

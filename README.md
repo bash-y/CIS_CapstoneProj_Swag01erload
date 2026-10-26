@@ -20,7 +20,7 @@ Defending a small café against **guest-network compromise, web application atta
 
 ## Build → Attack → Defend
 
-**Build:** pfSense firewall/router · Guest network · Business network · Windows employee workstation · Ubuntu business/web server · DVWA vulnerable web application · Kali Linux attacker · virtual networks · optional Wazuh/Suricata monitoring.
+**Build:** `swagpc-firewall` (Alpine/iptables — simulates pfSense) · `swagpc-kali` (attacker on Guest VLAN 10) · `swagpc-dvwa` (vulnerable café web portal on Business VLAN 20) · `swagpc-workstation` (simulated employee PC) · `swagpc-wazuh` (SIEM) · `swagpc-suricata` (IDS) — all 100% Docker, no VMs required.
 
 **Attack (undefended):** guest-network reconnaissance · host discovery · service enumeration · access to internal DVWA application · controlled web application attack · attempted access toward business resources.
 

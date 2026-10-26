@@ -1,12 +1,14 @@
 services:
-  # 1. Attacker Container (Guest Network / VLAN 10)
+  # ─────────────────────────────────────────────────────────────────
+  # ATTACKER — Guest Network (VLAN 10 / 192.168.10.0/24)
+  # ─────────────────────────────────────────────────────────────────
   kali:
     build:
       context: .
       dockerfile: Dockerfile.kali
     image: swagpc-kali:latest
     container_name: swagpc-kali
-    command: ["sleep", "infinity"]
+    hostname: kali-attacker
     tty: true
     stdin_open: true
     cap_add:
@@ -14,24 +16,37 @@ services:
     networks:
       guest-net:
         ipv4_address: 192.168.10.50
+    volumes:
+      - ../scripts/attack:/scripts/attack:ro
+    # Adds a persistent route to the business subnet via the firewall router
+    entrypoint: >
+      sh -c "
+        ip route add 192.168.20.0/24 via 192.168.10.254 || true &&
+        sleep infinity
+      "
     restart: unless-stopped
 
-  # 2. Simulated pfSense Firewall & Router (Dual-Homed)
+  # ─────────────────────────────────────────────────────────────────
+  # FIREWALL / ROUTER — Dual-Homed (simulates pfSense)
+  # ─────────────────────────────────────────────────────────────────
   firewall:
     image: alpine:latest
     container_name: swagpc-firewall
-    command: >
-      sh -c "
-        apk add --no-cache iptables iproute2 tcpdump &&
-        iptables -F &&
-        iptables -P FORWARD ACCEPT &&
-        echo '=== SwagPc Cafe Firewall Router Active (Undefended Mode) ===' &&
-        tail -f /dev/null
-      "
+    hostname: swagpc-fw
     cap_add:
       - NET_ADMIN
     sysctls:
       - net.ipv4.ip_forward=1
+    volumes:
+      - ../defense/firewall:/scripts/firewall:ro
+    entrypoint: >
+      sh -c "
+        apk add --no-cache iptables iproute2 tcpdump &&
+        iptables -F &&
+        iptables -P FORWARD ACCEPT &&
+        echo '=== [UNDEFENDED] pfSense Router Active — all forwarding allowed ===' &&
+        tail -f /dev/null
+      "
     networks:
       guest-net:
         ipv4_address: 192.168.10.254
@@ -39,10 +54,13 @@ services:
         ipv4_address: 192.168.20.254
     restart: unless-stopped
 
-  # 3. Cafe Web Application (DVWA on Business Network / VLAN 20)
+  # ─────────────────────────────────────────────────────────────────
+  # DVWA — Café Web App (Business Network / 192.168.20.10)
+  # ─────────────────────────────────────────────────────────────────
   dvwa:
     image: vulnerables/web-dvwa
     container_name: swagpc-dvwa
+    hostname: swagpc-dvwa
     ports:
       - "127.0.0.1:8080:80"
     networks:
@@ -50,24 +68,91 @@ services:
         ipv4_address: 192.168.20.10
     restart: unless-stopped
 
-  # 4. Cafe Employee Workstation (Business Network / VLAN 20)
+  # ─────────────────────────────────────────────────────────────────
+  # EMPLOYEE WORKSTATION — Business Network (192.168.20.25)
+  # ─────────────────────────────────────────────────────────────────
   workstation:
     image: alpine:latest
     container_name: swagpc-workstation
-    command: >
+    hostname: swagpc-employee
+    cap_add:
+      - NET_ADMIN
+    entrypoint: >
       sh -c "
-        apk add --no-cache curl python3 netcat-openbsd &&
+        apk add --no-cache curl netcat-openbsd &&
         mkdir -p /home/employee/orders &&
-        echo 'CustomerID,Name,CreditCardLast4,OrderTotal' > /home/employee/orders/cafe_orders.csv &&
-        echo '101,John Doe,4321,\$14.50' >> /home/employee/orders/cafe_orders.csv &&
-        echo '102,Jane Smith,9876,\$22.75' >> /home/employee/orders/cafe_orders.csv &&
-        echo '=== Employee Workstation Ready ===' &&
+        printf 'CustomerID,Name,CreditCardLast4,OrderTotal\n101,John Doe,4321,14.50\n102,Jane Smith,9876,22.75\n103,Bob Lee,1234,8.00\n' > /home/employee/orders/cafe_orders.csv &&
+        echo '=== Employee Workstation Ready (simulated café manager PC) ===' &&
         tail -f /dev/null
       "
     networks:
       business-net:
         ipv4_address: 192.168.20.25
     restart: unless-stopped
+
+  # ─────────────────────────────────────────────────────────────────
+  # WAZUH MANAGER — Security Monitoring (Business Network)
+  # ─────────────────────────────────────────────────────────────────
+  wazuh:
+    image: wazuh/wazuh-manager:4.9.2
+    container_name: swagpc-wazuh
+    hostname: swagpc-wazuh
+    environment:
+      - WAZUH_MANAGER_NAME=swagpc-wazuh
+    volumes:
+      - wazuh_data:/var/ossec/data
+      - wazuh_logs:/var/ossec/logs
+      - ../configs/monitoring/wazuh_ossec.conf:/var/ossec/etc/ossec.conf:ro
+    networks:
+      business-net:
+        ipv4_address: 192.168.20.100
+    ports:
+      - "127.0.0.1:1514:1514/udp"   # Syslog agent ingestion
+      - "127.0.0.1:55000:55000"     # Wazuh API
+    restart: unless-stopped
+
+  # ─────────────────────────────────────────────────────────────────
+  # WAZUH DASHBOARD — Kibana UI for SIEM visibility
+  # ─────────────────────────────────────────────────────────────────
+  dashboard:
+    image: wazuh/wazuh-dashboard:4.9.2
+    container_name: swagpc-dashboard
+    hostname: swagpc-dashboard
+    environment:
+      - OPENSEARCH_HOSTS=["https://wazuh:9200"]
+      - WAZUH_API_URL=https://wazuh
+    depends_on:
+      - wazuh
+    networks:
+      business-net:
+        ipv4_address: 192.168.20.101
+    ports:
+      - "127.0.0.1:5601:5601"       # Dashboard UI — http://localhost:5601
+    restart: unless-stopped
+
+  # ─────────────────────────────────────────────────────────────────
+  # SURICATA IDS — Network Intrusion Detection on Guest Gateway
+  # ─────────────────────────────────────────────────────────────────
+  suricata:
+    image: jasonish/suricata:latest
+    container_name: swagpc-suricata
+    hostname: swagpc-suricata
+    cap_add:
+      - NET_ADMIN
+      - SYS_NICE
+    network_mode: "container:swagpc-firewall"   # Sniffs same interfaces as the firewall/router
+    volumes:
+      - suricata_logs:/var/log/suricata
+      - ../configs/monitoring/suricata.yaml:/etc/suricata/suricata.yaml:ro
+    command: -i eth0 -i eth1 --af-packet
+    depends_on:
+      - firewall
+    restart: unless-stopped
+
+volumes:
+  wazuh_data:
+  wazuh_logs:
+  suricata_logs:
 
 networks:
   guest-net:
