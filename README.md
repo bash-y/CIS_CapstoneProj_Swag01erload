@@ -3,8 +3,8 @@
 Defending a small café against **guest-network compromise, web application attacks, and lateral movement**, following the **Build → Attack → Defend** pattern.
 
 * **Course:** CIS 3353 Computer Systems Security · Dr. Gonzalo D. Parra
-* **Commit approach:** *Individual Commits* or *Delegated Commits* *(unanimous team vote — declared on the proposal)*
-* **Project board:** *add link* · **Wiki report:** *add link*
+* **Commit approach:** **Individual Commits** *(unanimous team vote — declared on the proposal)*
+* **Project board:** [GitHub Project Board](https://github.com/users/bash-y/projects) · **Wiki report:** [GitHub Wiki](https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/wiki)
 
 ---
 
@@ -20,7 +20,7 @@ Defending a small café against **guest-network compromise, web application atta
 
 ## Build → Attack → Defend
 
-**Build:** pfSense firewall/router · Guest network · Business network · Windows employee workstation · Ubuntu business/web server · DVWA vulnerable web application · Kali Linux attacker · virtual networks · optional Wazuh/Suricata monitoring.
+**Build:** `swagpc-firewall` (Alpine/iptables — simulates pfSense) · `swagpc-kali` (attacker on Guest VLAN 10) · `swagpc-dvwa` (vulnerable café web portal on Business VLAN 20) · `swagpc-workstation` (simulated employee PC) · `swagpc-wazuh` (SIEM) · `swagpc-suricata` (IDS) — all 100% Docker, no VMs required.
 
 **Attack (undefended):** guest-network reconnaissance · host discovery · service enumeration · access to internal DVWA application · controlled web application attack · attempted access toward business resources.
 
@@ -158,9 +158,9 @@ Roles are coordination hats — **every member does hands-on technical work**.
 
 | **Member** | **GitHub** | **Role**                    |
 | ---------- | ---------- | --------------------------- |
-| *Name*     | *@handle*  | Project Lead                |
-| *Name*     | *@handle*  | System Architect            |
-| *Name*     | *@handle*  | Security-Documentation Lead |
+| Ant Huynh | [@UiwAntHuynhCIS](https://github.com/UiwAntHuynhCIS) | Project Lead |
+| Sebastian Cadena | [@bash-y](https://github.com/bash-y) | System Architect |
+| joromanii | [@joromanii](https://github.com/joromanii) | Security-Documentation Lead |
 
 ### Example technical responsibilities
 
@@ -194,10 +194,10 @@ Contribution % = a member's story points ÷ team total story points. **This tabl
 
 | **Member**     | **Story points** | **Contribution %** | **Key contributions (link issues/PRs)**               |
 | -------------- | ---------------: | -----------------: | ----------------------------------------------------- |
-| *Name*         |              *0* |               *0%* | *e.g. #12 pfSense segmentation, #18 firewall testing* |
-| *Name*         |              *0* |               *0%* | *e.g. #14 Kali/DVWA attack, #21 endpoint hardening*   |
-| *Name*         |              *0* |               *0%* | *e.g. #16 monitoring, #24 verification testing*       |
-| **Team total** |          ***0*** |           **100%** |                                                       |
+| Ant Huynh (`@UiwAntHuynhCIS`) | 18 | 33.3% | #42 US-1 Setup, #44 US-3 pfSense Dual-VLAN Architecture, #49 US-8 pfSense Segmentation, #53 US-12 Docs & Evidence |
+| Sebastian Cadena (`@bash-y`) | 18 | 33.3% | #43 US-2 Proposal & Topology, #45 US-4 Business Server & PC, #50 US-9 Windows Endpoint Hardening, #54 US-13 Presentation & Demo |
+| joromanii (`@joromanii`) | 18 | 33.3% | #46 US-5 DVWA & Kali Attacker, #47 US-6 Reconnaissance, #48 US-7 Web Exploit & Pivot, #51 US-10 App Security, #52 US-11 Wazuh Monitoring |
+| **Team total** | **54** | **100%** | Backlog balanced across 13 User Stories (#42–#54) |
 
 **Story points:** 1, 2, 3, 5, or 8 only.
 

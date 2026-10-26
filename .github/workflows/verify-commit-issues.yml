@@ -1,0 +1,49 @@
+name: Verify Commit Issues & Stories
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+jobs:
+  check-commit-messages:
+    name: Check Commit Messages for Issue Links
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate commit messages
+        run: |
+          echo "Verifying commits reference a User Story or Issue Number..."
+          COMMITS=$(git log origin/main..HEAD --oneline)
+          
+          # If testing on push directly
+          if [ -z "$COMMITS" ]; then
+            COMMITS=$(git log -1 --oneline)
+          fi
+          
+          FAILED=0
+          while IFS= read -r line; do
+            # Skip merge commits
+            if echo "$line" | grep -qE "Merge|Revert"; then
+              continue
+            fi
+            
+            if ! echo "$line" | grep -qE "(US-[0-9]+|#[0-9]+)"; then
+              echo "::error ::Commit does not reference a User Story or Issue: $line"
+              echo "  -> Expected format: US-<number> #<issue>: <description>"
+              FAILED=1
+            else
+              echo "::notice ::Valid commit: $line"
+            fi
+          done <<< "$COMMITS"
+          
+          if [ $FAILED -ne 0 ]; then
+            echo "One or more commits failed the issue-linking requirement."
+            exit 1
+          fi
+          echo "All commits properly linked to issues and user stories!"
