@@ -433,7 +433,10 @@ def send(url: str, body: dict) -> None:
             if err.code == 429 and attempt < 2:
                 time.sleep(float(json.loads(err.read() or b"{}").get("retry_after", 1)))
                 continue
-            sys.exit(f"Discord rejected the message: HTTP {err.code} {err.read()[:300]!r}")
+            hint = {401: " The webhook token is wrong; copy the URL again from Discord.",
+                    404: " Discord has no such webhook: it was deleted, or the URL is incomplete."
+                         " Copy it again with Discord's 'Copy Webhook URL' button."}.get(err.code, "")
+            sys.exit(f"Discord rejected the message: HTTP {err.code} {err.read()[:300]!r}.{hint}")
 
 
 def deliver(body: dict | None, webhook: str | None, dry_run: bool) -> int:
