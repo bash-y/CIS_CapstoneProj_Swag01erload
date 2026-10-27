@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SwagPc Café — Capstone Presentation</title>
+
+  <!-- reveal.js 4.6.1 (CDN). Open this file in any browser to present.
+       Press 'S' for speaker notes, 'F' for fullscreen, 'ESC' for overview. -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reset.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/black.min.css" id="theme">
+
+  <style>
+    :root { --swag: #4fc3f7; --ok: #66bb6a; --warn: #ffb74d; --bad: #ef5350; }
+    .reveal h1, .reveal h2, .reveal h3 { color: var(--swag); text-transform: none; letter-spacing: -0.01em; }
+    .reveal section { font-size: 0.82em; }
+    .reveal table { font-size: 0.72em; }
+    .reveal table th { color: var(--swag); }
+    .reveal .lead { color: #e0e0e0; }
+    .reveal .tag { display:inline-block; padding:2px 10px; border-radius:12px; font-size:0.6em; margin:2px; }
+    .reveal .t-build { background:#1565c0; } .reveal .t-attack { background:#b71c1c; }
+    .reveal .t-defend { background:#2e7d32; } .reveal .t-verify { background:#6a1b9a; }
+    .reveal .ok { color: var(--ok); } .reveal .warn { color: var(--warn); } .reveal .bad { color: var(--bad); }
+    .reveal .muted { color:#9e9e9e; font-size:0.75em; }
+    .reveal .cols { display:flex; gap:1.2em; align-items:flex-start; }
+    .reveal .cols > div { flex:1; }
+    .reveal .box { background:rgba(255,255,255,0.06); border-left:3px solid var(--swag); padding:0.5em 0.8em; border-radius:4px; }
+    .reveal .footer { position:fixed; bottom:8px; left:14px; font-size:12px; color:#607d8b; }
+    .reveal section img { border:none; box-shadow:none; }
+  </style>
+</head>
+<body>
+<div class="reveal"><div class="slides">
+
+  <!-- 1. Title -->
+  <section>
+    <h1>SwagPc Café</h1>
+    <h3 class="lead">Securing a Small-Business Network: Attack &amp; Defense</h3>
+    <p class="muted">CIS 3353 — Infrastructure Security Capstone</p>
+    <p><span class="tag t-build">Build</span><span class="tag t-attack">Attack</span><span class="tag t-defend">Defend</span><span class="tag t-verify">Verify</span></p>
+    <aside class="notes">
+      Welcome. We're SwagPc Café. We built a small-business network, attacked it like a real intruder would,
+      then layered defenses and defined how we prove each one works. This deck follows Build → Attack → Defend → Verify.
+    </aside>
+  </section>
+
+  <!-- 2. Team & ownership -->
+  <section>
+    <h2>Team &amp; Ownership</h2>
+    <table>
+      <tr><th>Member (GitHub)</th><th>Primary focus</th></tr>
+      <tr><td><b>bash-y</b> (Sebastian Cadena)</td><td>Proposal &amp; test matrix, endpoint hardening, business server, presentation</td></tr>
+      <tr><td><b>UiwAntHuynhCIS</b></td><td>Topology, workstation deployment, protocol hardening, demo video</td></tr>
+      <tr><td><b>joromanii</b></td><td>Module mapping, sample data, verification testing, dry-run</td></tr>
+    </table>
+    <p class="muted">Individual-commit policy: each member commits their own assigned user stories for clear, verifiable attribution.</p>
+    <aside class="notes">
+      We used an individual-commit workflow so every story maps to the person who did it. Roles here reflect
+      each member's assigned subtasks on the GitHub board, which is our single source of truth.
+    </aside>
+  </section>
+
+  <!-- 3. Scenario & problem -->
+  <section>
+    <h2>Scenario &amp; Problem</h2>
+    <div class="cols">
+      <div>
+        <p class="lead"><b>SwagPc Café</b> offers free guest Wi-Fi while running employee workstations and a Linux business server on the <i>same flat network</i>.</p>
+        <div class="box">A guest-network attacker can enumerate internal hosts, exploit the café web app, and pivot to business resources — because nothing separates guests from the business.</div>
+      </div>
+      <div>
+        <p><b>Goal:</b> replicate the café, demonstrate the attack on the undefended network, apply defenses, and <b>re-run each attack to prove it is blocked, denied, or alerted.</b></p>
+      </div>
+    </div>
+    <aside class="notes">
+      The core problem is a flat network. Guest Wi-Fi and business systems share one broadcast domain, so a
+      coffee-shop visitor is one hop from customer data. Our job: show the risk, then close it measurably.
+    </aside>
+  </section>
+
+  <!-- 4. Topology / Build -->
+  <section>
+    <h2><span class="tag t-build">Build</span> Lab Topology</h2>
+    <table>
+      <tr><th>Segment</th><th>Hosts</th></tr>
+      <tr><td><b>Guest</b> — 192.168.10.0/24</td><td>Kali attacker (.50), firewall/router (.254)</td></tr>
+      <tr><td><b>Business</b> — 192.168.20.0/24</td><td>DVWA café web app (.10), Ubuntu business server (.20), employee workstation (.25), Wazuh SIEM (.100), dashboard (.101)</td></tr>
+    </table>
+    <p class="muted">Dockerized lab: pfSense modeled by Alpine+iptables router; Suricata IDS sniffs the gateway; all host ports bound to 127.0.0.1 (no LAN exposure). Entirely local and self-contained.</p>
+    <aside class="notes">
+      The whole environment is Docker containers on one host, split into two networks joined only by the
+      firewall/router — the pfSense stand-in. Nothing is exposed to the real LAN; attack traffic stays inside the lab.
+    </aside>
+  </section>
+
+  <!-- 5. Attack -->
+  <section>
+    <h2><span class="tag t-attack">Attack</span> Undefended Baseline</h2>
+    <table>
+      <tr><th>Step</th><th>Technique</th><th>Result on flat network</th></tr>
+      <tr><td>Recon</td><td><code>nmap</code> ping sweep + port scan of 192.168.20.0/24</td><td class="bad">Business hosts discovered</td></tr>
+      <tr><td>Exploit</td><td>DVWA command injection (<code>; cat /etc/passwd</code>)</td><td class="bad">Remote command execution</td></tr>
+      <tr><td>Pivot</td><td>Lateral movement to the employee workstation</td><td class="bad">Reaches customer order data</td></tr>
+    </table>
+    <p class="muted">Guest → Business traffic is fully routed; scans and web attacks proceed with <b>zero</b> detection.</p>
+    <aside class="notes">
+      From the guest network we scan, find the business subnet, pop the café web app via command injection,
+      and move laterally to the workstation holding order data. On the undefended build, nothing stops or even notices us.
+    </aside>
+  </section>
+
+  <!-- 6. Defenses overview -->
+  <section>
+    <h2><span class="tag t-defend">Defend</span> Four Layers (Defense-in-Depth)</h2>
+    <table>
+      <tr><th>#</th><th>Control</th><th>What it stops</th></tr>
+      <tr><td>1</td><td><b>Network segmentation</b> (pfSense/iptables): deny &amp; log Guest→Business</td><td>Recon &amp; pivot across subnets</td></tr>
+      <tr><td>2</td><td><b>Application hardening</b> (input validation, bind restrictions)</td><td>Web command injection</td></tr>
+      <tr><td>3</td><td><b>Endpoint hardening</b>: host firewall (authorized subnets), least-privilege, password policy</td><td>Direct access to the workstation</td></tr>
+      <tr><td>4</td><td><b>Monitoring</b>: Suricata IDS + Wazuh SIEM</td><td>Blindness — adds detection &amp; alerting</td></tr>
+    </table>
+    <aside class="notes">
+      No single control is enough, so we layer four. Segmentation is the big one — it severs the guest-to-business
+      path. The rest harden what's left and make sure if someone tries, we see it.
+    </aside>
+  </section>
+
+  <!-- 7. Defense detail: segmentation + endpoint (bash-y) -->
+  <section>
+    <h2><span class="tag t-defend">Defend</span> Segmentation &amp; Endpoint</h2>
+    <div class="cols">
+      <div>
+        <h3>Network (US-8)</h3>
+        <p>Firewall drops <b>and logs</b> all <code>192.168.10.0/24 → 192.168.20.0/24</code>. Established/return traffic still allowed.</p>
+      </div>
+      <div>
+        <h3>Endpoint (US-9)</h3>
+        <p>Workstation host firewall: inbound only from the <b>authorized Business subnet</b>; Guest dropped &amp; logged. Non-privileged <code>employee</code> account, root locked, 90-day / 12-char password policy.</p>
+      </div>
+    </div>
+    <p class="muted">Implemented as scripts in <code>defense/firewall/</code> and <code>defense/endpoint-hardening/</code>, with the Windows Defender / <code>secpol</code> equivalents documented for a real Windows host.</p>
+    <aside class="notes">
+      These are my (bash-y) stories. Segmentation blocks the subnet hop. On the endpoint, even if a packet arrives,
+      the host firewall only accepts authorized-subnet traffic, and the employee can't escalate to admin.
+    </aside>
+  </section>
+
+  <!-- 8. Verify approach + metrics -->
+  <section>
+    <h2><span class="tag t-verify">Verify</span> Measurable Criteria</h2>
+    <table>
+      <tr><th>Defense</th><th>Repeat attack</th><th>Pass metric</th></tr>
+      <tr><td>Segmentation</td><td><code>nmap -sn</code> from Kali</td><td>100% loss, 0 hosts up</td></tr>
+      <tr><td>Firewall logging</td><td>re-run blocked attempt</td><td>≥1 DROP log line</td></tr>
+      <tr><td>App hardening</td><td>injection payload</td><td>0 bytes / 403 / sanitized</td></tr>
+      <tr><td>Endpoint</td><td>probe workstation ports</td><td>filtered / refused</td></tr>
+      <tr><td>Monitoring</td><td>re-run scan + injection</td><td>alert within 60s</td></tr>
+    </table>
+    <p class="muted">Each defense is proven by replaying the <i>same</i> attack and measuring against a threshold. Full matrix: <code>wiki/Defense-Test-Matrix.md</code>.</p>
+    <aside class="notes">
+      Verification isn't "it looks fixed." Each control has a number: zero hosts up, a log line present, an alert
+      within sixty seconds. We re-run the exact attack and check the metric, capturing logs and screenshots as evidence.
+    </aside>
+  </section>
+
+  <!-- 9. Outcomes (HONEST status) -->
+  <section>
+    <h2>Expected Outcomes &amp; Status</h2>
+    <table>
+      <tr><th>Dimension</th><th>Before (undefended)</th><th>Target (defended)</th></tr>
+      <tr><td>Business reachability from Guest</td><td class="bad">hosts up, 0% loss</td><td class="ok">0 hosts up, 100% loss</td></tr>
+      <tr><td>Café web app</td><td class="bad">command execution</td><td class="ok">sanitized / 403</td></tr>
+      <tr><td>Detection</td><td class="bad">0 alerts</td><td class="ok">alert &lt; 60s</td></tr>
+    </table>
+    <p class="warn"><b>Status (honest):</b> designs &amp; configs are built and statically validated; <b>live before/after capture is pending the M2/M3 lab runs.</b> No result is claimed that has not been executed.</p>
+    <aside class="notes">
+      Here's where we're candid: the controls are written and validated, but we have not yet run the full live
+      before/after on the lab, so we present these as target outcomes, not measured results. We don't claim a pass we haven't earned.
+    </aside>
+  </section>
+
+  <!-- 10. Challenges / limitations -->
+  <section>
+    <h2>Challenges &amp; Honest Limitations</h2>
+    <ul>
+      <li>Employee "Windows PC" is an <b>Alpine container</b> → endpoint controls implemented as Linux equivalents; Windows Defender / GPO steps documented for a real host.</li>
+      <li>Firewall is <b>iptables standing in for pfSense</b> — rule intent is demonstrable, not the pfSense UI.</li>
+      <li>A few wiring gaps found &amp; tracked: firewall <code>LOG</code> rule, Suricata custom-rule mount, empty app/endpoint dirs (now being filled).</li>
+      <li>Docker Desktop instability slowed live runs during development.</li>
+    </ul>
+    <aside class="notes">
+      Being upfront about simulation choices strengthens the work. We name what's modeled vs. real, and the gaps
+      our own baseline review caught — which is exactly the kind of verification the course asks for.
+    </aside>
+  </section>
+
+  <!-- 11. Conclusion -->
+  <section>
+    <h2>Conclusion &amp; Next Steps</h2>
+    <div class="cols">
+      <div class="box">
+        <b>Takeaway:</b> a flat small-business network is one hop from compromise; layered, <i>measurable</i> defenses close the path and add visibility.
+      </div>
+      <div>
+        <p><b>Next:</b></p>
+        <ul>
+          <li>Run the live M2 attack baseline &amp; M3 defense verification</li>
+          <li>Capture before/after evidence into <code>evidence/</code></li>
+          <li>Rehearse the live demo + record the backup video</li>
+        </ul>
+      </div>
+    </div>
+    <p style="margin-top:0.6em;"><b>Questions?</b></p>
+    <aside class="notes">
+      Bottom line: segmentation plus endpoint, application, and monitoring layers turn an open café network into a
+      defensible one — and we prove it with numbers. Next we execute the live runs and rehearse. Happy to take questions.
+    </aside>
+  </section>
+
+</div></div>
+
+<div class="footer">SwagPc Café · CIS 3353 Capstone · Build → Attack → Defend → Verify</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/plugin/notes/notes.min.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    slideNumber: 'c/t',
+    transition: 'slide',
+    plugins: [ RevealNotes ]
+  });
+</script>
+</body>
+</html>
