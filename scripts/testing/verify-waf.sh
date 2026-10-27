@@ -30,8 +30,8 @@ echo "============================================="
 echo " SwagPc Café — WAF Verification (ModSecurity + OWASP CRS)"
 echo "============================================="
 
-# Reset DVWA's database through the WAF. Guest traffic to DVWA is blocked once routed.
-kali "rm -f $JAR; TK=\$(curl -s -c $JAR -b $JAR $WAF/setup.php | grep -o \"user_token' value='[^']*\" | sed \"s/.*value='//\"); curl -s -c $JAR -b $JAR -d \"create_db=Create+%2F+Reset+Database&user_token=\$TK\" $WAF/setup.php -o /dev/null" >/dev/null 2>&1
+# Reset DVWA's database from the host, the local admin path. Guest hosts are refused /setup.php at the WAF (#79).
+rm -f /tmp/verify-reset.txt; TK=$(curl -s -c /tmp/verify-reset.txt -b /tmp/verify-reset.txt http://127.0.0.1:8080/setup.php | grep -o "user_token' value='[^']*" | sed "s/.*value='//"); curl -s -c /tmp/verify-reset.txt -b /tmp/verify-reset.txt -d "create_db=Create+%2F+Reset+Database&user_token=$TK" http://127.0.0.1:8080/setup.php -o /dev/null >/dev/null 2>&1
 
 echo ""
 echo "[1] Proxying: login and page load through the WAF"
@@ -73,6 +73,12 @@ elif [ "$DIRECT_CODE" = "000" ] || [ "$DIRECT_CODE" = "403" ]; then
 else
   bad "direct access returned unexpected code $DIRECT_CODE"
 fi
+
+
+echo ""
+echo "[7] Admin pages are refused to Guest hosts at the WAF (#79)"
+SETUP=$(kali "curl -s --max-time 5 -o /dev/null -w '%{http_code}' '$WAF/setup.php'")
+if [ "$SETUP" = "403" ]; then ok "/setup.php refused to Guest through the WAF (403)"; else bad "/setup.php returned $SETUP to Guest"; fi
 
 echo ""
 echo "============================================="
