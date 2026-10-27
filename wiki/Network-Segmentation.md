@@ -32,7 +32,7 @@ The old bypass gap is closed by the layout, not by a firewall rule: DVWA has no 
 
 1. **No separate DB segment.** The lab's database is MySQL inside the DVWA image. Splitting DVWA from its DB needs a separate DB container, which the lab does not have.
 2. **Undefended scripts do not run on this layout.** `run-full-attack.sh`, `dvwa-exploit.sh` and `lateral-test.sh` target `192.168.20.10` and will fail. Use the WAF address for the web attacks.
-3. **The Guest network can still reach the WAF's other ports?** No. Only port 8080 is published by the WAF, and the firewall does not forward Guest traffic to the Business network.
+3. **Only port 8080 on the WAF is exposed.** The firewall does not forward Guest traffic to the Business network, so Guest hosts reach nothing else.
 4. **The DVWA admin port is still published on the host** as `127.0.0.1:8080`. That is for the local admin path only and is not reachable from the Guest network.
 
 ## Run it
