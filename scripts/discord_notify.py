@@ -86,6 +86,40 @@ def refs(*texts: str | None) -> list[str]:
     return seen
 
 
+def stack_order(prs: list[dict], default: str = "main") -> list[dict]:
+    """Order open PRs so each one is merged after the PR it is stacked on.
+
+    A PR is stacked when its base branch is another open PR's head branch. Returns
+    the PRs root-first, each with "after" set to the PR number it waits for (or None).
+    Cycles and unknown bases fall back to plain number order, so nothing is dropped.
+    """
+    by_head = {p["head"]: p for p in prs if p.get("head")}
+    after = {p["number"]: (by_head[p["base"]]["number"]
+                           if p.get("base") in by_head and p.get("base") != default else None)
+             for p in prs}
+    ordered, placed = [], set()
+    while len(ordered) < len(prs):
+        ready = [p for p in sorted(prs, key=lambda p: p["number"])
+                 if p["number"] not in placed and (after[p["number"]] is None or after[p["number"]] in placed)]
+        if not ready:  # cycle: place the rest by number rather than hide them
+            ready = [p for p in sorted(prs, key=lambda p: p["number"]) if p["number"] not in placed][:1]
+        for p in ready:
+            ordered.append({**p, "after": after[p["number"]]})
+            placed.add(p["number"])
+    return ordered
+
+
+def merge_order_lines(prs: list[dict]) -> list[str]:
+    """One line per stacked PR, in merge order. Empty when no PRs are stacked."""
+    if not any(p.get("after") for p in prs):
+        return []
+    lines = []
+    for i, p in enumerate(prs, 1):
+        wait = f" — after #{p['after']}" if p.get("after") else " — can merge now"
+        lines.append(f"{i}. #{p['number']} {short(p['title'], 60)}{wait}")
+    return lines
+
+
 def parse_time(stamp: str | None) -> datetime | None:
     return datetime.fromisoformat(stamp.replace("Z", "+00:00")) if stamp else None
 
@@ -166,6 +200,10 @@ def _pr_fields(pr: dict) -> list[tuple[str, str, bool]]:
                                   f"in {pr['changed_files']} files", True))
     if links:
         fields.append(("Linked", " ".join(links), True))
+    default = (pr.get("base") or {}).get("repo", {}).get("default_branch", "main")
+    if pr["base"]["ref"] != default:
+        fields.append(("Merge order", f"Stacked: based on `{pr['base']['ref']}`. "
+                                      f"Merge after the PR for that branch.", False))
     return fields
 
 
@@ -286,6 +324,7 @@ def collect(gh, now: datetime, days: int, weekly: bool) -> dict:
         decision = lib.review_decision(gh.get(f"/pulls/{pr['number']}/reviews"))
         open_prs.append({"number": pr["number"], "title": pr["title"], "url": pr["html_url"],
                          "login": pr["user"]["login"], "draft": pr.get("draft", False),
+                         "head": pr["head"]["ref"], "base": pr["base"]["ref"],
                          "created_at": pr["created_at"], "updated_at": pr["updated_at"],
                          "reviewers": [r["login"] for r in pr.get("requested_reviewers", [])],
                          "decision": decision})
@@ -441,6 +480,11 @@ def build_catchup(data: dict) -> dict:
     embeds.append(embed(f"🆕 Pull requests opened ({len(opened)})", f"{REPO_URL}/pulls", BLUE,
                         "\n".join(opened[:15]) + (f"\n…and {len(opened) - 15} more" if len(opened) > 15 else "")
                         or "None."))
+    order = merge_order_lines(stack_order(data["open_prs"]))
+    if order:
+        embeds.append(embed("🧱 Merge order: stacked pull requests", f"{REPO_URL}/pulls", AMBER,
+                            "Merge these in this order. Each one is based on the one above it, so merging out of "
+                            "order leaves conflicts.\n" + "\n".join(order[:15])))
     return payload(embeds)
 
 

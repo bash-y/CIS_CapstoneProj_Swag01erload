@@ -290,3 +290,51 @@ class Delivery(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def stacked(number, head, base, title=None):
+    return {"number": number, "title": title or f"PR {number}", "url": "u", "login": "bash-y", "draft": False,
+            "created_at": iso(NOW), "updated_at": iso(NOW), "reviewers": [], "decision": "REVIEW_REQUIRED",
+            "head": head, "base": base}
+
+
+class StackOrder(unittest.TestCase):
+    def test_chain_is_ordered_root_first_whatever_the_input_order(self):
+        prs = [stacked(88, "waf-admin-restrict", "waf-route-only"),
+               stacked(75, "waf-route-only", "waf-23-24"),
+               stacked(73, "waf-23-24", "main")]
+        order = dn.stack_order(prs)
+        self.assertEqual([p["number"] for p in order], [73, 75, 88])
+        self.assertEqual([p["after"] for p in order], [None, 73, 75])
+
+    def test_unstacked_prs_are_merge_now_and_no_lines_are_added(self):
+        prs = [stacked(58, "us9-endpoint-firewall", "main"), stacked(59, "us9-least-privilege", "main")]
+        self.assertEqual(dn.merge_order_lines(dn.stack_order(prs)), [])
+
+    def test_cycle_keeps_every_pr(self):
+        prs = [stacked(1, "a", "b"), stacked(2, "b", "a")]
+        order = dn.stack_order(prs)
+        self.assertEqual(sorted(p["number"] for p in order), [1, 2])
+
+    def test_catchup_adds_merge_order_embed_only_when_stacked(self):
+        data = digest_data()
+        self.assertEqual(len(dn.build_catchup(data)["embeds"]), 3)
+        data["open_prs"] = [stacked(73, "waf-23-24", "main", "WAF build"),
+                            stacked(75, "waf-route-only", "waf-23-24", "Routing")]
+        embeds = dn.build_catchup(data)["embeds"]
+        self.assertEqual(len(embeds), 4)
+        self.assertIn("Merge order", embeds[3]["title"])
+        self.assertIn("1. #73 WAF build — can merge now", embeds[3]["description"])
+        self.assertIn("2. #75 Routing — after #73", embeds[3]["description"])
+
+    def test_live_event_says_when_a_pr_is_stacked(self):
+        ev = {"action": "opened", "pull_request": pr(75, head={"ref": "waf-route-only"},
+                                                    base={"ref": "waf-23-24", "repo": {"default_branch": "main"}})}
+        fields = {f["name"]: f["value"] for f in dn.on_pull_request(ev)[0]["fields"]}
+        self.assertIn("Merge order", fields)
+        self.assertIn("based on `waf-23-24`", fields["Merge order"])
+
+    def test_live_event_on_main_has_no_merge_order_field(self):
+        ev = {"action": "opened", "pull_request": pr(58, base={"ref": "main", "repo": {"default_branch": "main"}})}
+        names = [f["name"] for f in dn.on_pull_request(ev)[0]["fields"]]
+        self.assertNotIn("Merge order", names)
