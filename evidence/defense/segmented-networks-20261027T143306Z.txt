@@ -1,0 +1,21 @@
+# Three-segment layout (issue #8), captured 20261027T143306Z
+
+## Networks and addresses
+swagpc-kali: guest-net=192.168.10.50 
+swagpc-waf: app-net=192.168.30.2 guest-net=192.168.10.15 
+swagpc-dvwa: app-net=192.168.30.10 
+swagpc-firewall: business-net=192.168.20.254 guest-net=192.168.10.254 
+
+## Kali route table
+default via 192.168.10.1 dev eth0 
+192.168.10.0/24 dev eth0 proto kernel scope link src 192.168.10.50 
+192.168.20.0/24 via 192.168.10.254 dev eth0 
+
+## Reachability from Kali (guest)
+WAF 192.168.10.15:8080 -> 200
+DVWA 192.168.30.10:80 -> 000
+DVWA 192.168.20.10:80 -> 000
+DVWA MySQL 192.168.30.10:3306 -> unreachable
+
+## Proxy path WAF -> DVWA
+WAF -> dvwa:80 -> 200

@@ -13,8 +13,12 @@
 #   6. Direct access to DVWA on 192.168.20.10 is blocked (run route-waf-only.sh apply).
 #      Reported as a known gap if it is still reachable.
 
-WAF="http://192.168.20.15:8080"
-DIRECT="http://192.168.20.10"
+# Addresses default to the undefended layout. The three-segment layout (#8) sets
+# WAF_IP=192.168.10.15 and DIRECT_IP=192.168.30.10.
+WAF_IP="${WAF_IP:-192.168.20.15}"
+DIRECT_IP="${DIRECT_IP:-192.168.20.10}"
+WAF="http://${WAF_IP}:8080"
+DIRECT="http://${DIRECT_IP}"
 JAR="/tmp/verify-waf-cookies.txt"
 PASS=0
 FAIL=0
