@@ -224,6 +224,20 @@ class Digest(unittest.TestCase):
         self.assertTrue(any("CI health" in t for t in titles))
         self.assertIn("Weekly digest", titles[0])
 
+    def test_catchup_lists_recent_work_newest_first(self):
+        data = digest_data()
+        data["commits"][0]["date"] = iso(NOW - timedelta(hours=5))
+        data["commits"][1]["date"] = iso(NOW - timedelta(hours=1))
+        body = dn.build_catchup(data)
+        size_ok(self, body)
+        commits = body["embeds"][0]["description"].splitlines()
+        self.assertIn("dockerworkv1", commits[0])          # newest first
+        self.assertIn("⚠️", commits[0])                     # unlinked flagged
+        self.assertIn("Sebastian Cadena", commits[1])
+        self.assertIn("#61 Deck", body["embeds"][1]["description"])
+        self.assertIn("#60", body["embeds"][2]["description"])   # opened 5h ago
+        self.assertNotIn("#58", body["embeds"][2]["description"])  # opened 5 days ago
+
     def test_quiet_week_still_renders(self):
         data = digest_data()
         data.update(commits=[], open_prs=[], merged=[], closed=[], milestones=[])

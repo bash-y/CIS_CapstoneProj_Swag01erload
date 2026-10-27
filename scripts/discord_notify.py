@@ -4,6 +4,7 @@
 Usage:
   python3 scripts/discord_notify.py event                   # in Actions: post the current GitHub event
   python3 scripts/discord_notify.py digest daily|weekly     # post an insight digest
+  python3 scripts/discord_notify.py catchup [weekly]        # post recent commits/PRs to the updates channel
   python3 scripts/discord_notify.py test                    # post a hello message to check a webhook
   Add --dry-run to print the Discord payload instead of sending it.
 
@@ -277,7 +278,8 @@ def collect(gh, now: datetime, days: int, weekly: bool) -> dict:
             if len(c.get("parents", [])) < 2:
                 commits.setdefault(c["sha"], {"sha": c["sha"], "branch": name,
                                               "login": (c.get("author") or {}).get("login"),
-                                              "message": c["commit"]["message"], "url": c["html_url"]})
+                                              "message": c["commit"]["message"], "url": c["html_url"],
+                                              "date": c["commit"]["author"]["date"]})
 
     open_prs = []
     for pr in gh.get_all("/pulls", state="open"):
@@ -417,6 +419,31 @@ def build_digest(data: dict) -> dict:
     return payload(embeds)
 
 
+def build_catchup(data: dict) -> dict:
+    """Recent activity in the live-updates style, for filling a new channel or after downtime."""
+    now = parse_time(data["now"])
+    span = "last 24 hours" if data["days"] == 1 else f"last {data['days']} days"
+    commits = sorted(data["commits"], key=lambda c: c.get("date") or "", reverse=True)  # newest first
+    lines = [f"[`{c['sha'][:7]}`]({c['url']}) {short(first_line(c['message']), 60)} — "
+             f"{MEMBERS.get(c['login'], c['login'] or '?')} · `{c['branch']}`"
+             + ("" if linked(c["message"]) else "  ⚠️") for c in commits[:15]]
+    if len(commits) > 15:
+        lines.append(f"…and {len(commits) - 15} more")
+    embeds = [embed(f"📬 Catch-up: {len(commits)} commits in the {span}", f"{REPO_URL}/commits", GREEN,
+                    "\n".join(lines) or "No commits.",
+                    footer="⚠️ = not linked to a user story or issue" if any("⚠️" in ln for ln in lines) else None)]
+    merged = [f"#{p['number']} {short(p['title'], 70)} — {MEMBERS.get(p['login'], p['login'])}" for p in data["merged"]]
+    embeds.append(embed(f"🟣 Merged pull requests ({len(merged)})", f"{REPO_URL}/pulls?q=is%3Amerged", PURPLE,
+                        "\n".join(merged[:15]) or "None."))
+    fresh = [p for p in data["open_prs"] if now - parse_time(p["created_at"]) <= timedelta(days=data["days"])]
+    opened = [f"[#{p['number']}]({p['url']}) {short(p['title'], 60)} — {MEMBERS.get(p['login'], p['login'])}"
+              for p in sorted(fresh, key=lambda p: p["created_at"])]
+    embeds.append(embed(f"🆕 Pull requests opened ({len(opened)})", f"{REPO_URL}/pulls", BLUE,
+                        "\n".join(opened[:15]) + (f"\n…and {len(opened) - 15} more" if len(opened) > 15 else "")
+                        or "None."))
+    return payload(embeds)
+
+
 # ----------------------------------------------------------------------------- sending
 
 def send(url: str, body: dict) -> None:
@@ -460,7 +487,7 @@ def deliver(body: dict | None, webhook: str | None, dry_run: bool) -> int:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("mode", choices=("event", "digest", "test"))
+    ap.add_argument("mode", choices=("event", "digest", "catchup", "test"))
     ap.add_argument("period", nargs="?", choices=("daily", "weekly"), default="daily")
     ap.add_argument("--dry-run", action="store_true", help="print the payload instead of sending it")
     ap.add_argument("--event-name", default=os.environ.get("GITHUB_EVENT_NAME"))
@@ -485,6 +512,9 @@ def main(argv: list[str] | None = None) -> int:
     import generate_dashboard as gen
     gh = gen.GitHub(gen.find_repo(args.repo), gen.find_token())
     weekly = args.period == "weekly"
+    if args.mode == "catchup":
+        data = collect(gh, datetime.now(timezone.utc), 7 if weekly else 1, False)
+        return deliver(build_catchup(data), live, args.dry_run)
     data = collect(gh, datetime.now(timezone.utc), 7 if weekly else 1, weekly)
     return deliver(build_digest(data), digest_hook, args.dry_run)
 
