@@ -104,6 +104,33 @@ The result page is also saved as HTML in [`evidence/attack/dvwa-cmdi-response.ht
 
 ---
 
+## Attack 4: SQL injection (DVWA)
+
+**Objective:** Read data the application should not expose, from the `users` table, through the vulnerable `id` parameter.
+
+**Target:** DVWA SQL injection page, `http://192.168.20.10/vulnerabilities/sqli/`, parameter `id`.
+
+**Preconditions:** Lab preconditions above, **including the DVWA database initialized** and a logged-in session (the page needs login). The security level is `low`.
+
+**Procedure** (`scripts/attack/sqli-exploit.sh`, repeatable):
+1. Log in as `admin` / `password`.
+2. Baseline query `id=1`. Expect one row.
+3. Boolean injection `id=1' OR '1'='1`. Expect every user.
+4. UNION injection `id=1' UNION SELECT user,password FROM users#`. Expect every username with its password hash.
+
+**Expected (undefended):** The baseline returns one row. The boolean and UNION payloads return every user. The UNION returns the password hash column.
+
+**Actual (2026-10-27):**
+- Baseline: one row, `admin`. Pass.
+- Boolean: all five users returned (`admin`, `Gordon Brown`, `Hack Me`, `Pablo Picasso`, `Bob Smith`). Pass.
+- UNION: all five usernames returned with their password hashes. Pass. Each hash is an unsalted MD5. The `admin` hash is the MD5 of `password`, DVWA's default.
+
+**Evidence:** [`evidence/attack/sqli-run-20261027T060230Z.txt`](../evidence/attack/sqli-run-20261027T060230Z.txt) (the full script run, with timestamp). The boolean and UNION outputs are printed in that run.
+
+**Repeat after defenses:** Re-run `sqli-exploit.sh` after an application-layer fix. The injected rows should no longer appear. This is the re-test for Defense Test Matrix row 4.
+
+---
+
 ## What this shows
 
 On the undefended build, a host on the Guest network reaches the business subnet, enumerates the café web server, and gets `/etc/passwd` through the injection. The workstation answers ping, so it is reachable even though it exposes no services. Each of these is the baseline that the defenses are re-tested against in [`wiki/Defense-Test-Matrix.md`](Defense-Test-Matrix.md).
@@ -111,4 +138,4 @@ On the undefended build, a host on the Guest network reaches the business subnet
 ## Gaps in this write-up
 
 - **Screenshots** are not included. The captured terminal output is the evidence for now. Screenshots of the DVWA response can be added on request.
-- **SQL injection** (#6) is not documented here. It has no script and no evidence yet.
+- **Screenshots of the SQL injection** are not included. The captured terminal output in the run file is the evidence.
