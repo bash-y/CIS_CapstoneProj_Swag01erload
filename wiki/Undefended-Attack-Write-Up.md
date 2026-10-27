@@ -69,6 +69,15 @@
 
 **Evidence:** [`evidence/attack/undefended-validation-20261027T055623Z.md`](../evidence/attack/undefended-validation-20261027T055623Z.md), section *Update*. Raw HTTP output of the reachability check is in the run file, section *ATTACK 2*.
 
+**Screenshots** (captured 2026-10-27 on the undefended lab):
+
+| | |
+|---|---|
+| ![DVWA login page](../evidence/attack/dvwa-login-page.png) | ![Command injection result: /etc/passwd returned](../evidence/attack/dvwa-cmdi-result.png) |
+| DVWA login page at `http://192.168.20.10/login.php` | Command-injection result after logging in as `admin` (security level `low`). The response shows the ping output followed by `/etc/passwd`, including `root:x:0:0`. |
+
+The result page is also saved as HTML in [`evidence/attack/dvwa-cmdi-response.html`](../evidence/attack/dvwa-cmdi-response.html), so the screenshot can be regenerated.
+
 **Caveat:** `run-full-attack.sh` does not perform the database reset or log in with the DVWA token, so its web step still fails on a fresh lab. This is tracked in [#48](https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/48).
 
 ---
