@@ -11,6 +11,8 @@ docker exec swagpc-firewall sh -c "
   iptables -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
 
   # BLOCK & LOG: Guest Subnet (192.168.10.0/24) to Business Subnet (192.168.20.0/24)
+  # LOG first, so every denied attempt is recorded before it is dropped (US-8, #76).
+  iptables -A FORWARD -s 192.168.10.0/24 -d 192.168.20.0/24 -j LOG --log-prefix 'FW-DROP-GUEST: ' --log-level 4
   iptables -A FORWARD -s 192.168.10.0/24 -d 192.168.20.0/24 -j DROP
 
   # Allow other forward traffic
