@@ -166,17 +166,19 @@
 
   <!-- 9. Outcomes (HONEST status) -->
   <section>
-    <h2>Expected Outcomes &amp; Status</h2>
+    <h2>Outcomes &amp; Status</h2>
     <table>
-      <tr><th>Dimension</th><th>Before (undefended)</th><th>Target (defended)</th></tr>
-      <tr><td>Business reachability from Guest</td><td class="bad">hosts up, 0% loss</td><td class="ok">0 hosts up, 100% loss</td></tr>
-      <tr><td>Café web app</td><td class="bad">command execution</td><td class="ok">sanitized / 403</td></tr>
-      <tr><td>Detection</td><td class="bad">0 alerts</td><td class="ok">alert &lt; 60s</td></tr>
+      <tr><th>Dimension</th><th>Before (undefended)</th><th>Target (defended)</th><th>Result</th></tr>
+      <tr><td>Business reachability from Guest</td><td class="bad">hosts up, 0% loss</td><td class="ok">0 hosts up, 100% loss</td><td class="ok">✅ Verified 2026-10-27 — 100% loss; HTTP timed out</td></tr>
+      <tr><td>Café web app</td><td class="bad">command execution</td><td class="ok">sanitized / 403</td><td class="warn">pending — control not yet built</td></tr>
+      <tr><td>Detection</td><td class="bad">0 alerts</td><td class="ok">alert &lt; 60s</td><td class="warn">pending — IDS blocked by config bug</td></tr>
     </table>
-    <p class="warn"><b>Status (honest):</b> designs &amp; configs are built and statically validated; <b>live before/after capture is pending the M2/M3 lab runs.</b> No result is claimed that has not been executed.</p>
+    <p><span class="ok"><b>Verified:</b> network segmentation is live-proven (2026-10-27) — Guest→Business fully reachable before, <b>100% blocked</b> (ICMP + TCP) after.</span> <span class="warn"><b>Honest status:</b> the other layers are built/designed but their live verification is still pending (app hardening not yet implemented; IDS blocked by a Suricata start-up bug). No unearned pass is claimed.</span></p>
     <aside class="notes">
-      Here's where we're candid: the controls are written and validated, but we have not yet run the full live
-      before/after on the lab, so we present these as target outcomes, not measured results. We don't claim a pass we haven't earned.
+      The headline is proven: we ran the attack, applied segmentation, and re-ran it — Guest-to-Business went from
+      fully reachable to 100% blocked, confirmed by ping, curl and nc. Evidence is committed under evidence/verification.
+      We're candid that the remaining layers aren't live-verified yet: app hardening isn't built, and the IDS test is
+      blocked by a compose config bug we've reported. We only claim the pass we actually earned.
     </aside>
   </section>
 
