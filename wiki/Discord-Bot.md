@@ -42,6 +42,12 @@ python3 scripts/discord_notify.py test --dry-run
 python3 -m unittest tests.test_discord_notify -v
 ```
 
+To fill a new or quiet `#swagpc-updates` channel with recent work (last 24 hours, or `weekly` for 7 days), export the webhook in your terminal and run:
+
+```bash
+python3 scripts/discord_notify.py catchup
+```
+
 ## Safety notes
 
 - The notify workflow always runs the notifier code from `main`, so a branch or pull request cannot change the code that receives the webhook secret.
