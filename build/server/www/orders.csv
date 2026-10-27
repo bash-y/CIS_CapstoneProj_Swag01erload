@@ -1,0 +1,6 @@
+OrderID,Date,Item,Qty,UnitPrice,Total
+5001,2026-10-20,Latte,2,4.50,9.00
+5002,2026-10-20,Cold Brew,1,5.00,5.00
+5003,2026-10-21,Espresso,3,3.00,9.00
+5004,2026-10-21,Blueberry Muffin,2,3.25,6.50
+5005,2026-10-22,Cappuccino,1,4.75,4.75

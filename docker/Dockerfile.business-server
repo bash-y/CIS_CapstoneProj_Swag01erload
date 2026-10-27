@@ -1,0 +1,18 @@
+# Dockerfile.business-server
+# US-4 (#45) — SwagPc Café internal Ubuntu business server.
+# Content is baked into the image (COPY) rather than bind-mounted, so the
+# service needs no host file-sharing config and runs portably on Docker
+# Desktop (macOS/Windows) and Linux alike.
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update -qq \
+ && apt-get install -y -qq --no-install-recommends python3 curl ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /srv/business
+# Build context is the repo root (see docker-compose.yml build.context).
+COPY build/server/www/ /srv/business/
+
+EXPOSE 80
+CMD ["python3", "-m", "http.server", "80"]

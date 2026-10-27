@@ -69,6 +69,26 @@ services:
     restart: unless-stopped
 
   # ─────────────────────────────────────────────────────────────────
+  # BUSINESS SERVER — Ubuntu internal operations server (US-4)
+  # Business Network / 192.168.20.20. Hosts internal café business
+  # services (operations portal + orders export). Distinct from the
+  # public-facing, intentionally-vulnerable DVWA web app above.
+  # ─────────────────────────────────────────────────────────────────
+  business-server:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.business-server
+    image: swagpc-business-server:latest
+    container_name: swagpc-business-server
+    hostname: swagpc-bizsrv
+    ports:
+      - "127.0.0.1:8090:80"   # localhost-only inspection of the business portal
+    networks:
+      business-net:
+        ipv4_address: 192.168.20.20
+    restart: unless-stopped
+
+  # ─────────────────────────────────────────────────────────────────
   # EMPLOYEE WORKSTATION — Business Network (192.168.20.25)
   # ─────────────────────────────────────────────────────────────────
   workstation:
