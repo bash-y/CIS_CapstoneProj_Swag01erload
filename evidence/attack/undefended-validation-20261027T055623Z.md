@@ -33,3 +33,11 @@
 ## Verdict
 
 Recon, web reachability and lateral ping are validated on the undefended build. Command injection is **not validated**: the step runs but returns nothing because the DVWA database is not initialized.
+
+## Update: command injection validated after DVWA database reset
+
+- Ran DVWA's own "Create / Reset Database" step once in the lab (`setup.php`, POST `create_db`). It returned 302.
+- Login with `admin` / `password` then succeeded (302 to `index.php`, logout link present).
+- Same payload as the attack script, `ip=127.0.0.1;cat+/etc/passwd`, from the logged-in session returned HTTP 200 with `root:x:0:0:root:/root:/bin/bash` in the response.
+- **Result: PASS.** Command injection works on the undefended build once the database is initialized.
+- **Gap that remains:** `run-full-attack.sh` does not reset the database or log in with the DVWA token, so on a fresh lab its web step will still return nothing. Fix this in US-7 (#48), or add the reset as a lab setup step.
