@@ -6,8 +6,8 @@
     "description": "A lab that replicates a small café network and walks Build -> Attack -> Defend: a guest-network compromise and web-app attack against an undefended build, then segmentation, firewall, endpoint and monitoring defenses, each verified by re-running the attack."
   },
   "members": [
-    { "github": "bash-y", "name": "Sebastian Cadena", "role": "Project Lead" },
-    { "github": "UiwAntHuynhCIS", "name": "Ant Huynh", "role": "System Architect" },
+    { "github": "bash-y", "name": "Sebastian Cadena", "role": "System Architect" },
+    { "github": "UiwAntHuynhCIS", "name": "Ant Huynh", "role": "Project Lead" },
     { "github": "joromanii", "name": "Jo Romani", "role": "Security-Documentation Lead" }
   ],
   "layers": [
