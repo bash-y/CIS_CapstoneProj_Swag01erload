@@ -245,6 +245,17 @@ class Delivery(unittest.TestCase):
         self.assertIn("No Discord webhook configured", out)
         send.assert_not_called()
 
+    def test_malformed_webhook_fails_clearly_without_echoing_it(self):
+        bad = 'read -rsp "Paste the DIGEST webhook'
+        with self.assertRaises(SystemExit) as stop:
+            self.run_main(["test"], {"DISCORD_WEBHOOK_URL": bad})
+        self.assertIn("not a Discord webhook URL", str(stop.exception))
+        self.assertNotIn(bad, str(stop.exception))
+
+    def test_real_webhook_shape_is_accepted(self):
+        _, _, send = self.run_main(["test"], {"DISCORD_WEBHOOK_URL": " https://discord.com/api/webhooks/123/abc-DEF_9 "})
+        self.assertEqual(send.call_args[0][0], "https://discord.com/api/webhooks/123/abc-DEF_9")
+
     def test_dry_run_prints_and_never_sends(self):
         code, out, send = self.run_main(["test", "--dry-run"], {"DISCORD_WEBHOOK_URL": "https://example.invalid/hook"})
         self.assertEqual(json.loads(out)["username"], dn.BOT_NAME)
@@ -255,12 +266,12 @@ class Delivery(unittest.TestCase):
             json.dump({"action": "opened", "issue": issue()}, fh)
         try:
             code, _, send = self.run_main(["event"], {"GITHUB_EVENT_NAME": "issues", "GITHUB_EVENT_PATH": fh.name,
-                                                      "DISCORD_WEBHOOK_URL": "https://example.invalid/hook"})
+                                                      "DISCORD_WEBHOOK_URL": "https://discord.com/api/webhooks/1/x"})
         finally:
             os.unlink(fh.name)
         self.assertEqual(code, 0)
         send.assert_called_once()
-        self.assertEqual(send.call_args[0][0], "https://example.invalid/hook")
+        self.assertEqual(send.call_args[0][0], "https://discord.com/api/webhooks/1/x")
 
 
 if __name__ == "__main__":

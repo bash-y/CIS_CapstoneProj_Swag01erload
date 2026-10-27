@@ -48,6 +48,7 @@ GREEN, PURPLE, RED, BLUE, AMBER, GREY, LIME = 0x2ECC71, 0x8957E5, 0xE74C3C, 0x34
 # Same rule as .github/workflows/verify-commit-issues.yml.
 LINK = re.compile(r"US-[0-9]+|#[0-9]+")
 SKIP = re.compile(r"Merge|Revert")
+WEBHOOK = re.compile(r"^https://(?:ptb\.|canary\.)?discord(?:app)?\.com/api/webhooks/\d+/[\w-]+$")
 
 MAX_LINES = 10
 STALE_DAYS = 3
@@ -445,7 +446,11 @@ def deliver(body: dict | None, webhook: str | None, dry_run: bool) -> int:
     if not webhook:
         print("No Discord webhook configured (set the DISCORD_WEBHOOK_URL secret); skipping.")
         return 0
-    send(webhook, body)
+    if not WEBHOOK.match(webhook.strip()):
+        # Never echo the value: it may be a real webhook pasted with stray text.
+        sys.exit("The Discord webhook setting is not a Discord webhook URL "
+                 "(expected https://discord.com/api/webhooks/...). Set it again.")
+    send(webhook.strip(), body)
     print(f"Posted {len(body['embeds'])} embed(s) to Discord.")
     return 0
 
