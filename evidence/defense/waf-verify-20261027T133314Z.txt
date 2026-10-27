@@ -1,0 +1,27 @@
+=============================================
+ SwagPc Café — WAF Verification (ModSecurity + OWASP CRS)
+=============================================
+
+[1] Proxying: login and page load through the WAF
+  [PASS] login through WAF returned 302 (proxied)
+  [PASS] session established through WAF
+
+[2] No false positive: normal lookup id=1
+  [PASS] benign lookup passes (200, one row)
+
+[3] SQL injection blocked (issue #2 payload)
+  [PASS] UNION SQLi blocked: 403, 0 rows
+
+[4] Command injection blocked
+  [PASS] command injection blocked: 403, no /etc/passwd
+
+[5] Rule matches are logged
+  [PASS] SQLi rule 942100 logged. All rule IDs seen: 920350 930120 932160 942100 942190 942270 942360 949110 
+  [PASS] command-injection rule 932160 logged
+
+[6] Known gap: direct access to DVWA
+  [GAP]  DVWA reachable directly on 192.168.20.10 (UNION SQLi returned 200), bypassing the WAF. Route Guest to the WAF only (#7)
+
+=============================================
+ Results: 7 PASSED | 0 FAILED | 1 KNOWN GAP(S)
+=============================================
