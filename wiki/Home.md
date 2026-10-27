@@ -20,6 +20,7 @@ Welcome to the **SwagPc Café** Capstone Wiki for **CIS 3353: Computer Systems S
 5. [[Defense Implementation|Defense]] — pfSense segmentation rules, endpoint hardening, and monitoring deployment.
 6. [[Testing & Verification|Testing-and-Verification]] — Repeat-attack tests proving attacks are blocked, sanitized, or alerted.
 7. [[Team Contribution Log|Contribution-Log]] — Individual story points, task breakdowns, and board mapping.
+8. [[Discord Update Bot|Discord-Bot]] — Commit, pull request, issue and CI alerts plus daily/weekly digests in Discord.
 
 ---
 
