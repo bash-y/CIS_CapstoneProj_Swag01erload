@@ -2,11 +2,18 @@
 
 > Issue #25: *Document WAF*. Status as of 2026-10-27.
 
-## Status: not implemented
+## Status: planned, not implemented
 
-The project has **no web application firewall**. Nothing in the repository deploys one, configures one, or mentions one as part of the design. A search of the repo for `WAF`, `web application firewall` and `ModSecurity` finds no references.
+The project **has no working WAF**. Nothing in the repository deploys one yet. A WAF is planned as a milestone M3 story, tracked in these issues:
 
-So this page does not document a working WAF. It records what the project does instead, and what a WAF would involve, so the team can decide whether to add one.
+| Issue | Title | Milestone | Assignee |
+|---|---|---|---|
+| [#7](https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/7) | WAF (ModSecurity+CRS) + verification | M3: Defenses Implemented & Verified | **none** |
+| [#23](https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/23) | Add Web Application Firewall (WAF) | none | **none** |
+| [#24](https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/24) | Verify WAF capabilities | none | **none** |
+| [#25](https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/25) | Document WAF (this page) | none | bash-y |
+
+So this page documents the WAF's status and design. It does not document a working control. Issue #7 defines the acceptance criteria: the WAF proxies to DVWA, the exact SQL injection from #2 returns 403 with no data, and a ModSecurity rule match is logged.
 
 ## What protects the web app today
 
@@ -28,15 +35,14 @@ If the team adds one, it would look like this:
 | Position | Reverse proxy between Guest and DVWA | Traffic to `192.168.20.10:80` goes through it |
 | Engine | ModSecurity with the OWASP Core Rule Set | Common, free, and has rules for both attacks in this lab |
 | Mode | Blocking, with logs | Blocked requests are logged, which also meets US-8/US-11 logging |
-| Test | Re-run `scripts/attack/sqli-exploit.sh` and the command-injection step through it | Expect no injected rows and no `/etc/passwd` |
+| Test | Re-run `scripts/attack/sqli-exploit.sh` and the command-injection step through it | Expect 403 and no injected rows or `/etc/passwd` (per #7) |
 
 This would be a new service in `docker/docker-compose.yml`. It is **not** built here.
 
-## Decision needed
+## Open items
 
-The WAF is not in the course plan or the milestone scope. Before M3, the team should choose one of:
+1. **Nobody is assigned to build the WAF.** #7 (M3) has no assignee, and #23 and #24 have none either. The team needs to assign an owner before M3.
+2. **#23 and #7 overlap.** #23 is the build and #7 is the build plus verification. One should be closed as a duplicate of the other, which is the team's call.
+3. **Matrix row.** The Defense Test Matrix has no WAF row yet. Once #7 is owned, add one that re-runs `scripts/attack/sqli-exploit.sh` through the WAF and expects no injected rows.
 
-1. **Drop the WAF from scope.** Document that web-layer protection is the US-10 input validation and access restriction, and leave this page as the record of the decision.
-2. **Add a WAF as an extension.** Build the reverse-proxy service above and add a matrix row for it. This adds work to M3.
-
-Until that decision is made, the WAF is not a control the project relies on, and no result should be reported as "WAF blocks X."
+Until the WAF is built and verified, no result should be reported as "WAF blocks X."
