@@ -1,0 +1,4 @@
+GROUND-TRUTH re-check (segmentation applied):
+- kali curl http://192.168.20.10  -> Connection timed out after 4s (HTTP BLOCKED)
+- kali nc -z 192.168.20.10:80     -> Connection timed out (TCP 80 BLOCKED)
+- kali ping 192.168.20.10         -> 100% packet loss (ICMP BLOCKED)

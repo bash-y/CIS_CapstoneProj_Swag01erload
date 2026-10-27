@@ -1,0 +1,23 @@
+=============================================
+ SwagPc Café — Defense Verification Suite
+=============================================
+
+[TEST 1] Guest -> Business: ICMP Ping (should be BLOCKED after segmentation)
+  [PASS] Guest ping to DVWA (192.168.20.10)
+
+[TEST 2] Guest -> Business: HTTP to DVWA (should be BLOCKED)
+  [FAIL] Guest HTTP to DVWA web portal — traffic NOT blocked!
+
+[TEST 3] Guest -> Employee Workstation ping (should be BLOCKED)
+  [PASS] Guest ping to workstation (192.168.20.25)
+
+[TEST 4] Business -> Internet: Basic connectivity (should be ALLOWED)
+  [PASS] DVWA outbound internet access
+
+[TEST 5] Suricata: Alert log has entries (attack signatures detected)
+scripts/testing/verify-defenses.sh: line 59: /var/log/suricata/fast.log: No such file or directory
+  [WARN] Suricata fast.log is empty — run attack scripts first
+
+=============================================
+ Results: 3 PASSED | 1 FAILED
+=============================================
