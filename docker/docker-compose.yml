@@ -103,6 +103,8 @@ services:
       - BLOCKING_PARANOIA=1
     depends_on:
       - dvwa
+    volumes:
+      - ../configs/waf/default.conf.template:/etc/nginx/templates/conf.d/default.conf.template:ro
     ports:
       - "127.0.0.1:8081:8080"   # localhost-only access to the WAF
     networks:
