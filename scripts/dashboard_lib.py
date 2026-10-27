@@ -35,7 +35,13 @@ MIN_LAYERS, MAX_LAYERS, MIN_TIERS = 3, 12, 3
 
 LAYER_LABEL_PREFIX = "layer:"
 STORY_LABEL = "type:story"
+# Labels that mark an issue as a user story. The dashboard's own scheme uses
+# "type:story"; many teams (including this repo) label stories "user-story".
+STORY_LABELS = {"type:story", "user-story"}
 PRIORITY_LABELS = ("priority:P1", "priority:P2", "priority:P3")
+
+# A GitHub-flavored task-list checkbox, e.g. "- [ ] Draft proposal" or "* [x] Done".
+CHECKBOX = re.compile(r"^\s*[-*]\s+\[([ xX])\]\s+(.+?)\s*$", re.MULTILINE)
 
 
 def load_config(path: Path = CONFIG_PATH) -> dict:
@@ -113,6 +119,24 @@ def layer_label(layer_id: str) -> str:
 
 def label_names(item: dict) -> list[str]:
     return [lab["name"] if isinstance(lab, dict) else str(lab) for lab in item.get("labels", [])]
+
+
+def is_story(item: dict) -> bool:
+    """True if the issue carries any recognized user-story label."""
+    return any(name in STORY_LABELS for name in label_names(item))
+
+
+def checklist(body: str | None) -> list[dict]:
+    """Parse GitHub task-list checkboxes from an issue body into subtask rows.
+
+    Used for stories that track their work as markdown checkboxes rather than
+    GitHub's native sub-issues. Strips a trailing "(Size: S, @owner)" hint.
+    """
+    subs = []
+    for m in CHECKBOX.finditer(body or ""):
+        text = re.sub(r"\s*\((?:Size|size)[^)]*\)\s*$", "", m.group(2)).strip()
+        subs.append({"number": "", "url": "", "title": text, "done": m.group(1).lower() == "x"})
+    return subs
 
 
 def layer_of(item: dict, layer_ids: set[str]) -> str | None:
