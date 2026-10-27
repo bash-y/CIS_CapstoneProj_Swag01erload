@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "demo": false,
-  "generated_at": "2026-10-26T21:12:26Z",
+  "generated_at": "2026-10-27T05:42:39Z",
   "repo": "bash-y/CIS_CapstoneProj_Swag01erload",
   "repo_url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload",
   "refresh_url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/actions/workflows/dashboard-refresh.yml",
@@ -123,10 +123,87 @@
     }
   ],
   "unassigned": {
-    "open_issues": 41,
-    "open_prs": 0
+    "open_issues": 44,
+    "open_prs": 4
   },
-  "open_prs": [],
+  "open_prs": [
+    {
+      "number": 65,
+      "title": "US-2 #43: fold verified segmentation results + live evidence into tes…",
+      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/pull/65",
+      "author": "bash-y",
+      "draft": false,
+      "created_at": "2026-10-27T05:17:16Z",
+      "layer": null,
+      "additions": 205,
+      "deletions": 6,
+      "checks": {
+        "passed": 0,
+        "failed": 0,
+        "pending": 0,
+        "runs": []
+      },
+      "review": "REVIEW_REQUIRED",
+      "severity": "amber"
+    },
+    {
+      "number": 60,
+      "title": "US-4 #45: Ubuntu café business server + workstation connectivity test",
+      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/pull/60",
+      "author": "bash-y",
+      "draft": false,
+      "created_at": "2026-10-27T03:26:24Z",
+      "layer": null,
+      "additions": 175,
+      "deletions": 0,
+      "checks": {
+        "passed": 0,
+        "failed": 0,
+        "pending": 0,
+        "runs": []
+      },
+      "review": "REVIEW_REQUIRED",
+      "severity": "amber"
+    },
+    {
+      "number": 59,
+      "title": "US-9 #50: Workstation least-privilege & password policy",
+      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/pull/59",
+      "author": "bash-y",
+      "draft": false,
+      "created_at": "2026-10-27T02:38:11Z",
+      "layer": null,
+      "additions": 182,
+      "deletions": 0,
+      "checks": {
+        "passed": 0,
+        "failed": 0,
+        "pending": 0,
+        "runs": []
+      },
+      "review": "REVIEW_REQUIRED",
+      "severity": "amber"
+    },
+    {
+      "number": 58,
+      "title": "US-9 #50: Employee workstation inbound firewall (restrict to authorized subnets)",
+      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/pull/58",
+      "author": "bash-y",
+      "draft": false,
+      "created_at": "2026-10-27T02:34:12Z",
+      "layer": null,
+      "additions": 168,
+      "deletions": 0,
+      "checks": {
+        "passed": 0,
+        "failed": 0,
+        "pending": 0,
+        "runs": []
+      },
+      "review": "REVIEW_REQUIRED",
+      "severity": "amber"
+    }
+  ],
   "milestones": [
     {
       "title": "M1: Proposal Approved",
@@ -173,7 +250,498 @@
       "pct": 0
     }
   ],
-  "stories": [],
+  "stories": [
+    {
+      "number": 42,
+      "title": "US-1: Repository, Board & Wiki Setup",
+      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/42",
+      "layer": null,
+      "priority": "",
+      "milestone": "M1: Proposal Approved",
+      "assignees": [
+        "UiwAntHuynhCIS"
+      ],
+      "subs": [
+        {
+          "number": "",
+          "url": "",
+          "title": "Create private repository and add collaborators gdparra-edu and cyberknowledge",
+          "done": false
+        },
+        {
+          "number": "",
+          "url": "",
+          "title": "Enable Wiki and initialize Home page structure",
+          "done": false
+        },
+        {
+          "number": "",
+          "url": "",
+          "title": "Create GitHub Project board with Iterative Development template and 2-week iterations",
+          "done": false
+        },
+        {
+          "number": "",
+          "url": "",
+          "title": "Create the four milestones (M1â€“M4) in the repo",
+          "done": false
+        },
+        {
+          "number": "",
+          "url": "",
+          "title": "Finalize README with team roster, roles, and contribution summary table",
+          "done": false
+        }
+      ],
+      "sub_total": 5,
+      "sub_closed": 0,
+      "pct": 0
+    },
+    {
+      "number": 43,
+      "title": "US-2: Project Proposal, Topology & Defense Test Matrix",
+      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/43",
+      "layer": null,
+      "priority": "",
+      "milestone": "M1: Proposal Approved",
+      "assignees": [
+        "bash-y"
+      ],
+      "subs": [
+        {
+          "number": "",
+          "url": "",
+          "title": "Draft scenario, brainstorm sentence, and problem statement for SwagPc CafÃ©",
+          "done": false
+        },
+        {
+          "number": "",
+          "url": "",
+          "title": "Diagram initial vs. segmented network topology (WAN/pfSense/Guest/Business)",
+          "done": false
+        },
+        {
+          "number": "",
+          "url": "",
+          "title": "Map course modules (Modules 2, 5, 8, 9) to specific cafÃ© infrastructure",
+          "done": false
+        },
+        {
+          "number": "",
+          "url": "",
+          "title": "Define test verification criteria and metrics for each defense",
+          "done": false
+        }
+      ],
+      "sub_total": 4,
+      "sub_closed": 0,
+      "pct": 0
+    },
+    {
+      "number": 44,
+      "title": "US-3: pfSense & Dual-VLAN Virtual Network Architecture",
+      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/44",
+      "layer": null,
+      "priority": "",
+      "milestone": "M2: Environment Built & Attack Demonstrated",
+      "assignees": [
+        "UiwAntHuynhCIS"
+      ],
+      "subs": [
+        {
+          "number": "",
+          "url": "",
+          "title": "Deploy pfSense firewall router with WAN, Guest (VLAN 10), and Business (VLAN 20) interfaces",
+          "done": false
+        },
+        {
+          "number": "",
+          "url": "",
+          "title": "Configure Docker networks / hypervisor virtual bridges (guest-net and \business-net)",
+          "done": false
+        },
+        {
+          "number": "",
+          "url": "",
+          "title": "Document IP addressing scheme, subnets, and routing table",
+          "done": false
+        },
+        {
+          "number": "",
+          "url": "",
+          "title": "Baseline reachability test across subnets in the undefended state",
+          "done": false
+        }
+      ],
+      "sub_total": 4,
+      "sub_closed": 0,
+      "pct": 0
+    },
+    {
+      "number": 45,
+      "title": "US-4: CafÃ© Business Server & Windows Workstation Deployment",
+      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/45",
+      "layer": null,
+      "priority": "",
+      "milestone": "M2: Environment Built & Attack Demonstrated",
+      "assignees": [
+        "bash-y"
+      ],
+      "subs": [
+        {
+          "number": "",
+          "url": "",
+          "title": "Deploy Ubuntu Linux server VM hosting business services",
+          "done": false
+        },
+        {
+          "number": "",
+          "url": "",
+          "title": "Deploy Windows employee workstation VM on the business network",
+          "done": false
+        },
+        {
+          "number": "",
+          "url": "",
+          "title": "Configure employee accounts and sample business data on the workstation",
+          "done": false
+        },
+        {
+          "number": "",
+          "url": "",
+          "title": "Verify employee workstation connectivity to the business server",
+          "done": false
+        }
+      ],
+      "sub_total": 4,
+      "sub_closed": 0,
+      "pct": 0
+    },
+    {
+      "number": 46,
+      "title": "US-5: Vulnerable CafÃ© Web App & Kali Attacker Deployment",
+      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/46",
+      "layer": null,
+      "priority": "",
+      "milestone": "M2: Environment Built & Attack Demonstrated",
+      "assignees": [
+        "joromanii"
+      ],
+      "subs": [
+        {
+          "number": "",
+          "url": "",
+          "title": "Deploy DVWA container on the Linux server representing the cafÃ© web portal",
+          "done": false
+        },
+        {
+          "number": "",
+          "url": "",
+          "title": "Deploy Kali Linux VM/container connected directly to the guest network",
+          "done": false
+        },
+        {
+          "number": "",
+          "url": "",
+          "title": "Confirm Kali can reach the DVWA application across the undefended network",
+          "done": false
+        }
+      ],
+      "sub_total": 3,
+      "sub_closed": 0,
+      "pct": 0
+    },
+    {
+      "number": 47,
+      "title": "US-6: Undefended Guest-to-Business Reconnaissance & Scanning",
+      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/47",
+      "layer": null,
+      "priority": "",
+      "milestone": "M2: Environment Built & Attack Demonstrated",
+      "assignees": [
+        "joromanii"
+      ],
+      "subs": [
+        {
+          "number": "",
+          "url": "",
+          "title": "Execute ARP scan and Nmap discovery from Kali across the cafÃ© network",
+          "done": false
+        },
+        {
+          "number": "",
+          "url": "",
+          "title": "Enumerate open ports and services on the business server and employee workstation",
+          "done": false
+        },
+        {
+          "number": "",
+          "url": "",
+          "title": "Document and capture screenshots/outputs of all exposed business assets",
+          "done": false
+        }
+      ],
+      "sub_total": 3,
+      "sub_closed": 0,
+      "pct": 0
+    },
+    {
+      "number": 48,
+      "title": "US-7: Undefended DVWA Web Exploitation & Lateral Pivot Proof",
+      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/48",
+      "layer": null,
+      "priority": "",
+      "milestone": "M2: Environment Built & Attack Demonstrated",
+      "assignees": [
+        "joromanii"
+      ],
+      "subs": [
+        {
+          "number": "",
+          "url": "",
+          "title": "Execute web exploit (command injection / SQLi) on DVWA from guest position",
+          "done": false
+        },
+        {
+          "number": "",
+          "url": "",
+          "title": "Attempt lateral ping and service connection from guest position toward employee PC",
+          "done": false
+        },
+        {
+          "number": "",
+          "url": "",
+          "title": "Capture all before-defense attack evidence, logs, and screenshots",
+          "done": false
+        }
+      ],
+      "sub_total": 3,
+      "sub_closed": 0,
+      "pct": 0
+    },
+    {
+      "number": 49,
+      "title": "US-8: pfSense Network Segmentation & Guest Isolation",
+      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/49",
+      "layer": null,
+      "priority": "",
+      "milestone": "M3: Defenses Implemented & Verified",
+      "assignees": [
+        "UiwAntHuynhCIS"
+      ],
+      "subs": [
+        {
+          "number": "",
+          "url": "",
+          "title": "Configure pfSense firewall rules: GUEST -> BUSINESS DENY and LOG",
+          "done": false
+        },
+        {
+          "number": "",
+          "url": "",
+          "title": "Configure rule: GUEST -> INTERNET ALLOW",
+          "done": false
+        },
+        {
+          "number": "",
+          "url": "",
+          "title": "Configure rule: BUSINESS -> INTERNET and EMPLOYEE -> SERVER ALLOW",
+          "done": false
+        },
+        {
+          "number": "",
+          "url": "",
+          "title": "**Verification Test:** Re-run Nmap and ping from Kali on Guest to Business; confirm dropped & logged",
+          "done": false
+        }
+      ],
+      "sub_total": 4,
+      "sub_closed": 0,
+      "pct": 0
+    },
+    {
+      "number": 50,
+      "title": "US-9: Windows Workstation & Server Endpoint Hardening",
+      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/50",
+      "layer": null,
+      "priority": "",
+      "milestone": "M3: Defenses Implemented & Verified",
+      "assignees": [
+        "bash-y"
+      ],
+      "subs": [
+        {
+          "number": "",
+          "url": "",
+          "title": "Configure Windows Defender Firewall rules to restrict incoming connections to authorized subnets",
+          "done": false
+        },
+        {
+          "number": "",
+          "url": "",
+          "title": "Disable unneeded legacy protocols (NetBIOS, LLMNR, SMBv1) on the employee PC",
+          "done": false
+        },
+        {
+          "number": "",
+          "url": "",
+          "title": "Implement local account least-privilege and password policies",
+          "done": false
+        },
+        {
+          "number": "",
+          "url": "",
+          "title": "**Verification Test:** Re-attempt direct connection to employee PC; confirm connection rejected",
+          "done": false
+        }
+      ],
+      "sub_total": 4,
+      "sub_closed": 0,
+      "pct": 0
+    },
+    {
+      "number": 51,
+      "title": "US-10: Web Application Security Hardening",
+      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/51",
+      "layer": null,
+      "priority": "",
+      "milestone": "M3: Defenses Implemented & Verified",
+      "assignees": [
+        "joromanii"
+      ],
+      "subs": [
+        {
+          "number": "",
+          "url": "",
+          "title": "Harden DVWA security settings (increase security level / input sanitization)",
+          "done": false
+        },
+        {
+          "number": "",
+          "url": "",
+          "title": "Implement reverse proxy / web application access controls restricting web portal management",
+          "done": false
+        },
+        {
+          "number": "",
+          "url": "",
+          "title": "**Verification Test:** Re-run web exploit payloads; confirm HTTP 403 or sanitized responses",
+          "done": false
+        }
+      ],
+      "sub_total": 3,
+      "sub_closed": 0,
+      "pct": 0
+    },
+    {
+      "number": 52,
+      "title": "US-11: Suricata IDS & Wazuh SIEM Security Monitoring",
+      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/52",
+      "layer": null,
+      "priority": "",
+      "milestone": "M3: Defenses Implemented & Verified",
+      "assignees": [
+        "joromanii"
+      ],
+      "subs": [
+        {
+          "number": "",
+          "url": "",
+          "title": "Deploy Suricata IDS monitoring traffic across the network interfaces",
+          "done": false
+        },
+        {
+          "number": "",
+          "url": "",
+          "title": "Deploy Wazuh manager and configure Wazuh agents on Linux server and Windows PC",
+          "done": false
+        },
+        {
+          "number": "",
+          "url": "",
+          "title": "Configure custom alert rules for reconnaissance scans and web exploitation attempts",
+          "done": false
+        },
+        {
+          "number": "",
+          "url": "",
+          "title": "**Verification Test:** Re-run attack sequence; capture Wazuh dashboard alerts and log entries",
+          "done": false
+        }
+      ],
+      "sub_total": 4,
+      "sub_closed": 0,
+      "pct": 0
+    },
+    {
+      "number": 53,
+      "title": "US-12: Comprehensive Wiki Technical Report & Evidence Documentation",
+      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/53",
+      "layer": null,
+      "priority": "",
+      "milestone": "M4: Documentation & Presentation",
+      "assignees": [
+        "UiwAntHuynhCIS"
+      ],
+      "subs": [
+        {
+          "number": "",
+          "url": "",
+          "title": "Compile complete Build, Attack, and Defend sections in the GitHub Wiki",
+          "done": false
+        },
+        {
+          "number": "",
+          "url": "",
+          "title": "Format before vs. after side-by-side comparison tables, screenshots, and log snippets",
+          "done": false
+        },
+        {
+          "number": "",
+          "url": "",
+          "title": "Cross-check that the README contribution table matches the GitHub Project board exactly",
+          "done": false
+        }
+      ],
+      "sub_total": 3,
+      "sub_closed": 0,
+      "pct": 0
+    },
+    {
+      "number": 54,
+      "title": "US-13: Capstone Presentation, Live Demo Flow & Rehearsal",
+      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/54",
+      "layer": null,
+      "priority": "",
+      "milestone": "M4: Documentation & Presentation",
+      "assignees": [
+        "bash-y"
+      ],
+      "subs": [
+        {
+          "number": "",
+          "url": "",
+          "title": "Create capstone presentation slide deck covering scenario, attack, defense, and outcomes",
+          "done": false
+        },
+        {
+          "number": "",
+          "url": "",
+          "title": "Script and rehearse the live/recorded demonstration video backup",
+          "done": false
+        },
+        {
+          "number": "",
+          "url": "",
+          "title": "Conduct full team dry-run rehearsal",
+          "done": false
+        }
+      ],
+      "sub_total": 3,
+      "sub_closed": 0,
+      "pct": 0
+    }
+  ],
   "open_issues": [
     {
       "number": 2,
@@ -315,295 +883,41 @@
       "assignees": []
     },
     {
-      "number": 28,
-      "title": "US-1: Repository, Board & Wiki Setup",
-      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/28",
+      "number": 62,
+      "title": "Suricata service fails to start: hostname + network_mode conflict (US-11)",
+      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/62",
       "layer": null,
       "priority": "",
-      "milestone": "M1: Proposal Approved",
+      "milestone": "",
+      "assignees": [
+        "joromanii"
+      ]
+    },
+    {
+      "number": 63,
+      "title": "run-full-attack.sh command-injection step returns no output (US-7)",
+      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/63",
+      "layer": null,
+      "priority": "",
+      "milestone": "",
+      "assignees": [
+        "joromanii"
+      ]
+    },
+    {
+      "number": 64,
+      "title": "verify-defenses.sh Test 2 false-negative: curl -s hides blocked timeout (US-8)",
+      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/64",
+      "layer": null,
+      "priority": "",
+      "milestone": "",
       "assignees": [
         "UiwAntHuynhCIS"
-      ]
-    },
-    {
-      "number": 29,
-      "title": "US-2: Project Proposal, Topology & Defense Test Matrix",
-      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/29",
-      "layer": null,
-      "priority": "",
-      "milestone": "M1: Proposal Approved",
-      "assignees": [
-        "bash-y"
-      ]
-    },
-    {
-      "number": 30,
-      "title": "US-3: pfSense & Dual-VLAN Virtual Network Architecture",
-      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/30",
-      "layer": null,
-      "priority": "",
-      "milestone": "M2: Environment Built & Attack Demonstrated",
-      "assignees": [
-        "UiwAntHuynhCIS"
-      ]
-    },
-    {
-      "number": 31,
-      "title": "US-4: CafÃ© Business Server & Windows Workstation Deployment",
-      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/31",
-      "layer": null,
-      "priority": "",
-      "milestone": "M2: Environment Built & Attack Demonstrated",
-      "assignees": [
-        "bash-y"
-      ]
-    },
-    {
-      "number": 32,
-      "title": "US-5: Vulnerable CafÃ© Web App & Kali Attacker Deployment",
-      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/32",
-      "layer": null,
-      "priority": "",
-      "milestone": "M2: Environment Built & Attack Demonstrated",
-      "assignees": [
-        "joromanii"
-      ]
-    },
-    {
-      "number": 33,
-      "title": "US-6: Undefended Guest-to-Business Reconnaissance & Scanning",
-      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/33",
-      "layer": null,
-      "priority": "",
-      "milestone": "M2: Environment Built & Attack Demonstrated",
-      "assignees": [
-        "joromanii"
-      ]
-    },
-    {
-      "number": 34,
-      "title": "US-7: Undefended DVWA Web Exploitation & Lateral Pivot Proof",
-      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/34",
-      "layer": null,
-      "priority": "",
-      "milestone": "M2: Environment Built & Attack Demonstrated",
-      "assignees": [
-        "joromanii"
-      ]
-    },
-    {
-      "number": 35,
-      "title": "US-8: pfSense Network Segmentation & Guest Isolation",
-      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/35",
-      "layer": null,
-      "priority": "",
-      "milestone": "M3: Defenses Implemented & Verified",
-      "assignees": [
-        "UiwAntHuynhCIS"
-      ]
-    },
-    {
-      "number": 36,
-      "title": "US-9: Windows Workstation & Server Endpoint Hardening",
-      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/36",
-      "layer": null,
-      "priority": "",
-      "milestone": "M3: Defenses Implemented & Verified",
-      "assignees": [
-        "bash-y"
-      ]
-    },
-    {
-      "number": 37,
-      "title": "US-10: Web Application Security Hardening",
-      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/37",
-      "layer": null,
-      "priority": "",
-      "milestone": "M3: Defenses Implemented & Verified",
-      "assignees": [
-        "joromanii"
-      ]
-    },
-    {
-      "number": 38,
-      "title": "US-11: Suricata IDS & Wazuh SIEM Security Monitoring",
-      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/38",
-      "layer": null,
-      "priority": "",
-      "milestone": "M3: Defenses Implemented & Verified",
-      "assignees": [
-        "joromanii"
-      ]
-    },
-    {
-      "number": 39,
-      "title": "US-12: Comprehensive Wiki Technical Report & Evidence Documentation",
-      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/39",
-      "layer": null,
-      "priority": "",
-      "milestone": "M4: Documentation & Presentation",
-      "assignees": [
-        "UiwAntHuynhCIS"
-      ]
-    },
-    {
-      "number": 40,
-      "title": "US-13: Capstone Presentation, Live Demo Flow & Rehearsal",
-      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/40",
-      "layer": null,
-      "priority": "",
-      "milestone": "M4: Documentation & Presentation",
-      "assignees": [
-        "bash-y"
-      ]
-    },
-    {
-      "number": 42,
-      "title": "US-1: Repository, Board & Wiki Setup",
-      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/42",
-      "layer": null,
-      "priority": "",
-      "milestone": "M1: Proposal Approved",
-      "assignees": [
-        "UiwAntHuynhCIS"
-      ]
-    },
-    {
-      "number": 43,
-      "title": "US-2: Project Proposal, Topology & Defense Test Matrix",
-      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/43",
-      "layer": null,
-      "priority": "",
-      "milestone": "M1: Proposal Approved",
-      "assignees": [
-        "bash-y"
-      ]
-    },
-    {
-      "number": 44,
-      "title": "US-3: pfSense & Dual-VLAN Virtual Network Architecture",
-      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/44",
-      "layer": null,
-      "priority": "",
-      "milestone": "M2: Environment Built & Attack Demonstrated",
-      "assignees": [
-        "UiwAntHuynhCIS"
-      ]
-    },
-    {
-      "number": 45,
-      "title": "US-4: CafÃ© Business Server & Windows Workstation Deployment",
-      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/45",
-      "layer": null,
-      "priority": "",
-      "milestone": "M2: Environment Built & Attack Demonstrated",
-      "assignees": [
-        "bash-y"
-      ]
-    },
-    {
-      "number": 46,
-      "title": "US-5: Vulnerable CafÃ© Web App & Kali Attacker Deployment",
-      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/46",
-      "layer": null,
-      "priority": "",
-      "milestone": "M2: Environment Built & Attack Demonstrated",
-      "assignees": [
-        "joromanii"
-      ]
-    },
-    {
-      "number": 47,
-      "title": "US-6: Undefended Guest-to-Business Reconnaissance & Scanning",
-      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/47",
-      "layer": null,
-      "priority": "",
-      "milestone": "M2: Environment Built & Attack Demonstrated",
-      "assignees": [
-        "joromanii"
-      ]
-    },
-    {
-      "number": 48,
-      "title": "US-7: Undefended DVWA Web Exploitation & Lateral Pivot Proof",
-      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/48",
-      "layer": null,
-      "priority": "",
-      "milestone": "M2: Environment Built & Attack Demonstrated",
-      "assignees": [
-        "joromanii"
-      ]
-    },
-    {
-      "number": 49,
-      "title": "US-8: pfSense Network Segmentation & Guest Isolation",
-      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/49",
-      "layer": null,
-      "priority": "",
-      "milestone": "M3: Defenses Implemented & Verified",
-      "assignees": [
-        "UiwAntHuynhCIS"
-      ]
-    },
-    {
-      "number": 50,
-      "title": "US-9: Windows Workstation & Server Endpoint Hardening",
-      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/50",
-      "layer": null,
-      "priority": "",
-      "milestone": "M3: Defenses Implemented & Verified",
-      "assignees": [
-        "bash-y"
-      ]
-    },
-    {
-      "number": 51,
-      "title": "US-10: Web Application Security Hardening",
-      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/51",
-      "layer": null,
-      "priority": "",
-      "milestone": "M3: Defenses Implemented & Verified",
-      "assignees": [
-        "joromanii"
-      ]
-    },
-    {
-      "number": 52,
-      "title": "US-11: Suricata IDS & Wazuh SIEM Security Monitoring",
-      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/52",
-      "layer": null,
-      "priority": "",
-      "milestone": "M3: Defenses Implemented & Verified",
-      "assignees": [
-        "joromanii"
-      ]
-    },
-    {
-      "number": 53,
-      "title": "US-12: Comprehensive Wiki Technical Report & Evidence Documentation",
-      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/53",
-      "layer": null,
-      "priority": "",
-      "milestone": "M4: Documentation & Presentation",
-      "assignees": [
-        "UiwAntHuynhCIS"
-      ]
-    },
-    {
-      "number": 54,
-      "title": "US-13: Capstone Presentation, Live Demo Flow & Rehearsal",
-      "url": "https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/54",
-      "layer": null,
-      "priority": "",
-      "milestone": "M4: Documentation & Presentation",
-      "assignees": [
-        "bash-y"
       ]
     }
   ],
   "recent_failures": [],
   "activity": {
-    "2026-07-29": 0,
     "2026-07-30": 0,
     "2026-07-31": 0,
     "2026-08-01": 0,
@@ -692,7 +1006,8 @@
     "2026-10-23": 2,
     "2026-10-24": 0,
     "2026-10-25": 0,
-    "2026-10-26": 6
+    "2026-10-26": 10,
+    "2026-10-27": 9
   },
   "members": [
     {
@@ -702,13 +1017,13 @@
       "linked": true,
       "on_roster": true,
       "commits_total": 18,
-      "commits_90d": 19,
+      "commits_90d": 23,
       "additions": 1963,
       "deletions": 257,
       "prs_opened": 3,
       "prs_merged": 3,
       "issues_closed": 5,
-      "last_commit": "2026-10-26T20:50:13Z",
+      "last_commit": "2026-10-27T05:29:44Z",
       "weekly": [
         {
           "week": "2026-08-10",
@@ -756,7 +1071,72 @@
         },
         {
           "week": "2026-10-26",
-          "commits": 1
+          "commits": 5
+        }
+      ]
+    },
+    {
+      "login": "bash-y",
+      "name": "Sebastian Cadena",
+      "role": "Project Lead",
+      "linked": true,
+      "on_roster": true,
+      "commits_total": 10,
+      "commits_90d": 14,
+      "additions": 4971,
+      "deletions": 544,
+      "prs_opened": 9,
+      "prs_merged": 5,
+      "issues_closed": 6,
+      "last_commit": "2026-10-27T05:06:11Z",
+      "weekly": [
+        {
+          "week": "2026-08-10",
+          "commits": 0
+        },
+        {
+          "week": "2026-08-17",
+          "commits": 0
+        },
+        {
+          "week": "2026-08-24",
+          "commits": 0
+        },
+        {
+          "week": "2026-08-31",
+          "commits": 4
+        },
+        {
+          "week": "2026-09-07",
+          "commits": 0
+        },
+        {
+          "week": "2026-09-14",
+          "commits": 0
+        },
+        {
+          "week": "2026-09-21",
+          "commits": 0
+        },
+        {
+          "week": "2026-09-28",
+          "commits": 0
+        },
+        {
+          "week": "2026-10-05",
+          "commits": 0
+        },
+        {
+          "week": "2026-10-12",
+          "commits": 2
+        },
+        {
+          "week": "2026-10-19",
+          "commits": 0
+        },
+        {
+          "week": "2026-10-26",
+          "commits": 8
         }
       ]
     },
@@ -826,19 +1206,19 @@
       ]
     },
     {
-      "login": "bash-y",
-      "name": "Sebastian Cadena",
-      "role": "Project Lead",
+      "login": "claude",
+      "name": "claude",
+      "role": "",
       "linked": true,
-      "on_roster": true,
+      "on_roster": false,
       "commits_total": 5,
-      "commits_90d": 9,
-      "additions": 3008,
-      "deletions": 0,
-      "prs_opened": 1,
-      "prs_merged": 1,
-      "issues_closed": 6,
-      "last_commit": "2026-10-26T20:52:29Z",
+      "commits_90d": 0,
+      "additions": 1963,
+      "deletions": 544,
+      "prs_opened": 0,
+      "prs_merged": 0,
+      "issues_closed": 0,
+      "last_commit": null,
       "weekly": [
         {
           "week": "2026-08-10",
@@ -854,7 +1234,7 @@
         },
         {
           "week": "2026-08-31",
-          "commits": 4
+          "commits": 0
         },
         {
           "week": "2026-09-07",
@@ -878,7 +1258,7 @@
         },
         {
           "week": "2026-10-12",
-          "commits": 2
+          "commits": 0
         },
         {
           "week": "2026-10-19",
@@ -886,20 +1266,25 @@
         },
         {
           "week": "2026-10-26",
-          "commits": 3
+          "commits": 0
         }
       ]
     }
   ],
   "totals": {
-    "open_prs": 0,
+    "open_prs": 4,
     "ready_prs": 0,
     "attention_prs": 0,
-    "open_stories": 0,
-    "open_issues": 41,
+    "open_stories": 13,
+    "open_issues": 31,
     "failures_72h": 0,
-    "pct_complete": 0,
-    "commits_90d": 37
+    "pct_complete": 17,
+    "issues_closed": 9,
+    "issues_total": 53,
+    "story_tasks": 47,
+    "story_tasks_done": 0,
+    "story_pct": 0,
+    "commits_90d": 46
   },
   "warnings": []
 }
