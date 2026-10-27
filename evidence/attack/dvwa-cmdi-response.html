@@ -1,0 +1,137 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+		<title>Vulnerability: Command Injection :: Damn Vulnerable Web Application (DVWA) v1.10 *Development*</title>
+
+		<link rel="stylesheet" type="text/css" href="../../dvwa/css/main.css" />
+
+		<link rel="icon" type="\image/ico" href="../../favicon.ico" />
+
+		<script type="text/javascript" src="../../dvwa/js/dvwaPage.js"></script>
+
+	</head>
+
+	<body class="home">
+		<div id="container">
+
+			<div id="header">
+
+				<img src="../../dvwa/images/logo.png" alt="Damn Vulnerable Web Application" />
+
+			</div>
+
+			<div id="main_menu">
+
+				<div id="main_menu_padded">
+				<ul class="menuBlocks"><li class=""><a href="../../.">Home</a></li>
+<li class=""><a href="../../instructions.php">Instructions</a></li>
+<li class=""><a href="../../setup.php">Setup / Reset DB</a></li>
+</ul><ul class="menuBlocks"><li class=""><a href="../../vulnerabilities/brute/">Brute Force</a></li>
+<li class="selected"><a href="../../vulnerabilities/exec/">Command Injection</a></li>
+<li class=""><a href="../../vulnerabilities/csrf/">CSRF</a></li>
+<li class=""><a href="../../vulnerabilities/fi/.?page=include.php">File Inclusion</a></li>
+<li class=""><a href="../../vulnerabilities/upload/">File Upload</a></li>
+<li class=""><a href="../../vulnerabilities/captcha/">Insecure CAPTCHA</a></li>
+<li class=""><a href="../../vulnerabilities/sqli/">SQL Injection</a></li>
+<li class=""><a href="../../vulnerabilities/sqli_blind/">SQL Injection (Blind)</a></li>
+<li class=""><a href="../../vulnerabilities/weak_id/">Weak Session IDs</a></li>
+<li class=""><a href="../../vulnerabilities/xss_d/">XSS (DOM)</a></li>
+<li class=""><a href="../../vulnerabilities/xss_r/">XSS (Reflected)</a></li>
+<li class=""><a href="../../vulnerabilities/xss_s/">XSS (Stored)</a></li>
+<li class=""><a href="../../vulnerabilities/csp/">CSP Bypass</a></li>
+<li class=""><a href="../../vulnerabilities/javascript/">JavaScript</a></li>
+</ul><ul class="menuBlocks"><li class=""><a href="../../security.php">DVWA Security</a></li>
+<li class=""><a href="../../phpinfo.php">PHP Info</a></li>
+<li class=""><a href="../../about.php">About</a></li>
+</ul><ul class="menuBlocks"><li class=""><a href="../../logout.php">Logout</a></li>
+</ul>
+				</div>
+
+			</div>
+
+			<div id="main_body">
+
+				
+<div class="body_padded">
+	<h1>Vulnerability: Command Injection</h1>
+
+	<div class="vulnerable_code_area">
+		<h2>Ping a device</h2>
+
+		<form name="ping" action="#" method="post">
+			<p>
+				Enter an IP address:
+				<input type="text" name="ip" size="30">
+				<input type="submit" name="Submit" value="Submit">
+			</p>
+
+		</form>
+		<pre>PING 127.0.0.1 (127.0.0.1): 56 data bytes
+64 bytes from 127.0.0.1: icmp_seq=0 ttl=64 time=0.051 ms
+64 bytes from 127.0.0.1: icmp_seq=1 ttl=64 time=0.095 ms
+64 bytes from 127.0.0.1: icmp_seq=2 ttl=64 time=0.153 ms
+64 bytes from 127.0.0.1: icmp_seq=3 ttl=64 time=0.044 ms
+--- 127.0.0.1 ping statistics ---
+4 packets transmitted, 4 packets received, 0% packet loss
+round-trip min/avg/max/stddev = 0.044/0.086/0.153/0.043 ms
+root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin
+sys:x:3:3:sys:/dev:/usr/sbin/nologin
+sync:x:4:65534:sync:/bin:/bin/sync
+games:x:5:60:games:/usr/games:/usr/sbin/nologin
+man:x:6:12:man:/var/cache/man:/usr/sbin/nologin
+lp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin
+mail:x:8:8:mail:/var/mail:/usr/sbin/nologin
+news:x:9:9:news:/var/spool/news:/usr/sbin/nologin
+uucp:x:10:10:uucp:/var/spool/uucp:/usr/sbin/nologin
+proxy:x:13:13:proxy:/bin:/usr/sbin/nologin
+www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin
+backup:x:34:34:backup:/var/backups:/usr/sbin/nologin
+list:x:38:38:Mailing List Manager:/var/list:/usr/sbin/nologin
+irc:x:39:39:ircd:/var/run/ircd:/usr/sbin/nologin
+gnats:x:41:41:Gnats Bug-Reporting System (admin):/var/lib/gnats:/usr/sbin/nologin
+nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin
+_apt:x:100:65534::/nonexistent:/bin/false
+mysql:x:101:101:MySQL Server,,,:/nonexistent:/bin/false
+</pre>
+	</div>
+
+	<h2>More Information</h2>
+	<ul>
+		<li><a href="http://www.scribd.com/doc/2530476/Php-Endangers-Remote-Code-Execution" target="_blank">http://www.scribd.com/doc/2530476/Php-Endangers-Remote-Code-Execution</a></li>
+		<li><a href="http://www.ss64.com/bash/" target="_blank">http://www.ss64.com/bash/</a></li>
+		<li><a href="http://www.ss64.com/nt/" target="_blank">http://www.ss64.com/nt/</a></li>
+		<li><a href="https://www.owasp.org/index.php/Command_Injection" target="_blank">https://www.owasp.org/index.php/Command_Injection</a></li>
+	</ul>
+</div>
+
+				<br /><br />
+				<div class="body_padded"><div class="message">You have logged in as 'admin'</div></div>
+
+			</div>
+
+			<div class="clear">
+			</div>
+
+			<div id="system_info">
+				<input type="button" value="View Help" class="popup_button" id='help_button' data-help-url='../../vulnerabilities/view_help.php?id=exec&security=low' )"> <input type="button" value="View Source" class="popup_button" id='source_button' data-source-url='../../vulnerabilities/view_source.php?id=exec&security=low' )"> <div align="left"><em>Username:</em> admin<br /><em>Security Level:</em> low<br /><em>PHPIDS:</em> disabled</div>
+			</div>
+
+			<div id="footer">
+
+				<p>Damn Vulnerable Web Application (DVWA) v1.10 *Development*</p>
+				<script src='/dvwa/js/add_event_listeners.js'></script>
+
+			</div>
+
+		</div>
+
+	</body>
+
+</html>
