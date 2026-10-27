@@ -89,6 +89,28 @@ services:
     restart: unless-stopped
 
   # ─────────────────────────────────────────────────────────────────
+  # WAF — ModSecurity + OWASP CRS reverse proxy in front of DVWA (#23, #7)
+  # Business Network / 192.168.20.15. Requests to the café portal go through
+  # this WAF, which blocks known attack patterns with 403 and logs each match.
+  # DVWA stays on 192.168.20.10 so the undefended baseline is unchanged.
+  # ─────────────────────────────────────────────────────────────────
+  waf:
+    image: owasp/modsecurity-crs:nginx
+    container_name: swagpc-waf
+    hostname: swagpc-waf
+    environment:
+      - BACKEND=http://dvwa:80
+      - BLOCKING_PARANOIA=1
+    depends_on:
+      - dvwa
+    ports:
+      - "127.0.0.1:8081:8080"   # localhost-only access to the WAF
+    networks:
+      business-net:
+        ipv4_address: 192.168.20.15
+    restart: unless-stopped
+
+  # ─────────────────────────────────────────────────────────────────
   # EMPLOYEE WORKSTATION — Business Network (192.168.20.25)
   # ─────────────────────────────────────────────────────────────────
   workstation:
