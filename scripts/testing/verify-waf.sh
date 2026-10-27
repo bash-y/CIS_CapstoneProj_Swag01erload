@@ -10,8 +10,8 @@
 #   3. SQL injection is blocked (403) and returns no rows.
 #   4. Command injection is blocked (403) and returns no /etc/passwd.
 #   5. The WAF logs the rule match for those attacks.
-#   6. Known gap, reported not failed: DVWA is still reachable directly on 192.168.20.10,
-#      bypassing the WAF.
+#   6. Direct access to DVWA on 192.168.20.10 is blocked (run route-waf-only.sh apply).
+#      Reported as a known gap if it is still reachable.
 
 WAF="http://192.168.20.15:8080"
 DIRECT="http://192.168.20.10"
@@ -30,8 +30,8 @@ echo "============================================="
 echo " SwagPc Café — WAF Verification (ModSecurity + OWASP CRS)"
 echo "============================================="
 
-# Reset DVWA's database directly, so the test does not depend on the WAF for setup.
-kali "rm -f $JAR; TK=\$(curl -s -c $JAR -b $JAR $DIRECT/setup.php | grep -o \"user_token' value='[^']*\" | sed \"s/.*value='//\"); curl -s -c $JAR -b $JAR -d \"create_db=Create+%2F+Reset+Database&user_token=\$TK\" $DIRECT/setup.php -o /dev/null" >/dev/null 2>&1
+# Reset DVWA's database through the WAF. Guest traffic to DVWA is blocked once routed.
+kali "rm -f $JAR; TK=\$(curl -s -c $JAR -b $JAR $WAF/setup.php | grep -o \"user_token' value='[^']*\" | sed \"s/.*value='//\"); curl -s -c $JAR -b $JAR -d \"create_db=Create+%2F+Reset+Database&user_token=\$TK\" $WAF/setup.php -o /dev/null" >/dev/null 2>&1
 
 echo ""
 echo "[1] Proxying: login and page load through the WAF"
@@ -64,9 +64,15 @@ if echo "$RULES" | grep -q "942100"; then ok "SQLi rule 942100 logged. All rule 
 if echo "$RULES" | grep -q "932160"; then ok "command-injection rule 932160 logged"; else bad "no command-injection rule match in WAF log"; fi
 
 echo ""
-echo "[6] Known gap: direct access to DVWA"
-DIRECT_CODE=$(kali "rm -f /tmp/vw-d.txt; TK=\$(curl -s -c /tmp/vw-d.txt -b /tmp/vw-d.txt $DIRECT/login.php | grep -o \"user_token' value='[^']*\" | sed \"s/.*value='//\"); curl -s -c /tmp/vw-d.txt -b /tmp/vw-d.txt -d \"username=admin&password=password&Login=Login&user_token=\$TK\" $DIRECT/login.php -o /dev/null; curl -s -c /tmp/vw-d.txt -b /tmp/vw-d.txt -G '$DIRECT/vulnerabilities/sqli/' --data-urlencode \"id=1' UNION SELECT user,password FROM users#\" --data-urlencode 'Submit=Submit' -o /dev/null -w '%{http_code}'")
-if [ "$DIRECT_CODE" = "200" ]; then gap "DVWA reachable directly on 192.168.20.10 (UNION SQLi returned 200), bypassing the WAF. Route Guest to the WAF only (#7)"; else echo "  [info] direct request returned $DIRECT_CODE"; fi
+echo "[6] Direct access to DVWA (must be blocked once routed)"
+DIRECT_CODE=$(kali "rm -f /tmp/vw-d.txt; TK=\$(curl -s --max-time 8 -c /tmp/vw-d.txt -b /tmp/vw-d.txt $DIRECT/login.php | grep -o \"user_token' value='[^']*\" | sed \"s/.*value='//\"); curl -s --max-time 8 -c /tmp/vw-d.txt -b /tmp/vw-d.txt -d \"username=admin&password=password&Login=Login&user_token=\$TK\" $DIRECT/login.php -o /dev/null; curl -s --max-time 8 -c /tmp/vw-d.txt -b /tmp/vw-d.txt -G '$DIRECT/vulnerabilities/sqli/' --data-urlencode \"id=1' UNION SELECT user,password FROM users#\" --data-urlencode 'Submit=Submit' -o /dev/null -w '%{http_code}'")
+if [ "$DIRECT_CODE" = "200" ]; then
+  gap "DVWA reachable directly on 192.168.20.10 (UNION SQLi returned 200), bypassing the WAF. Run route-waf-only.sh apply (#7)"
+elif [ "$DIRECT_CODE" = "000" ] || [ "$DIRECT_CODE" = "403" ]; then
+  ok "direct access to DVWA is blocked (code $DIRECT_CODE), so the WAF is the only path"
+else
+  bad "direct access returned unexpected code $DIRECT_CODE"
+fi
 
 echo ""
 echo "============================================="
