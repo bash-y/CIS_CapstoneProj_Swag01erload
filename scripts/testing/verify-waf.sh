@@ -59,7 +59,7 @@ if [ "$CMDI_CODE" = "403" ] && [ "${CMDI_HITS:-0}" = "0" ]; then ok "command inj
 
 echo ""
 echo "[5] Rule matches are logged"
-RULES=$(docker logs swagpc-waf 2>&1 | grep -oE '"ruleId":"[0-9]+"' | sort -u | tr -d '"' | sed 's/ruleId://' | tr '\n' ' ')
+RULES=$(docker exec swagpc-waf sh -c "cat /var/log/modsecurity/audit/audit.log" 2>&1 | grep -oE '"ruleId":"[0-9]+"' | sort -u | tr -d '"' | sed 's/ruleId://' | tr '\n' ' ')
 if echo "$RULES" | grep -q "942100"; then ok "SQLi rule 942100 logged. All rule IDs seen: $RULES"; else bad "no SQLi rule match in WAF log"; fi
 if echo "$RULES" | grep -q "932160"; then ok "command-injection rule 932160 logged"; else bad "no command-injection rule match in WAF log"; fi
 
