@@ -165,7 +165,7 @@ def collect(gh: GitHub, cfg: dict) -> dict:
             "milestone": (issue.get("milestone") or {}).get("title", ""),
             "assignees": [a["login"] for a in issue.get("assignees", [])],
         }
-        if lib.STORY_LABEL not in lib.label_names(issue):
+        if not lib.is_story(issue):
             other_open.append(base)
             continue
         subs = []
@@ -177,9 +177,14 @@ def collect(gh: GitHub, cfg: dict) -> dict:
                                  "url": sub["html_url"], "done": sub["state"] == "closed"})
             except urllib.error.HTTPError as exc:
                 warnings.append(f"Sub-issues for #{issue['number']} could not be read ({exc.code}).")
+        if not subs:  # fall back to markdown task-list checkboxes in the body
+            subs = lib.checklist(issue.get("body"))
         done = sum(1 for s in subs if s["done"])
         stories.append({**base, "subs": subs, "sub_total": len(subs), "sub_closed": done,
                         "pct": round(100 * done / len(subs)) if subs else 0})
+
+    stories = dedupe_by_title(stories)
+    other_open = dedupe_by_title(other_open)
 
     # Failed workflow runs in the last 72 hours.
     failures = []
@@ -212,9 +217,22 @@ def collect(gh: GitHub, cfg: dict) -> dict:
                         "see the guide, section \"Commits by member\".")
 
     layers, unassigned = lib.summarize_layers(cfg, issues, prs)
+    issues_closed = sum(1 for i in issues if i["state"] == "closed")
     return assemble(cfg, gh.repo, now, demo=False, layers=layers, unassigned=unassigned,
                     prs=prs, milestones=milestones, stories=stories, other_open=other_open,
-                    failures=failures, activity=activity, members=members, warnings=warnings)
+                    failures=failures, activity=activity, members=members, warnings=warnings,
+                    issues_closed=issues_closed, issues_total=len(issues))
+
+
+def dedupe_by_title(rows: list[dict]) -> list[dict]:
+    """Collapse issues that share a title (e.g. duplicate story issues created twice),
+    keeping the highest issue number — the one the team's commits and PRs reference."""
+    best: dict[str, dict] = {}
+    for r in rows:
+        key = str(r.get("title", "")).strip().lower()
+        if key not in best or r["number"] > best[key]["number"]:
+            best[key] = r
+    return list(best.values())
 
 
 def contributor_stats(gh: GitHub, warnings: list[str]) -> list:
@@ -238,9 +256,15 @@ def bump(activity: dict, stamp: str | None) -> None:
 
 
 def assemble(cfg, repo, now, *, demo, layers, unassigned, prs, milestones, stories,
-             other_open, failures, activity, members, warnings) -> dict:
-    total_closed = sum(layer["closed_issues"] for layer in layers)
-    total = total_closed + sum(layer["open_issues"] for layer in layers) + unassigned["open_issues"]
+             other_open, failures, activity, members, warnings,
+             issues_closed=0, issues_total=0) -> dict:
+    # Overall completion = closed issues / all issues (honest, and independent of
+    # whether issues carry layer: labels). Falls back to layer counts for demo data.
+    if not issues_total:
+        issues_closed = sum(layer["closed_issues"] for layer in layers)
+        issues_total = issues_closed + sum(layer["open_issues"] for layer in layers) + unassigned["open_issues"]
+    story_tasks = sum(s["sub_total"] for s in stories)
+    story_done = sum(s["sub_closed"] for s in stories)
     return {
         "schema": 1,
         "demo": demo,
@@ -266,7 +290,12 @@ def assemble(cfg, repo, now, *, demo, layers, unassigned, prs, milestones, stori
             "open_stories": len(stories),
             "open_issues": len(other_open) + len(stories),
             "failures_72h": len(failures),
-            "pct_complete": round(100 * total_closed / total) if total else 0,
+            "pct_complete": round(100 * issues_closed / issues_total) if issues_total else 0,
+            "issues_closed": issues_closed,
+            "issues_total": issues_total,
+            "story_tasks": story_tasks,
+            "story_tasks_done": story_done,
+            "story_pct": round(100 * story_done / story_tasks) if story_tasks else 0,
             "commits_90d": sum(m["commits_90d"] for m in members),
         },
         "warnings": warnings,

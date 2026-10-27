@@ -1,0 +1,129 @@
+=============================================
+ SwagPc Café — Undefended Attack Sequence
+ Timestamp: 20261027_055624
+=============================================
+
+[ATTACK 1] Network Reconnaissance from Guest (192.168.10.50)
+Target: Business Subnet 192.168.20.0/24
+--- Ping Sweep ---
+PING 192.168.20.10 (192.168.20.10) 56(84) bytes of data.
+64 bytes from 192.168.20.10: icmp_seq=1 ttl=63 time=0.096 ms
+64 bytes from 192.168.20.10: icmp_seq=2 ttl=63 time=0.138 ms
+64 bytes from 192.168.20.10: icmp_seq=3 ttl=63 time=0.130 ms
+
+--- 192.168.20.10 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2069ms
+rtt min/avg/max/mdev = 0.096/0.121/0.138/0.018 ms
+PING 192.168.20.25 (192.168.20.25) 56(84) bytes of data.
+64 bytes from 192.168.20.25: icmp_seq=1 ttl=63 time=0.116 ms
+64 bytes from 192.168.20.25: icmp_seq=2 ttl=63 time=0.136 ms
+64 bytes from 192.168.20.25: icmp_seq=3 ttl=63 time=0.134 ms
+
+--- 192.168.20.25 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2040ms
+rtt min/avg/max/mdev = 0.116/0.128/0.136/0.009 ms
+
+--- Nmap Port Scan ---
+Starting Nmap 7.991 ( https://nmap.org ) at 2026-10-27 05:56 +0000
+Nmap scan report for 192.168.20.1
+Host is up (0.00020s latency).
+
+PORT     STATE  SERVICE       VERSION
+22/tcp   closed ssh
+80/tcp   closed http
+443/tcp  closed https
+445/tcp  closed microsoft-ds
+3389/tcp closed ms-wbt-server
+8080/tcp closed http-proxy
+
+Nmap scan report for 192.168.20.10
+Host is up (0.000086s latency).
+
+PORT     STATE  SERVICE       VERSION
+22/tcp   closed ssh
+80/tcp   open   http          Apache httpd 2.4.25 ((Debian))
+443/tcp  closed https
+445/tcp  closed microsoft-ds
+3389/tcp closed ms-wbt-server
+8080/tcp closed http-proxy
+
+Nmap scan report for 192.168.20.25
+Host is up (0.000068s latency).
+
+PORT     STATE  SERVICE       VERSION
+22/tcp   closed ssh
+80/tcp   closed http
+443/tcp  closed https
+445/tcp  closed microsoft-ds
+3389/tcp closed ms-wbt-server
+8080/tcp closed http-proxy
+
+Nmap scan report for 192.168.20.254
+Host is up (0.00018s latency).
+
+PORT     STATE  SERVICE       VERSION
+22/tcp   closed ssh
+80/tcp   closed http
+443/tcp  closed https
+445/tcp  closed microsoft-ds
+3389/tcp closed ms-wbt-server
+8080/tcp closed http-proxy
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 256 IP addresses (4 hosts up) scanned in 11.35 seconds
+
+[ATTACK 2] DVWA Web Application Exploitation
+Target: http://192.168.20.10
+--- HTTP Reachability ---
+*   Trying 192.168.20.10:80...
+* Established connection to 192.168.20.10 (192.168.20.10 port 80) from 192.168.10.50 port 46266 
+* using HTTP/1.x
+> GET / HTTP/1.1
+> Host: 192.168.20.10
+> User-Agent: curl/8.22.0
+> Accept: */*
+> 
+* Request completely sent off
+< HTTP/1.1 302 Found
+< Date: Tue, 27 Oct 2026 05:56:39 GMT
+< Server: Apache/2.4.25 (Debian)
+< Set-Cookie: PHPSESSID=97vl8m6tqmjloofj55k84d7jg2; path=/
+< Expires: Thu, 19 Nov 1981 08:52:00 GMT
+< Cache-Control: no-store, no-cache, must-revalidate
+< Pragma: no-cache
+< Set-Cookie: PHPSESSID=97vl8m6tqmjloofj55k84d7jg2; path=/
+< Set-Cookie: security=low
+< Location: login.php
+< Content-Length: 0
+
+--- Command Injection Payload ---
+
+[ATTACK 3] Lateral Movement — reaching Employee Workstation
+Target: 192.168.20.25
+--- Ping ---
+PING 192.168.20.25 (192.168.20.25) 56(84) bytes of data.
+64 bytes from 192.168.20.25: icmp_seq=1 ttl=63 time=0.096 ms
+64 bytes from 192.168.20.25: icmp_seq=2 ttl=63 time=0.138 ms
+64 bytes from 192.168.20.25: icmp_seq=3 ttl=63 time=0.094 ms
+
+--- 192.168.20.25 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2078ms
+rtt min/avg/max/mdev = 0.094/0.109/0.138/0.020 ms
+--- Port scan of workstation ---
+Starting Nmap 7.991 ( https://nmap.org ) at 2026-10-27 05:56 +0000
+Nmap scan report for 192.168.20.25
+Host is up (0.00014s latency).
+
+PORT     STATE  SERVICE       VERSION
+22/tcp   closed ssh
+80/tcp   closed http
+445/tcp  closed microsoft-ds
+3389/tcp closed ms-wbt-server
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 0.91 seconds
+
+=============================================
+ All attack evidence saved to /evidence/attack
+ Review files in evidence/attack/ directory
+=============================================

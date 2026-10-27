@@ -4,119 +4,185 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Project Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #ffffff; --bg-elev: #f3f4f6; --bg-card: #f7f7f8; --fg: #1a1a1a; --fg-mute: #4b5059;
-      --border: #cccccc; --accent: #9e262d; --link: #1d6fb0;
-      --green: #1a7f4e; --amber: #8a5a00; --red: #b42318;
-      --green-bg: #e3f4ea; --amber-bg: #fdf1d6; --red-bg: #fde4e1;
-      --hm0: #e7e8eb; --hm1: #b7e1c8; --hm2: #7cc69c; --hm3: #3f9f69; --hm4: #1a7f4e;
+      --bg: #f6f7fb; --bg-grad1: #eef1f8; --bg-grad2: #f6f7fb;
+      --bg-elev: #eceef4; --bg-card: #ffffff; --fg: #141821; --fg-mute: #5b616e;
+      --border: #e2e5ec; --border-strong: #cfd4de;
+      --accent: #4f46e5; --accent2: #06b6d4; --accent-soft: #eef0fe; --link: #4338ca;
+      --green: #0f8a53; --amber: #9a6400; --red: #c02a30;
+      --green-bg: #e5f6ec; --amber-bg: #fcf2da; --red-bg: #fce7e7;
+      --hm0: #e7e9f0; --hm1: #c3e3d2; --hm2: #85cba6; --hm3: #3fab74; --hm4: #0f8a53;
+      --ring-track: #e7e9f0;
+      --shadow: 0 1px 2px rgba(20,24,33,.04), 0 6px 20px rgba(20,24,33,.06);
+      --shadow-lg: 0 2px 4px rgba(20,24,33,.05), 0 16px 40px rgba(20,24,33,.10);
       color-scheme: light;
     }
     @media (prefers-color-scheme: dark) {
       :root:not([data-theme="light"]) {
-        --bg: #16181c; --bg-elev: #22252b; --bg-card: #1e2127; --fg: #e8eaed; --fg-mute: #a3a8b0;
-        --border: #3a3f47; --accent: #f08a91; --link: #6cb6f0;
-        --green: #4cc38a; --amber: #f5c451; --red: #f08a91;
-        --green-bg: #173326; --amber-bg: #3a2f12; --red-bg: #3d1d20;
-        --hm0: #262a31; --hm1: #1f4a33; --hm2: #2b7049; --hm3: #3b9a64; --hm4: #4cc38a;
+        --bg: #0c0e14; --bg-grad1: #12151f; --bg-grad2: #0c0e14;
+        --bg-elev: #1a1e29; --bg-card: #151925; --fg: #e9ecf3; --fg-mute: #9aa2b2;
+        --border: #262c3a; --border-strong: #333a4b;
+        --accent: #818cf8; --accent2: #22d3ee; --accent-soft: #1b2030; --link: #a5b4fc;
+        --green: #34d399; --amber: #fbbf24; --red: #f87171;
+        --green-bg: #0f2c22; --amber-bg: #342a10; --red-bg: #361a1c;
+        --hm0: #1c2230; --hm1: #16402f; --hm2: #1f6b49; --hm3: #2f9566; --hm4: #34d399;
+        --ring-track: #222838;
+        --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+        --shadow-lg: 0 2px 6px rgba(0,0,0,.4), 0 20px 50px rgba(0,0,0,.5);
         color-scheme: dark;
       }
     }
     :root[data-theme="dark"] {
-      --bg: #16181c; --bg-elev: #22252b; --bg-card: #1e2127; --fg: #e8eaed; --fg-mute: #a3a8b0;
-      --border: #3a3f47; --accent: #f08a91; --link: #6cb6f0;
-      --green: #4cc38a; --amber: #f5c451; --red: #f08a91;
-      --green-bg: #173326; --amber-bg: #3a2f12; --red-bg: #3d1d20;
-      --hm0: #262a31; --hm1: #1f4a33; --hm2: #2b7049; --hm3: #3b9a64; --hm4: #4cc38a;
+      --bg: #0c0e14; --bg-grad1: #12151f; --bg-grad2: #0c0e14;
+      --bg-elev: #1a1e29; --bg-card: #151925; --fg: #e9ecf3; --fg-mute: #9aa2b2;
+      --border: #262c3a; --border-strong: #333a4b;
+      --accent: #818cf8; --accent2: #22d3ee; --accent-soft: #1b2030; --link: #a5b4fc;
+      --green: #34d399; --amber: #fbbf24; --red: #f87171;
+      --green-bg: #0f2c22; --amber-bg: #342a10; --red-bg: #361a1c;
+      --hm0: #1c2230; --hm1: #16402f; --hm2: #1f6b49; --hm3: #2f9566; --hm4: #34d399;
+      --ring-track: #222838;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+      --shadow-lg: 0 2px 6px rgba(0,0,0,.4), 0 20px 50px rgba(0,0,0,.5);
       color-scheme: dark;
     }
     * { box-sizing: border-box; }
-    body { margin: 0; background: var(--bg); color: var(--fg);
-           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-           font-size: 16px; line-height: 1.55; }
-    main { max-width: 1280px; margin: 0 auto; padding: 32px 24px 48px; }
-    a { color: var(--link); }
-    a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px solid var(--link); outline-offset: 2px; }
-    h1 { font-size: 30px; margin: 0 0 4px; line-height: 1.2; }
-    h2 { font-size: 22px; margin: 44px 0 6px; padding-bottom: 8px; border-bottom: 2px solid var(--border); }
-    h3 { font-size: 18px; margin: 0 0 6px; }
-    .lede { color: var(--fg-mute); margin: 0 0 14px; max-width: 75ch; }
-    .hero { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap;
-            border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 24px; }
-    .hero .meta { color: var(--fg-mute); }
-    .hero-actions { text-align: right; }
-    .btn { display: inline-block; background: var(--accent); color: #fff; border: 0; border-radius: 6px;
-           padding: 10px 18px; font-weight: 600; font-size: 16px; text-decoration: none; cursor: pointer; }
-    :root[data-theme="dark"] .btn { color: #16181c; }
-    @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .btn { color: #16181c; } }
-    .mini-btn { background: var(--bg-elev); color: var(--fg); border: 1px solid var(--border);
-                border-radius: 5px; padding: 4px 10px; font-size: 14px; cursor: pointer; }
+    body { margin: 0; color: var(--fg);
+           background: radial-gradient(1200px 600px at 100% -10%, var(--bg-grad1), transparent 60%), var(--bg-grad2);
+           background-attachment: fixed;
+           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+           font-size: 16px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+    main { max-width: 1240px; margin: 0 auto; padding: 28px 24px 64px; }
+    a { color: var(--link); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+    h1 { font-size: 34px; margin: 0 0 4px; line-height: 1.15; letter-spacing: -0.02em; font-weight: 800; }
+    h2 { font-size: 15px; margin: 52px 0 16px; text-transform: uppercase; letter-spacing: .08em;
+         color: var(--fg-mute); font-weight: 700; display: flex; align-items: center; gap: 10px; }
+    h2::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+    h3 { font-size: 17px; margin: 0 0 6px; font-weight: 700; letter-spacing: -0.01em; }
+    code, .mono { font-family: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace; font-size: .9em; }
+    .lede { color: var(--fg-mute); margin: 0 0 14px; max-width: 80ch; }
+    /* ---- Hero ---- */
+    .hero { position: relative; overflow: hidden; border-radius: 20px; padding: 30px 32px;
+            background: linear-gradient(135deg, var(--accent) 0%, #6d28d9 55%, var(--accent2) 130%);
+            color: #fff; box-shadow: var(--shadow-lg); margin-bottom: 14px;
+            display: flex; justify-content: space-between; gap: 28px; flex-wrap: wrap; align-items: center; }
+    .hero::before { content: ""; position: absolute; inset: 0;
+            background: radial-gradient(600px 300px at 90% -30%, rgba(255,255,255,.25), transparent 60%);
+            pointer-events: none; }
+    .hero > div { position: relative; }
+    .hero h1 { color: #fff; }
+    .hero .meta { color: rgba(255,255,255,.85); font-size: 15px; font-weight: 500; }
+    .hero .meta a { color: #fff; text-decoration: underline; text-underline-offset: 2px; }
+    .hero .lede { color: rgba(255,255,255,.9); max-width: 62ch; margin-top: 10px; }
+    .hero-right { position: relative; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+    .ring-wrap { display: flex; flex-direction: column; align-items: center; }
+    .ring-cap { font-size: 13px; color: rgba(255,255,255,.85); margin-top: 2px; font-weight: 600;
+                text-transform: uppercase; letter-spacing: .06em; }
+    .btn { display: inline-block; background: #fff; color: var(--accent); border: 0; border-radius: 10px;
+           padding: 10px 18px; font-weight: 700; font-size: 15px; cursor: pointer; box-shadow: var(--shadow);
+           transition: transform .1s ease; }
+    .btn:hover { transform: translateY(-1px); text-decoration: none; }
+    .hero .small { color: rgba(255,255,255,.8); }
+    .hero .small a { color: #fff; }
+    .mini-btn { background: var(--bg-card); color: var(--fg); border: 1px solid var(--border-strong);
+                border-radius: 8px; padding: 5px 12px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .mini-btn:hover { border-color: var(--accent); color: var(--accent); }
     .banner { border: 1px solid var(--amber); background: var(--amber-bg); color: var(--fg);
-              border-radius: 8px; padding: 12px 16px; margin: 0 0 20px; }
+              border-radius: 12px; padding: 12px 16px; margin: 14px 0 0; box-shadow: var(--shadow); }
     .banner strong { color: var(--amber); }
-    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
-    .stat { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; }
-    .stat .label { font-size: 14px; color: var(--fg-mute); }
-    .stat .value { font-size: 28px; font-weight: 700; }
-    .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
+    /* ---- Stat tiles ---- */
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(158px, 1fr)); gap: 14px; margin-top: 22px; }
+    .stat { position: relative; background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px;
+            padding: 16px 18px; box-shadow: var(--shadow); overflow: hidden;
+            transition: transform .12s ease, box-shadow .12s ease; }
+    .stat:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+    .stat::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+            background: linear-gradient(var(--accent), var(--accent2)); }
+    .stat .label { font-size: 13px; color: var(--fg-mute); font-weight: 600; letter-spacing: .01em; }
+    .stat .value { font-size: 30px; font-weight: 800; letter-spacing: -0.02em; margin-top: 2px; }
+    .stat .sub { font-size: 12.5px; color: var(--fg-mute); }
+    /* ---- Cards ---- */
+    .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px;
+            box-shadow: var(--shadow); transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease; }
+    .card:hover { box-shadow: var(--shadow-lg); border-color: var(--border-strong); }
     .muted { color: var(--fg-mute); }
     .small { font-size: 14px; }
-    .chip { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 14px;
-            background: var(--bg-elev); border: 1px solid var(--border); white-space: nowrap; }
-    .bar { height: 8px; background: var(--bg-elev); border-radius: 999px; overflow: hidden; margin: 8px 0; }
-    .bar > span { display: block; height: 100%; background: var(--green); }
-    .table-wrap { overflow-x: auto; }
+    .chip { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 13px; font-weight: 500;
+            background: var(--accent-soft); color: var(--accent); border: 1px solid transparent; white-space: nowrap; }
+    .chip.plain { background: var(--bg-elev); color: var(--fg-mute); }
+    .bar { height: 9px; background: var(--ring-track); border-radius: 999px; overflow: hidden; margin: 10px 0; }
+    .bar > span { display: block; height: 100%; border-radius: 999px;
+                  background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width .6s cubic-bezier(.2,.8,.2,1); }
+    .bar.g > span { background: linear-gradient(90deg, #0f8a53, #34d399); }
+    .table-wrap { overflow-x: auto; background: var(--bg-card); border: 1px solid var(--border);
+                  border-radius: 14px; box-shadow: var(--shadow); }
     table { width: 100%; border-collapse: collapse; font-size: 15px; }
-    caption { text-align: left; color: var(--fg-mute); font-size: 14px; padding-bottom: 6px; }
-    th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
-    th { background: var(--bg-elev); font-size: 14px; }
+    caption { text-align: left; color: var(--fg-mute); font-size: 13px; padding: 12px 16px 0; }
+    th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tbody tr:last-child td { border-bottom: 0; }
+    tbody tr { transition: background .1s ease; }
+    tbody tr:hover { background: var(--bg-elev); }
+    th { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--fg-mute);
+         font-weight: 700; border-bottom: 1px solid var(--border-strong); }
     td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
     .empty { color: var(--fg-mute); font-style: italic; }
-    /* Status: always a word plus a colour, never colour alone. */
-    .status { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 14px; font-weight: 600; white-space: nowrap; }
+    .status { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 13px; font-weight: 700; white-space: nowrap; }
     .status.green { background: var(--green-bg); color: var(--green); }
     .status.amber { background: var(--amber-bg); color: var(--amber); }
     .status.red { background: var(--red-bg); color: var(--red); }
-    tr.sev-green td:first-child { border-left: 4px solid var(--green); }
-    tr.sev-amber td:first-child { border-left: 4px solid var(--amber); }
-    tr.sev-red td:first-child { border-left: 4px solid var(--red); }
-    /* Stack view */
-    .stack { display: grid; gap: 10px; }
-    .stack-row { display: grid; grid-template-columns: 170px 1fr; gap: 16px; align-items: start; }
-    .tier { font-weight: 700; text-transform: capitalize; padding-top: 16px; }
-    .tier .small { display: block; font-weight: 400; text-transform: none; }
+    tr.sev-green td:first-child { box-shadow: inset 4px 0 0 var(--green); }
+    tr.sev-amber td:first-child { box-shadow: inset 4px 0 0 var(--amber); }
+    tr.sev-red td:first-child { box-shadow: inset 4px 0 0 var(--red); }
+    /* ---- Stack ---- */
+    .stack { display: grid; gap: 12px; }
+    .stack-row { display: grid; grid-template-columns: 150px 1fr; gap: 18px; align-items: stretch; }
+    .tier { font-weight: 700; text-transform: capitalize; padding-top: 18px; position: relative; }
+    .tier::before { content: ""; position: absolute; left: -2px; top: 20px; width: 8px; height: 8px; border-radius: 50%;
+                    background: linear-gradient(var(--accent), var(--accent2)); box-shadow: 0 0 0 4px var(--accent-soft); }
+    .tier span.label { padding-left: 16px; display: block; }
+    .tier .small { display: block; font-weight: 400; text-transform: none; color: var(--fg-mute); padding-left: 16px; }
+    .layer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
     .layer-head { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: baseline; }
-    .techs { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
-    .pr-links { margin-top: 8px; font-size: 14px; }
+    .techs { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+    .pr-links { margin-top: 10px; font-size: 14px; }
     .pr-links a { margin-right: 10px; }
-    @media (max-width: 700px) { .stack-row { grid-template-columns: 1fr; gap: 0; } .tier { padding-top: 0; } }
-    /* Milestones and stories */
-    .ms-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
-    details.group { margin: 10px 0; }
-    details.group > summary { font-weight: 700; cursor: pointer; padding: 6px 0; }
-    details.story { border: 1px solid var(--border); border-radius: 8px; background: var(--bg-card);
-                    padding: 10px 14px; margin: 8px 0; }
-    details.story > summary { cursor: pointer; }
-    ul.subs { list-style: none; padding: 0; margin: 6px 0 0; }
-    ul.subs li { padding: 2px 0; }
-    ul.subs li.done a { text-decoration: line-through; color: var(--fg-mute); }
-    /* Heatmap */
+    @media (max-width: 720px) { .stack-row { grid-template-columns: 1fr; gap: 4px; } .tier { padding-top: 4px; }
+      .tier::before, .tier span.label, .tier .small { padding-left: 0; } .tier::before { display: none; } }
+    /* ---- Milestones & stories ---- */
+    .ms-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 14px; }
+    .ms-pct { font-size: 26px; font-weight: 800; letter-spacing: -.02em; }
+    details.group { margin: 12px 0; }
+    details.group > summary { font-weight: 700; cursor: pointer; padding: 8px 0; font-size: 15px; }
+    details.story { border: 1px solid var(--border); border-radius: 12px; background: var(--bg-card);
+                    padding: 12px 16px; margin: 10px 0; box-shadow: var(--shadow); }
+    details.story[open] { border-color: var(--border-strong); }
+    details.story > summary { cursor: pointer; font-size: 15px; }
+    ul.subs { list-style: none; padding: 0; margin: 10px 0 0; }
+    ul.subs li { padding: 4px 0 4px 26px; position: relative; }
+    ul.subs li::before { content: "○"; position: absolute; left: 4px; color: var(--fg-mute); }
+    ul.subs li.done::before { content: "✓"; color: var(--green); font-weight: 800; }
+    ul.subs li.done { color: var(--fg-mute); text-decoration: line-through; }
+    /* ---- Heatmap ---- */
     .hm { display: flex; gap: 3px; overflow-x: auto; padding-bottom: 4px; }
     .hm-col { display: flex; flex-direction: column; gap: 3px; }
     .hc { width: 14px; height: 14px; border-radius: 3px; background: var(--hm0); }
     .hc.l1 { background: var(--hm1); } .hc.l2 { background: var(--hm2); }
     .hc.l3 { background: var(--hm3); } .hc.l4 { background: var(--hm4); }
     .hc.pad { background: transparent; }
-    .legend { display: flex; gap: 4px; align-items: center; font-size: 14px; color: var(--fg-mute); margin-top: 8px; }
-    /* Members */
-    .share { display: flex; height: 26px; border-radius: 6px; overflow: hidden; border: 1px solid var(--border); margin: 10px 0 4px; }
+    .legend { display: flex; gap: 4px; align-items: center; font-size: 13px; color: var(--fg-mute); margin-top: 10px; }
+    /* ---- Members ---- */
+    .share { display: flex; height: 28px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); margin: 12px 0 6px; }
     .share span { display: block; height: 100%; }
-    .key { display: flex; gap: 14px; flex-wrap: wrap; font-size: 14px; margin-bottom: 14px; }
-    .swatch { display: inline-block; width: 12px; height: 12px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
-    svg.spark rect { fill: var(--green); }
+    .key { display: flex; gap: 16px; flex-wrap: wrap; font-size: 14px; margin-bottom: 16px; }
+    .swatch { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+    svg.spark rect { fill: var(--accent); }
     svg.spark line { stroke: var(--border); }
-    footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border); color: var(--fg-mute); font-size: 14px; }
+    footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border); color: var(--fg-mute); font-size: 14px; }
   </style>
 </head>
 <body>
@@ -144,8 +210,18 @@
   const link = (url, text) => `<a href="${esc(url)}">${esc(text)}</a>`;
   const fmtDate = iso => iso ? new Date(iso).toLocaleString(undefined,
     {year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit"}) : "never";
-  const pctBar = (pct, label) =>
-    `<div class="bar" role="img" aria-label="${esc(label)}: ${pct}% complete"><span style="width:${pct}%"></span></div>`;
+  const pctBar = (pct, label, cls) =>
+    `<div class="bar ${cls || ""}" role="img" aria-label="${esc(label)}: ${pct}% complete"><span style="width:${pct}%"></span></div>`;
+  const ring = pct => {
+    const r = 52, c = 2 * Math.PI * r, off = c * (1 - Math.max(0, Math.min(100, pct)) / 100);
+    return `<svg width="128" height="128" viewBox="0 0 130 130" role="img" aria-label="Overall complete: ${pct}%">
+      <circle cx="65" cy="65" r="${r}" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="12"/>
+      <circle cx="65" cy="65" r="${r}" fill="none" stroke="#fff" stroke-width="12" stroke-linecap="round"
+        stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}" transform="rotate(-90 65 65)"/>
+      <text x="65" y="62" text-anchor="middle" font-size="30" font-weight="800" fill="#fff">${pct}%</text>
+      <text x="65" y="82" text-anchor="middle" font-size="11" letter-spacing="1" fill="rgba(255,255,255,.85)">COMPLETE</text>
+    </svg>`;
+  };
   const SEV = {green: "Ready", amber: "In progress", red: "Needs attention"};
   const REVIEW = {APPROVED: ["green", "Approved"], CHANGES_REQUESTED: ["red", "Changes requested"],
                   REVIEW_REQUIRED: ["amber", "Review needed"]};
@@ -167,12 +243,13 @@
     <div>
       <h1>${esc(P.name)}</h1>
       <div class="meta">${esc(P.team)}${P.course ? " · " + esc(P.course) : ""} · ${link(D.repo_url, D.repo)}</div>
-      <p class="lede" style="margin-top:8px">${esc(P.description)}</p>
+      <p class="lede">${esc(P.description)}</p>
+      <div style="margin-top:14px"><a class="btn" href="${esc(D.refresh_url)}">↻ Refresh now</a></div>
     </div>
-    <div class="hero-actions">
-      <a class="btn" href="${esc(D.refresh_url)}">Refresh now</a>
-      <div class="small muted" style="margin-top:6px">Last refresh: ${esc(fmtDate(D.generated_at))}</div>
-      <div class="small" style="margin-top:4px"><a href="guide.html">How this dashboard works</a></div>
+    <div class="hero-right">
+      <div class="ring-wrap">${ring(T.pct_complete)}</div>
+      <div class="small">Last refresh: ${esc(fmtDate(D.generated_at))}</div>
+      <div class="small"><a href="guide.html">How this dashboard works →</a></div>
     </div>
   </header>`);
   document.title = P.name + " dashboard";
@@ -185,16 +262,18 @@
   (D.warnings || []).forEach(w => html.push(`<div class="banner" role="note"><strong>Note.</strong> ${esc(w)}</div>`));
 
   // ---- summary numbers ----------------------------------------------------------------------
-  const stat = (label, value, tone) =>
-    `<div class="stat"><div class="label">${label}</div><div class="value"${tone ? ` style="color:var(--${tone})"` : ""}>${value}</div></div>`;
+  const stat = (label, value, tone, sub) =>
+    `<div class="stat"><div class="label">${label}</div>` +
+    `<div class="value"${tone ? ` style="color:var(--${tone})"` : ""}>${value}</div>` +
+    (sub ? `<div class="sub">${sub}</div>` : "") + `</div>`;
   html.push(`<section aria-label="Summary"><div class="stats">
-    ${stat("Overall complete", T.pct_complete + "%", "green")}
-    ${stat("Open pull requests", T.open_prs)}
-    ${stat("Ready to merge", T.ready_prs, "green")}
+    ${stat("Overall complete", T.pct_complete + "%", "green", (T.issues_closed != null ? `${T.issues_closed} of ${T.issues_total} issues closed` : ""))}
+    ${stat("Story tasks done", (T.story_pct != null ? T.story_pct + "%" : "—"), "", (T.story_tasks != null ? `${T.story_tasks_done} of ${T.story_tasks} subtasks` : ""))}
+    ${stat("Open pull requests", T.open_prs, "", `${T.ready_prs} ready · ${T.attention_prs} need attention`)}
     ${stat("Need attention", T.attention_prs, T.attention_prs ? "red" : "")}
     ${stat("Open stories", T.open_stories)}
     ${stat("Open issues", T.open_issues)}
-    ${stat("Failed runs (72h)", T.failures_72h, T.failures_72h ? "red" : "")}
+    ${stat("Failed runs (72h)", T.failures_72h, T.failures_72h ? "red" : "green")}
     ${stat("Commits (90 days)", T.commits_90d)}
   </div></section>`);
 
@@ -207,16 +286,17 @@
         ? `<div class="pr-links">Open PRs: ${l.open_prs.map(p =>
             `${link(p.url, "#" + p.number)} <span class="status ${p.severity}">${SEV[p.severity]}</span>`).join(" ")}</div>` : "";
       return `<div class="card">
-        <div class="layer-head"><h3>${esc(l.name)} <span class="chip">layer:${esc(l.id)}</span></h3>
-          <span class="small muted">${l.pct}% · ${l.closed_issues} of ${total} issues closed</span></div>
+        <div class="layer-head"><h3>${esc(l.name)}</h3>
+          <span class="small muted">${total ? `${l.pct}% · ${l.closed_issues}/${total}` : "not tracked"}</span></div>
         <div class="small muted">${esc(l.description)}</div>
-        ${pctBar(l.pct, l.name)}
-        <div class="techs">${l.technologies.map(x => `<span class="chip">${esc(x)}</span>`).join("")}</div>
+        ${pctBar(l.pct, l.name, "g")}
+        <div class="techs">${l.technologies.map(x => `<span class="chip plain">${esc(x)}</span>`).join("")}
+          <span class="chip">layer:${esc(l.id)}</span></div>
         ${prs}
       </div>`;
     }).join("");
-    return `<div class="stack-row"><div class="tier">${esc(t)}<span class="small muted">${esc(D.stack_tiers[t])}</span></div>
-      <div class="stack">${cards}</div></div>`;
+    return `<div class="stack-row"><div class="tier"><span class="label">${esc(t)}</span><span class="small">${esc(D.stack_tiers[t])}</span></div>
+      <div class="layer-grid">${cards}</div></div>`;
   }).join("");
   const un = D.unassigned;
   const unNote = (un.open_issues || un.open_prs)
@@ -247,30 +327,32 @@
 
   // ---- milestones ---------------------------------------------------------------------------
   const ms = D.milestones.map(m => `<div class="card">
-      <div class="layer-head"><h3>${link(m.url, m.title)}</h3><span class="small muted">${m.pct}% · ${m.closed}/${m.total}</span></div>
-      ${pctBar(m.pct, m.title)}
-      <div class="small muted">${esc(m.description)}${m.due_on ? " Due " + esc(new Date(m.due_on).toLocaleDateString()) + "." : ""}
-      ${m.state === "closed" ? ' <span class="status green">Closed</span>' : ""}</div></div>`).join("");
+      <div class="layer-head"><h3>${link(m.url, m.title)}</h3>
+        <span class="ms-pct" style="color:var(--${m.pct >= 100 ? "green" : "accent"})">${m.pct}%</span></div>
+      ${pctBar(m.pct, m.title, "g")}
+      <div class="small muted">${m.closed}/${m.total} issues closed · ${m.open} open
+      ${m.state === "closed" ? ' <span class="status green">Closed</span>' : ""}</div>
+      <div class="small muted" style="margin-top:6px">${esc(m.description)}${m.due_on ? " Due " + esc(new Date(m.due_on).toLocaleDateString()) + "." : ""}</div></div>`).join("");
   html.push(section("milestones", "Milestones", "One milestone per sprint or deliverable. Progress is closed issues over all issues in it.",
     ms ? `<div class="ms-grid">${ms}</div>` : '<p class="empty">No milestones yet. Create one under Issues, Milestones.</p>'));
 
   // ---- stories ------------------------------------------------------------------------------
   const storyHtml = s => `<details class="story"><summary><strong>${esc("#" + s.number + " " + s.title)}</strong>
-      <span class="small muted"> · ${s.pct}% · ${s.sub_closed}/${s.sub_total} sub-issues</span></summary>
-      ${pctBar(s.pct, "Story " + s.number)}
-      <div class="small">${layerChip(s.layer)} ${s.priority ? `<span class="chip">${esc(s.priority)}</span>` : ""}
+      <span class="small muted"> · ${s.sub_closed}/${s.sub_total} subtasks${s.sub_total ? " · " + s.pct + "%" : ""}</span></summary>
+      ${s.sub_total ? pctBar(s.pct, "Story " + s.number, "g") : ""}
+      <div class="small" style="margin-top:6px">${s.layer ? layerChip(s.layer) + " " : ""}${s.priority ? `<span class="chip">${esc(s.priority)}</span> ` : ""}
         ${s.assignees.length ? "Assigned to " + esc(s.assignees.join(", ")) : '<span class="muted">Unassigned</span>'}
-        · ${link(s.url, "Open on GitHub")}</div>
-      ${s.subs.length ? `<ul class="subs">${s.subs.map(x => `<li class="${x.done ? "done" : ""}">
-          ${x.done ? "Done:" : "To do:"} ${link(x.url, "#" + x.number + " " + x.title)}</li>`).join("")}</ul>`
-        : '<p class="small empty">No sub-issues yet. Break this story into tasks with Create sub-issue.</p>'}
+        · ${link(s.url, "Open on GitHub ↗")}</div>
+      ${s.subs.length ? `<ul class="subs">${s.subs.map(x => `<li class="${x.done ? "done" : ""}">${
+          x.url ? link(x.url, "#" + x.number + " " + x.title) : esc(x.title)}</li>`).join("")}</ul>`
+        : '<p class="small empty">No subtasks listed in this issue.</p>'}
     </details>`;
   const groups = {};
   D.stories.forEach(s => (groups[s.milestone || "No milestone"] ||= []).push(s));
   const storyGroups = Object.keys(groups).map(g => `<details class="group" open><summary>${esc(g)}
       <span class="small muted">(${groups[g].length} open)</span></summary>${groups[g].map(storyHtml).join("")}</details>`).join("");
   html.push(section("stories", "Open stories by milestone",
-    "Issues labeled <code>type:story</code>. Story progress is closed sub-issues over all sub-issues.",
+    "User stories (labeled <code>user-story</code>), grouped by milestone. Progress is the completed subtasks in each issue's task list.",
     storyGroups ? `<p><button type="button" class="mini-btn" data-toggle="stories-box" data-open="1">Expand all</button>
       <button type="button" class="mini-btn" data-toggle="stories-box" data-open="0">Collapse all</button></p>
       <div id="stories-box">${storyGroups}</div>` : '<p class="empty">No open stories.</p>'));

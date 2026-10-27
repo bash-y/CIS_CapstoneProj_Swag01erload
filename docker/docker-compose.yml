@@ -69,6 +69,48 @@ services:
     restart: unless-stopped
 
   # ─────────────────────────────────────────────────────────────────
+  # BUSINESS SERVER — Ubuntu internal operations server (US-4)
+  # Business Network / 192.168.20.20. Hosts internal café business
+  # services (operations portal + orders export). Distinct from the
+  # public-facing, intentionally-vulnerable DVWA web app above.
+  # ─────────────────────────────────────────────────────────────────
+  business-server:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.business-server
+    image: swagpc-business-server:latest
+    container_name: swagpc-business-server
+    hostname: swagpc-bizsrv
+    ports:
+      - "127.0.0.1:8090:80"   # localhost-only inspection of the business portal
+    networks:
+      business-net:
+        ipv4_address: 192.168.20.20
+    restart: unless-stopped
+
+  # ─────────────────────────────────────────────────────────────────
+  # WAF — ModSecurity + OWASP CRS reverse proxy in front of DVWA (#23, #7)
+  # Business Network / 192.168.20.15. Requests to the café portal go through
+  # this WAF, which blocks known attack patterns with 403 and logs each match.
+  # DVWA stays on 192.168.20.10 so the undefended baseline is unchanged.
+  # ─────────────────────────────────────────────────────────────────
+  waf:
+    image: owasp/modsecurity-crs:nginx
+    container_name: swagpc-waf
+    hostname: swagpc-waf
+    environment:
+      - BACKEND=http://dvwa:80
+      - BLOCKING_PARANOIA=1
+    depends_on:
+      - dvwa
+    ports:
+      - "127.0.0.1:8081:8080"   # localhost-only access to the WAF
+    networks:
+      business-net:
+        ipv4_address: 192.168.20.15
+    restart: unless-stopped
+
+  # ─────────────────────────────────────────────────────────────────
   # EMPLOYEE WORKSTATION — Business Network (192.168.20.25)
   # ─────────────────────────────────────────────────────────────────
   workstation:
