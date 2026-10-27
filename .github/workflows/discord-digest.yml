@@ -1,0 +1,41 @@
+name: Discord Digest
+
+# Posts an insight digest to Discord: team activity, PRs waiting on review,
+# stale work, unlinked commits, milestone progress, and (weekly) unmerged
+# branches and CI health. Uses DISCORD_DIGEST_WEBHOOK_URL, falling back to
+# DISCORD_WEBHOOK_URL. Setup: wiki/Discord-Bot.md
+
+on:
+  schedule:
+    - cron: "0 13 * * 0,2-6"   # daily digest, 8am Central (daylight time), Tue-Sun
+    - cron: "0 13 * * 1"       # weekly digest every Monday, covering the past 7 days
+  workflow_dispatch:
+    inputs:
+      period:
+        description: "Digest to post"
+        type: choice
+        options: [ daily, weekly ]
+        default: daily
+
+# Least-privilege token: the digest only reads repository data.
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+  actions: read
+
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Post digest
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          DISCORD_DIGEST_WEBHOOK_URL: ${{ secrets.DISCORD_DIGEST_WEBHOOK_URL }}
+          PERIOD: ${{ github.event.schedule == '0 13 * * 1' && 'weekly' || inputs.period || 'daily' }}
+        run: python3 scripts/discord_notify.py digest "$PERIOD"
