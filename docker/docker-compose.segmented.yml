@@ -1,0 +1,31 @@
+# Opt-in three-segment layout for issue #8. Use together with the base file:
+#   docker compose -f docker/docker-compose.yml -f docker/docker-compose.segmented.yml up -d
+#
+# Segments:
+#   customer <-> WAF   guest-net  (192.168.10.0/24): the WAF is the only café service a Guest host can reach
+#   WAF <-> DVWA       app-net    (192.168.30.0/24): private; the firewall does not route it
+#   DVWA <-> DB        inside DVWA: the lab's DB is MySQL inside the DVWA image, so there is no separate DB segment
+#
+# The base file is unchanged. Without this override the lab runs the undefended layout.
+
+services:
+  waf:
+    networks: !override
+      guest-net:
+        ipv4_address: 192.168.10.15
+      app-net:
+        ipv4_address: 192.168.30.2
+
+  dvwa:
+    networks: !override
+      app-net:
+        ipv4_address: 192.168.30.10
+
+networks:
+  app-net:
+    name: app-net
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.30.0/24
+          gateway: 192.168.30.1
