@@ -184,7 +184,6 @@ services:
   suricata:
     image: jasonish/suricata:latest
     container_name: swagpc-suricata
-    hostname: swagpc-suricata
     cap_add:
       - NET_ADMIN
       - SYS_NICE
