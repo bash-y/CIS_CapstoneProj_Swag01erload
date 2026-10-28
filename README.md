@@ -5,7 +5,8 @@ Defending a small café against **guest-network compromise, web application atta
 * **Course:** CIS 3353 Computer Systems Security · Dr. Gonzalo D. Parra
 * **Commit approach:** **Individual Commits** *(unanimous team vote — declared on the proposal)*
 * **Project board:** [GitHub Project Board](https://github.com/users/bash-y/projects) · **Wiki report:** [GitHub Wiki](https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/wiki)
-* **Live dashboard:** [bash-y.github.io/CIS_CapstoneProj_Swag01erload](https://bash-y.github.io/CIS_CapstoneProj_Swag01erload/) · progress, open PRs, milestones and commits, refreshed on every push to `main` and every 6 hours
+* **Overview dashboard:** [bash-y.github.io/CIS_CapstoneProj_Swag01erload](https://bash-y.github.io/CIS_CapstoneProj_Swag01erload/) · progress, open PRs, milestones and commits, refreshed on every push to `main` and every 6 hours
+* **Project dashboard:** an interactive Gantt, activity feed, board and analytics view that reads this repo's milestones, issues and commits. Download [`git_project-dashboard.html`](https://github.com/UIWCyber/UIW-PMD/blob/main/git_project-dashboard.html) from [UIW-PMD](https://github.com/UIWCyber/UIW-PMD), open it in a browser, then use **•••** → **Connect a project…** and paste `https://github.com/bash-y/CIS_CapstoneProj_Swag01erload`. Edits stay in your browser; use **Reload from GitHub** to pull the latest data.
 
 ---
 
