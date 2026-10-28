@@ -155,7 +155,9 @@ services:
       business-net:
         ipv4_address: 192.168.20.100
     ports:
+      - "127.0.0.1:1514:1514/tcp"   # Wazuh agent event transport
       - "127.0.0.1:1514:1514/udp"   # Syslog agent ingestion
+      - "127.0.0.1:1515:1515/tcp"   # Wazuh agent enrollment
       - "127.0.0.1:55000:55000"     # Wazuh API
     restart: unless-stopped
 
