@@ -30,7 +30,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import dashboard_lib as lib  # noqa: E402
 
 API = "https://api.github.com"
-PAGE_FILES = ("index.html", "guide.html")
+PAGE_FILES = ("index.html", "guide.html", "project-dashboard.html")
 MAX_PAGES = 20
 
 
