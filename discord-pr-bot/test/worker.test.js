@@ -40,7 +40,7 @@ function makeEnv() {
 const on = (method, pattern, reply) => routes.unshift([method, pattern, typeof reply === "function" ? reply : () => reply]);
 
 const prData = (o = {}) => ({
-  number: 91, title: "US-1 #42: Discord update bot", body: "Adds the bot",
+  number: 91, node_id: "PR_node91", title: "US-1 #42: Discord update bot", body: "Adds the bot",
   html_url: "https://github.com/bash-y/repo/pull/91", state: "open", draft: false, merged_at: null,
   mergeable: true, mergeable_state: "blocked", user: { login: "bash-y" },
   head: { sha: SHA, ref: "us1-discord-bot" }, base: { ref: "main" }, ...o,
@@ -289,6 +289,43 @@ test("GitHub's refusal is shown privately, e.g. approving your own PR", async ()
   await send(button(`approve:91:${SHA}`, "u-seb"));
   const note = discordCalls("POST").at(-1).body;
   assert.match(note.content, /Can not approve your own pull request/);
+  assert.equal(note.flags, 64);
+});
+
+// ----------------------------------------------------------------------------- drafts
+
+test("a draft card offers Ready for review instead of Approve and Merge", async () => {
+  await link();
+  on("GET", /\/pulls\/91$/, [200, prData({ draft: true, mergeable_state: "draft" })]);
+  await send(command("pr", [{ name: "number", value: 91 }]));
+  const ids = buttonsOf(lastEdit()).map((b) => b.custom_id || b.url);
+  assert.deepEqual(ids, [`ready:91:${SHA}`, "refresh:91", "https://github.com/bash-y/repo/pull/91/files"]);
+});
+
+test("Ready for review marks the draft ready as the clicker, then the card offers Approve", async () => {
+  await link();
+  let draft = true, mutation;
+  on("GET", /\/pulls\/91$/, () => [200, prData({ draft, mergeable_state: draft ? "draft" : "blocked" })]);
+  on("POST", /api\.github\.com\/graphql$/, ({ body, headers }) => {
+    mutation = { body, auth: headers.Authorization };
+    draft = false;
+    return [200, { data: { markPullRequestReadyForReview: { pullRequest: { isDraft: false } } } }];
+  });
+  const res = await send(button(`ready:91:${SHA}`));
+  assert.equal(res.type, 6);
+  assert.equal(mutation.auth, "Bearer ghu_UiwAntHuynhCIS");
+  assert.match(mutation.body.query, /markPullRequestReadyForReview/);
+  assert.deepEqual(mutation.body.variables, { id: "PR_node91" });
+  assert.equal(buttonsOf(lastEdit())[0].custom_id, `approve:91:${SHA}`);
+});
+
+test("a refused Ready for review is reported privately", async () => {
+  await link();
+  on("GET", /\/pulls\/91$/, [200, prData({ draft: true })]);
+  on("POST", /api\.github\.com\/graphql$/, [200, { errors: [{ message: "Resource not accessible by integration" }] }]);
+  await send(button(`ready:91:${SHA}`));
+  const note = discordCalls("POST").at(-1).body;
+  assert.match(note.content, /Resource not accessible by integration/);
   assert.equal(note.flags, 64);
 });
 

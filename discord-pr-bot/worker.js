@@ -54,7 +54,7 @@ const MERGE_STATE = {
   blocked: "\u26D4 Blocked: needs an approval from someone other than the author",
   behind: "\u26A0\uFE0F Branch is behind main",
   dirty: "\u274C Merge conflicts: fix them on GitHub first",
-  draft: "\u{1F4DD} Draft: mark it ready for review first",
+  draft: "\u{1F4DD} Draft: press Ready for review, then it can be approved",
   unknown: "\u23F3 GitHub is still working out mergeability; press Refresh",
 };
 
@@ -305,9 +305,15 @@ function card({ pr, approvers, changesBy, checks }) {
   }
   const color = merged ? PURPLE : closed ? GREY : changesBy.length ? RED : approvers.length ? GREEN : AMBER;
   const buttons = [];
-  if (!closed) {
+  if (!closed && pr.draft) {
+    // GitHub won't merge a draft, so the first step is marking it ready; then Approve appears.
     buttons.push(
-      { type: BUTTON, style: SUCCESS, label: "Approve", emoji: { name: "\u2705" }, custom_id: `approve:${n}:${sha}`, disabled: pr.draft },
+      { type: BUTTON, style: PRIMARY, label: "Ready for review", emoji: { name: "\u{1F440}" }, custom_id: `ready:${n}:${sha}` },
+      { type: BUTTON, style: SECONDARY, label: "Refresh", emoji: { name: "\u{1F504}" }, custom_id: `refresh:${n}` },
+    );
+  } else if (!closed) {
+    buttons.push(
+      { type: BUTTON, style: SUCCESS, label: "Approve", emoji: { name: "\u2705" }, custom_id: `approve:${n}:${sha}` },
       { type: BUTTON, style: PRIMARY, label: "Merge", emoji: { name: "\u{1F500}" }, custom_id: `merge:${n}:${sha}` },
       { type: BUTTON, style: SECONDARY, label: "Refresh", emoji: { name: "\u{1F504}" }, custom_id: `refresh:${n}` },
     );
@@ -424,7 +430,7 @@ async function onCommand(i, env, ctx, origin, userId) {
 
 // ----------------------------------------------------------------------------- buttons
 
-const COMPONENT_ID = /^(approve|merge|confirm|refresh|cancel|pick):?(\d{1,7})?(?::([0-9a-f]{40}))?$/;
+const COMPONENT_ID = /^(approve|merge|confirm|ready|refresh|cancel|pick):?(\d{1,7})?(?::([0-9a-f]{40}))?$/;
 
 async function onComponent(i, env, ctx, userId) {
   const id = i.data?.custom_id === "pick" ? `pick:${i.data.values?.[0]}` : i.data?.custom_id;
@@ -434,7 +440,7 @@ async function onComponent(i, env, ctx, userId) {
   const number = Number(num);
 
   if (action === "cancel") return { type: UPDATE, data: message("Merge cancelled.", { components: [] }) };
-  if (!number || (["approve", "merge", "confirm"].includes(action) && !sha)) {
+  if (!number || (["approve", "merge", "confirm", "ready"].includes(action) && !sha)) {
     return reply("That button is out of date.", { ephemeral: true });
   }
 
@@ -460,6 +466,21 @@ async function onComponent(i, env, ctx, userId) {
       }
       await gh(auth.token, "POST", `/repos/${repo}/pulls/${number}/reviews`,
         { event: "APPROVE", commit_id: sha, body: "Approved from Discord with SwagPc PR Bot." });
+      return editOriginal(env, i, card(await prStatus(env, auth.token, number)));
+    });
+  }
+
+  if (action === "ready") {
+    return later(ctx, env, i, DEFER_UPDATE, async () => {
+      const st = await prStatus(env, auth.token, number);
+      if (st.pr.draft) {
+        // REST has no endpoint for this; GraphQL does, and runs as the clicking user.
+        const res = await gh(auth.token, "POST", "/graphql", {
+          query: "mutation($id: ID!) { markPullRequestReadyForReview(input: { pullRequestId: $id }) { pullRequest { isDraft } } }",
+          variables: { id: st.pr.node_id },
+        });
+        if (res?.errors?.length) throw new GitHubError(422, res.errors.map((e) => e.message).join("; "));
+      }
       return editOriginal(env, i, card(await prStatus(env, auth.token, number)));
     });
   }
