@@ -78,7 +78,7 @@
 
 - **Story points (1, 2, 3, 5)** live **only on user stories** (no story exceeds 5 points).
 - **Sizes (XS, S, M, L, XL)** live **only on subtasks**.
-- Backlog is balanced: **18 points per team member** (54 points total, 33.3% contribution each).
+- Backlog was balanced at **18 points per team member** (54 points); US-14 (5 pts, Sebastian Cadena) was added later, for 59 points total.
 
 ### Milestone 1 — Proposal Approved
 
@@ -94,6 +94,13 @@
 - [ ] Diagram initial vs. segmented network topology (WAN/pfSense/Guest VLAN 10/Business VLAN 20) — *M* — **A**
 - [ ] Map course modules (Modules 2, 5, 8, 9) to specific café infrastructure and defenses — *S* — **C**
 - [ ] Define the test verification criteria and metrics for each defense — *S* — **B**
+
+**US-14 (#100) (5 pts) — As a team member, I want to review, approve and merge pull requests from our Discord channel so that reviews keep moving without leaving the team chat, while GitHub still records who reviewed and merged.** *(Added; tooling)*
+- [x] Cloudflare Worker for Discord slash commands and buttons with Ed25519 signature checks — *M* — **B**
+- [x] Per-person GitHub sign-in through a GitHub App (`/link`), tokens encrypted in Workers KV — *M* — **B**
+- [x] PR cards with Approve, Merge (private confirmation) and Ready for review, pinned to the shown commit — *M* — **B**
+- [x] Restrict the bot to the team server and `#swagpc-updates`; slash-command registration script — *S* — **B**
+- [x] End-to-end tests, setup guide (`wiki/Discord-PR-Bot.md`) and live verification in Discord — *M* — **B**
 
 ---
 
@@ -173,10 +180,10 @@
 
 | Team Member | GitHub | Assigned Stories | Total Points | % Contribution |
 |---|---|---|---|---|
-| **Ant Huynh** | `@UiwAntHuynhCIS` | US-1 (3), US-3 (5), US-8 (5), US-12 (partial / 5) | **18 pts** | **33.3%** |
-| **Sebastian Cadena** | `@bash-y` | US-2 (3), US-4 (5), US-9 (5), US-13 (partial / 5) | **18 pts** | **33.3%** |
-| **joromanii** | `@joromanii` | US-5 (3), US-6 (5), US-7 (5), US-10 (partial / 5) | **18 pts** | **33.3%** |
-| **Total Team Backlog** | | **13 User Stories** | **54 pts** | **100%** |
+| **Ant Huynh** | `@UiwAntHuynhCIS` | US-1 (3), US-3 (5), US-8 (5), US-12 (partial / 5) | **18 pts** | **30.5%** |
+| **Sebastian Cadena** | `@bash-y` | US-2 (3), US-4 (5), US-9 (5), US-13 (partial / 5), US-14 (5) | **23 pts** | **39.0%** |
+| **joromanii** | `@joromanii` | US-5 (3), US-6 (5), US-7 (5), US-10 (partial / 5) | **18 pts** | **30.5%** |
+| **Total Team Backlog** | | **14 User Stories** | **59 pts** | **100%** |
 
 ---
 
