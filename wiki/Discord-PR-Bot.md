@@ -15,6 +15,7 @@ Each teammate links their **own** GitHub account once. After that, an approval o
 **How the buttons behave**
 
 - **Review changes** opens the PR's file diff on GitHub. Read it before approving.
+- **Ready for review** appears instead of Approve and Merge on a **draft** PR, because GitHub won't merge a draft. It marks the PR ready (as you), and the card then shows Approve and Merge. Check with the PR's author first: marking it ready says the work is finished.
 - **Approve** files an approving review as you, pinned to the commit shown on the card. If someone pushed since the card was posted, nothing is approved: the card refreshes and you're asked to review the new commits.
 - **Merge** first asks you privately to confirm. The merge only goes through if the PR head is still the commit on the card and GitHub's rules are met (an approval, no conflicts). The channel is then told who merged it.
 - If GitHub refuses something, such as approving your own PR or merging without an approval, only you see the reason.
@@ -109,6 +110,12 @@ Type `/link` in the server and click the button. Sign in with GitHub and authori
 ## Updating the bot
 
 Paste the new `worker.js` into **Edit code** → **Deploy**. Linked accounts are kept.
+
+On macOS, copy it with a UTF-8 locale so nothing gets garbled. `worker.js` is kept ASCII-only for the same reason, and a test enforces that:
+
+```bash
+LANG=en_US.UTF-8 pbcopy < discord-pr-bot/worker.js
+```
 
 ## Testing
 
