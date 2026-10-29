@@ -1,0 +1,9 @@
+{
+  "name": "swagpc-pr-bot",
+  "private": true,
+  "type": "module",
+  "description": "Approve and merge SwagPc pull requests from Discord (Cloudflare Worker). Setup: wiki/Discord-PR-Bot.md",
+  "scripts": {
+    "test": "node --test"
+  }
+}

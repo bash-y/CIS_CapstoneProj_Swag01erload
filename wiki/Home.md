@@ -21,6 +21,7 @@ Welcome to the **SwagPc Café** Capstone Wiki for **CIS 3353: Computer Systems S
 6. [[Testing & Verification|Testing-and-Verification]] — Repeat-attack tests proving attacks are blocked, sanitized, or alerted.
 7. [[Team Contribution Log|Contribution-Log]] — Individual story points, task breakdowns, and board mapping.
 8. [[Discord Update Bot|Discord-Bot]] — Commit, pull request, issue and CI alerts plus daily/weekly digests in Discord.
+9. [[Discord PR Bot|Discord-PR-Bot]] — Approve and merge pull requests from Discord, recorded under each teammate's own GitHub account.
 
 ---
 
