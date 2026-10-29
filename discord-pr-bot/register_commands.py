@@ -4,6 +4,7 @@
 Usage:
   python3 discord-pr-bot/register_commands.py              # prompts for the ids and the bot token
   python3 discord-pr-bot/register_commands.py --dry-run    # print the commands, send nothing
+  python3 discord-pr-bot/register_commands.py --token-from-clipboard   # macOS: token from pbpaste
 
 Server commands show up instantly (global ones can take up to an hour). Re-running is safe:
 Discord replaces the server's command list with this one. The bot token is read with a hidden
@@ -15,12 +16,15 @@ from __future__ import annotations
 import argparse
 import getpass
 import json
+import re
+import subprocess
 import sys
 import urllib.error
 import urllib.request
 
 API = "https://discord.com/api/v10"
 INTEGER = 4
+BOT_TOKEN = re.compile(r"^[\w-]{20,}\.[\w-]{5,}\.[\w-]{20,}$")
 
 COMMANDS = [
     {"name": "link", "description": "Link your GitHub account so Approve and Merge act as you"},
@@ -38,6 +42,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--application-id", help="Discord application id (General Information page)")
     ap.add_argument("--guild-id", help="Discord server id (Developer Mode -> right-click server -> Copy Server ID)")
     ap.add_argument("--dry-run", action="store_true", help="print the commands instead of registering them")
+    ap.add_argument("--token-from-clipboard", action="store_true",
+                    help="read the bot token from the macOS clipboard (pbpaste) instead of a prompt")
     args = ap.parse_args(argv)
 
     if args.dry_run:
@@ -48,9 +54,16 @@ def main(argv: list[str] | None = None) -> int:
     guild_id = (args.guild_id or input("Discord server id: ")).strip()
     if not (app_id.isdigit() and guild_id.isdigit()):
         sys.exit("Both ids are long numbers; copy them from Discord again.")
-    token = getpass.getpass("Bot token (hidden): ").strip()
+    if args.token_from_clipboard:
+        token = subprocess.run(["pbpaste"], capture_output=True, text=True).stdout.strip()
+    else:
+        token = getpass.getpass("Bot token (hidden): ").strip()
     if not token:
         sys.exit("No bot token given.")
+    # Never echo the value: a wrong paste may still contain something sensitive.
+    if not BOT_TOKEN.match(token):
+        sys.exit("That isn't a Discord bot token (expected three dot-separated parts). "
+                 "Copy it again from the Bot page and retry.")
 
     req = urllib.request.Request(
         f"{API}/applications/{app_id}/guilds/{guild_id}/commands",
