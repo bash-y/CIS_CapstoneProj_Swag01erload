@@ -196,10 +196,10 @@ Contribution % = a member's story points ÷ team total story points. **This tabl
 
 | **Member**     | **Story points** | **Contribution %** | **Key contributions (link issues/PRs)**               |
 | -------------- | ---------------: | -----------------: | ----------------------------------------------------- |
-| Ant Huynh (`@UiwAntHuynhCIS`) | 18 | 33.3% | #42 US-1 Setup, #44 US-3 pfSense Dual-VLAN Architecture, #49 US-8 pfSense Segmentation, #53 US-12 Docs & Evidence |
-| Sebastian Cadena (`@bash-y`) | 18 | 33.3% | #43 US-2 Proposal & Topology, #45 US-4 Business Server & PC, #50 US-9 Windows Endpoint Hardening, #54 US-13 Presentation & Demo |
-| joromanii (`@joromanii`) | 18 | 33.3% | #46 US-5 DVWA & Kali Attacker, #47 US-6 Reconnaissance, #48 US-7 Web Exploit & Pivot, #51 US-10 App Security, #52 US-11 Wazuh Monitoring |
-| **Team total** | **54** | **100%** | Backlog balanced across 13 User Stories (#42–#54) |
+| Ant Huynh (`@UiwAntHuynhCIS`) | 18 | 30.5% | #42 US-1 Setup, #44 US-3 pfSense Dual-VLAN Architecture, #49 US-8 pfSense Segmentation, #53 US-12 Docs & Evidence |
+| Sebastian Cadena (`@bash-y`) | 23 | 39.0% | #43 US-2 Proposal & Topology, #45 US-4 Business Server & PC, #50 US-9 Windows Endpoint Hardening, #54 US-13 Presentation & Demo, #100 US-14 Discord PR Bot |
+| joromanii (`@joromanii`) | 18 | 30.5% | #46 US-5 DVWA & Kali Attacker, #47 US-6 Reconnaissance, #48 US-7 Web Exploit & Pivot, #51 US-10 App Security, #52 US-11 Wazuh Monitoring |
+| **Team total** | **59** | **100%** | 14 User Stories (#42–#54, #100) |
 
 **Story points:** 1, 2, 3, 5, or 8 only.
 
