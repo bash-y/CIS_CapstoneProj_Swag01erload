@@ -43,5 +43,6 @@ This section details the defensive controls implemented to eliminate lateral mov
 * **Suricata IDS:**
   * Configured on the perimeter interface to detect Nmap port scans and malicious HTTP attack payloads.
 * **Wazuh SIEM:**
-  * Deployed Wazuh agent on the Ubuntu Business Server and Windows Workstation forwarding syslog, event logs, and file integrity data to the Wazuh Manager.
+  * The Ubuntu Business Server image installs and starts a version-matched Wazuh agent that enrolls with the manager and sends endpoint telemetry, including file-integrity events.
+  * The Compose `workstation` is an Alpine Linux container, not a Windows PC. It cannot run the Windows Wazuh agent, so Windows endpoint monitoring remains unimplemented until the lab includes a real Windows endpoint.
   * Custom rules triggered for repeated failed access attempts and web exploitation signatures.

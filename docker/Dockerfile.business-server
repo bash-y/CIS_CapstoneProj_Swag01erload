@@ -7,7 +7,16 @@ FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update -qq \
- && apt-get install -y -qq --no-install-recommends python3 curl ca-certificates \
+ && apt-get install -y -qq --no-install-recommends python3 curl ca-certificates gnupg \
+ && curl -fsSL https://packages.wazuh.com/key/GPG-KEY-WAZUH -o /tmp/wazuh.gpg.key \
+ && gpg --no-default-keyring --keyring gnupg-ring:/usr/share/keyrings/wazuh.gpg --import /tmp/wazuh.gpg.key \
+ && chmod 644 /usr/share/keyrings/wazuh.gpg \
+ && echo "deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages.wazuh.com/4.x/apt/ stable main" > /etc/apt/sources.list.d/wazuh.list \
+ && apt-get update -qq \
+ && WAZUH_MANAGER=192.168.20.100 WAZUH_AGENT_NAME=swagpc-business-server apt-get install -y -qq --no-install-recommends wazuh-agent=4.9.2-1 \
+ && apt-mark hold wazuh-agent \
+ && sed -i 's/^deb /#deb /' /etc/apt/sources.list.d/wazuh.list \
+ && rm -f /tmp/wazuh.gpg.key \
  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /srv/business
@@ -15,4 +24,4 @@ WORKDIR /srv/business
 COPY build/server/www/ /srv/business/
 
 EXPOSE 80
-CMD ["python3", "-m", "http.server", "80"]
+CMD ["/bin/sh", "-c", "/var/ossec/bin/wazuh-control start && exec python3 -m http.server 80"]

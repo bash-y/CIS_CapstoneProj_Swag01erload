@@ -829,12 +829,20 @@ function normalizeLive(raw,provider){
   const members=Object.keys(count).sort((a,b)=>count[b]-count[a]).map(name=>({name,
     role:[assigned[name]?`${assigned[name]} issue${assigned[name]>1?"s":""}`:"",commits[name]?`${commits[name]} commit${commits[name]>1?"s":""}`:""].filter(Boolean).join(" · ")||"Contributor"}));
 
-  return { asOf:t, source:provider, project:{name:raw.title, sub:raw.sub, url:raw.url}, members,
+  return { asOf:t, source:provider, snapshotAt:raw.generatedAt||null, project:{name:raw.title, sub:raw.sub, url:raw.url}, members,
     milestones, objectives, sprints, issues, events:ev, nextEventId:ev.length+1 };
 }
+// project-data.json is written by scripts/export_project_snapshot.py on every deploy of the repo's Pages site.
+const SnapshotSource = { async load(){
+  const r=await fetch("project-data.json",{cache:"no-store"});
+  if(!r.ok) throw new Error(`snapshot returned ${r.status}`);
+  return r.json();
+}};
 async function fetchProject(c){
-  if(!c) return MockSource.load();
-  return normalizeLive(await (c.provider==="github"?GitHubSource:GitLabSource).load(c), c.provider);
+  if(c) return normalizeLive(await (c.provider==="github"?GitHubSource:GitLabSource).load(c), c.provider);
+  // no connection: show the repo snapshot next to this page, or the demo data when it is missing (for example when the file is opened from disk)
+  try{ return normalizeLive(await SnapshotSource.load(), "snapshot"); }
+  catch(e){ return MockSource.load(); }
 }
 
 /* =====================================================================
@@ -1766,8 +1774,8 @@ $("btnClear").onclick=()=>{
   persist(); status("Blank project"); render(); toast("All data cleared");
 };
 $("btnReset").onclick=async()=>{
-  const c=activeConn();
-  if(!confirm(c ? `Discard local changes and reload the latest data from ${PROVIDER_NAME[c.provider]}?` : "Discard all local changes and reload the original mock data?")) return;
+  const c=activeConn(), snap=!c && S.source==="snapshot";
+  if(!confirm(c ? `Discard local changes and reload the latest data from ${PROVIDER_NAME[c.provider]}?` : snap ? "Discard local changes and reload the latest repo snapshot?" : "Discard all local changes and reload the original mock data?")) return;
   try{ localStorage.removeItem(dataKey()); }catch(e){}
   try{ await openProject(c,true); }catch(err){ status(); openConnect(c,err.message); }
 };
@@ -1794,8 +1802,9 @@ async function openProject(c,fresh){
   saveUI();
   const time=d=>new Date(d).toLocaleString([], {month:"short", day:"numeric", hour:"numeric", minute:"2-digit"});
   lastStatus = data===saved ? `Saved copy${S.savedAt?" from "+time(S.savedAt):""}`
-    : c ? `Live from ${PROVIDER_NAME[c.provider]} · ${time(Date.now())}` : `Mock data · snapshot ${fmt(S.asOf)}`;
-  $("btnReset").textContent = c ? `Reload from ${PROVIDER_NAME[c.provider]}` : "Reset to mock data";
+    : c ? `Live from ${PROVIDER_NAME[c.provider]} · ${time(Date.now())}`
+    : S.source==="snapshot" ? `Repo snapshot from ${time(S.snapshotAt||S.asOf)}` : `Mock data · snapshot ${fmt(S.asOf)}`;
+  $("btnReset").textContent = c ? `Reload from ${PROVIDER_NAME[c.provider]}` : S.source==="snapshot" ? "Reload snapshot" : "Reset to mock data";
   status(); render(); renderRecent();
 }
 async function switchTo(c){
