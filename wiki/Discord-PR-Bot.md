@@ -74,6 +74,7 @@ Teammates don't install anything. They only sign in through `/link`.
    | `GITHUB_CLIENT_ID` | Text | Client ID from step 2 |
    | `GITHUB_REPO` | Text | `bash-y/CIS_CapstoneProj_Swag01erload` |
    | `ALLOWED_GUILD_ID` | Text | Server ID from step 3 |
+   | `ALLOWED_CHANNEL_ID` | Text | Optional: the one channel the bot answers in (right-click channel → **Copy Channel ID**) |
    | `MERGE_METHOD` | Text | `merge` (or `squash` / `rebase`) |
    | `GITHUB_CLIENT_SECRET` | **Secret** | Client secret from step 2 |
    | `SECRET_KEY` | **Secret** | Output of the command below |

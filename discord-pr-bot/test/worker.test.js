@@ -32,6 +32,7 @@ function makeEnv() {
     SECRET_KEY: Buffer.from(crypto.getRandomValues(new Uint8Array(32))).toString("base64"),
     GITHUB_REPO: "bash-y/repo",
     ALLOWED_GUILD_ID: "999",
+    ALLOWED_CHANNEL_ID: "555",
     MERGE_METHOD: "merge",
   };
 }
@@ -96,10 +97,10 @@ async function send(interaction, opts) {
   return out;
 }
 
-const command = (name, options, user = "u-anthony", guild = "999") =>
-  ({ type: 2, token: "itok", guild_id: guild, member: { user: { id: user } }, data: { name, options } });
+const command = (name, options, user = "u-anthony", guild = "999", channel = "555") =>
+  ({ type: 2, token: "itok", guild_id: guild, channel_id: channel, member: { user: { id: user } }, data: { name, options } });
 const button = (custom_id, user = "u-anthony", values) =>
-  ({ type: 3, token: "itok", guild_id: "999", member: { user: { id: user } }, data: { custom_id, values } });
+  ({ type: 3, token: "itok", guild_id: "999", channel_id: "555", member: { user: { id: user } }, data: { custom_id, values } });
 
 async function link(user = "u-anthony", login = "UiwAntHuynhCIS") {
   tokenLogin = login;
@@ -135,6 +136,14 @@ test("only works in the team server", async () => {
   const res = await send(command("whoami", undefined, "u-anthony", "123"));
   assert.match(res.data.content, /only works in the SwagPc team server/);
   assert.equal(res.data.flags, 64);
+});
+
+test("only works in the configured channel", async () => {
+  const res = await send(command("whoami", undefined, "u-anthony", "999", "777"));
+  assert.match(res.data.content, /only works in <#555>/);
+  assert.equal(res.data.flags, 64);
+  const ok = await send(command("whoami"));
+  assert.doesNotMatch(ok.data.content, /only works/);
 });
 
 // ----------------------------------------------------------------------------- linking

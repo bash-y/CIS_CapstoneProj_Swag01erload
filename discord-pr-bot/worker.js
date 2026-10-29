@@ -20,6 +20,7 @@
  *   SECRET_KEY             32 random bytes, base64               (secret) encrypts tokens, signs /link
  *   GITHUB_REPO            owner/name, e.g. bash-y/CIS_CapstoneProj_Swag01erload
  *   ALLOWED_GUILD_ID       only this Discord server may use the bot
+ *   ALLOWED_CHANNEL_ID     optional: only this channel may use the bot
  *   MERGE_METHOD           merge | squash | rebase (default: merge)
  *
  * Single file with no dependencies, so it can be pasted straight into the Cloudflare editor.
@@ -491,6 +492,9 @@ async function interactions(request, env, ctx) {
   if (i.type === PING) return json({ type: PONG });
   if (env.ALLOWED_GUILD_ID && i.guild_id !== env.ALLOWED_GUILD_ID) {
     return json(reply("This bot only works in the SwagPc team server.", { ephemeral: true }));
+  }
+  if (env.ALLOWED_CHANNEL_ID && (i.channel_id || i.channel?.id) !== env.ALLOWED_CHANNEL_ID) {
+    return json(reply(`This bot only works in <#${env.ALLOWED_CHANNEL_ID}>.`, { ephemeral: true }));
   }
   const userId = (i.member?.user || i.user)?.id;
   const origin = new URL(request.url).origin;
