@@ -48,14 +48,14 @@ const PRIMARY = 1, SECONDARY = 2, SUCCESS = 3, DANGER = 4, LINK = 5;
 const GREEN = 0x2ecc71, PURPLE = 0x8957e5, RED = 0xe74c3c, BLUE = 0x3498db, AMBER = 0xf1c40f, GREY = 0x95a5a6;
 
 const MERGE_STATE = {
-  clean: "✅ Ready to merge",
-  has_hooks: "✅ Ready to merge",
-  unstable: "⚠️ Mergeable, but some checks are failing",
-  blocked: "⛔ Blocked: needs an approval from someone other than the author",
-  behind: "⚠️ Branch is behind main",
-  dirty: "❌ Merge conflicts: fix them on GitHub first",
-  draft: "📝 Draft: mark it ready for review first",
-  unknown: "⏳ GitHub is still working out mergeability; press Refresh",
+  clean: "\u2705 Ready to merge",
+  has_hooks: "\u2705 Ready to merge",
+  unstable: "\u26A0\uFE0F Mergeable, but some checks are failing",
+  blocked: "\u26D4 Blocked: needs an approval from someone other than the author",
+  behind: "\u26A0\uFE0F Branch is behind main",
+  dirty: "\u274C Merge conflicts: fix them on GitHub first",
+  draft: "\u{1F4DD} Draft: mark it ready for review first",
+  unknown: "\u23F3 GitHub is still working out mergeability; press Refresh",
 };
 
 const enc = new TextEncoder();
@@ -66,7 +66,7 @@ const dec = new TextDecoder();
 const who = (login) => (login ? MEMBERS[login] || `@${login}` : "someone");
 const short = (text, n) => {
   const t = (text || "").trim();
-  return t.length <= n ? t : t.slice(0, n - 1).trimEnd() + "…";
+  return t.length <= n ? t : t.slice(0, n - 1).trimEnd() + "\u2026";
 };
 const json = (body, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
@@ -281,25 +281,25 @@ async function prStatus(env, token, number) {
 function card({ pr, approvers, changesBy, checks }) {
   const n = pr.number, sha = pr.head.sha;
   const merged = Boolean(pr.merged_at), closed = pr.state !== "open";
-  const state = merged ? "🟣 Merged" : closed ? "⚪ Closed" : pr.draft ? "📝 Draft" : "🟢 Open";
+  const state = merged ? "\u{1F7E3} Merged" : closed ? "\u26AA Closed" : pr.draft ? "\u{1F4DD} Draft" : "\u{1F7E2} Open";
   const reviews = changesBy.length
-    ? `🛑 Changes requested by ${changesBy.map(who).join(", ")}`
-    : approvers.length ? `✅ Approved by ${approvers.map(who).join(", ")}` : "⏳ No approval yet";
+    ? `\u{1F6D1} Changes requested by ${changesBy.map(who).join(", ")}`
+    : approvers.length ? `\u2705 Approved by ${approvers.map(who).join(", ")}` : "\u23F3 No approval yet";
   const fields = [
     { name: "Author", value: who(pr.user?.login), inline: true },
-    { name: "Branch", value: `\`${pr.head.ref}\` → \`${pr.base.ref}\``, inline: true },
+    { name: "Branch", value: `\`${pr.head.ref}\` \u2192 \`${pr.base.ref}\``, inline: true },
     { name: "Status", value: state, inline: true },
     { name: "Reviews", value: reviews, inline: false },
   ];
   if (checks) {
     const parts = [];
-    if (checks.failed) parts.push(`❌ ${checks.failed} failed`);
-    if (checks.pending) parts.push(`⏳ ${checks.pending} running`);
-    if (checks.passed) parts.push(`✅ ${checks.passed} passed`);
-    fields.push({ name: "Checks", value: parts.join(" · ") || "No checks", inline: true });
+    if (checks.failed) parts.push(`\u274C ${checks.failed} failed`);
+    if (checks.pending) parts.push(`\u23F3 ${checks.pending} running`);
+    if (checks.passed) parts.push(`\u2705 ${checks.passed} passed`);
+    fields.push({ name: "Checks", value: parts.join(" \u00B7 ") || "No checks", inline: true });
   }
   if (!closed) {
-    fields.push({ name: "Merge", value: MERGE_STATE[pr.mergeable_state] || `ℹ️ ${pr.mergeable_state}`, inline: true });
+    fields.push({ name: "Merge", value: MERGE_STATE[pr.mergeable_state] || `\u2139\uFE0F ${pr.mergeable_state}`, inline: true });
   } else if (merged) {
     fields.push({ name: "Merged by", value: who(pr.merged_by?.login), inline: true });
   }
@@ -307,9 +307,9 @@ function card({ pr, approvers, changesBy, checks }) {
   const buttons = [];
   if (!closed) {
     buttons.push(
-      { type: BUTTON, style: SUCCESS, label: "Approve", emoji: { name: "✅" }, custom_id: `approve:${n}:${sha}`, disabled: pr.draft },
-      { type: BUTTON, style: PRIMARY, label: "Merge", emoji: { name: "🔀" }, custom_id: `merge:${n}:${sha}` },
-      { type: BUTTON, style: SECONDARY, label: "Refresh", emoji: { name: "🔄" }, custom_id: `refresh:${n}` },
+      { type: BUTTON, style: SUCCESS, label: "Approve", emoji: { name: "\u2705" }, custom_id: `approve:${n}:${sha}`, disabled: pr.draft },
+      { type: BUTTON, style: PRIMARY, label: "Merge", emoji: { name: "\u{1F500}" }, custom_id: `merge:${n}:${sha}` },
+      { type: BUTTON, style: SECONDARY, label: "Refresh", emoji: { name: "\u{1F504}" }, custom_id: `refresh:${n}` },
     );
   }
   buttons.push({ type: BUTTON, style: LINK, label: "Review changes", url: `${pr.html_url}/files` });
@@ -320,7 +320,7 @@ function card({ pr, approvers, changesBy, checks }) {
       color,
       description: short(pr.body, 300) || undefined,
       fields,
-      footer: { text: `Head commit ${sha.slice(0, 7)} · approvals apply to this exact commit` },
+      footer: { text: `Head commit ${sha.slice(0, 7)} \u00B7 approvals apply to this exact commit` },
     }],
     components: [{ type: ROW, components: buttons }],
   });
@@ -328,14 +328,22 @@ function card({ pr, approvers, changesBy, checks }) {
 
 // ----------------------------------------------------------------------------- Discord follow-ups
 
-async function discord(env, method, path, body) {
+async function discord(env, method, path, body, retry = true) {
   const res = await fetch(`${DISCORD_API}${path}`, {
     method,
     headers: { "Content-Type": "application/json", "User-Agent": "DiscordBot (swagpc-pr-bot, 1.0)" },
     body: JSON.stringify(body),
   });
+  if (res.ok) return;
+  const detail = short(await res.text().catch(() => ""), 300);
   // Log without the interaction token, which is a credential for 15 minutes.
-  if (!res.ok) console.log(`Discord ${method} ${path.split("/").slice(0, 3).join("/")}/… -> ${res.status}`);
+  console.log(`Discord ${method} ${path.split("/").slice(0, 3).join("/")}/\u2026 -> ${res.status} ${detail}`);
+  // If Discord rejects a rich reply, replace it with plain text so nobody is left
+  // looking at "thinking..." forever.
+  if (retry && res.status === 400 && (body.embeds || body.components)) {
+    await discord(env, method, path, message(`\u26a0\ufe0f Discord rejected the bot's reply (HTTP 400). ` +
+      "Ask the bot owner to check the Worker logs.", { embeds: [], components: [] }), false);
+  }
 }
 const editOriginal = (env, i, body) =>
   discord(env, "PATCH", `/webhooks/${env.DISCORD_APPLICATION_ID}/${i.token}/messages/@original`, body);
@@ -347,8 +355,8 @@ function later(ctx, env, i, type, work) {
     work().catch((err) => {
       const text = err instanceof GitHubError ? `GitHub said: ${err.message}` : `Something went wrong: ${err.message}`;
       return type === DEFER_UPDATE
-        ? followUp(env, i, message(`⚠️ ${short(text, 1800)}`, { ephemeral: true }))
-        : editOriginal(env, i, message(`⚠️ ${short(text, 1800)}`));
+        ? followUp(env, i, message(`\u26A0\uFE0F ${short(text, 1800)}`, { ephemeral: true }))
+        : editOriginal(env, i, message(`\u26A0\uFE0F ${short(text, 1800)}`));
     }),
   );
   return { type };
@@ -375,7 +383,7 @@ async function onCommand(i, env, ctx, origin, userId) {
 
   if (name === "unlink") {
     await env.LINKS.delete(`user:${userId}`);
-    return reply("Unlinked. To revoke the bot's access completely, remove **SwagPc PR Bot** under GitHub → Settings → Applications → Authorized GitHub Apps.",
+    return reply("Unlinked. To revoke the bot's access completely, remove **SwagPc PR Bot** under GitHub \u2192 Settings \u2192 Applications \u2192 Authorized GitHub Apps.",
       { ephemeral: true });
   }
 
@@ -397,13 +405,13 @@ async function onCommand(i, env, ctx, origin, userId) {
   if (name === "prs") {
     return later(ctx, env, i, DEFER_MESSAGE, async () => {
       const prs = await gh(auth.token, "GET", `/repos/${env.GITHUB_REPO}/pulls?state=open&sort=created&direction=asc&per_page=25`);
-      if (!prs.length) return editOriginal(env, i, message("No open pull requests. 🎉"));
-      const lines = prs.map((p) => `[#${p.number}](${p.html_url}) ${short(p.title, 70)} — ${who(p.user?.login)}${p.draft ? " · 📝 draft" : ""}`);
+      if (!prs.length) return editOriginal(env, i, message("No open pull requests. \u{1F389}"));
+      const lines = prs.map((p) => `[#${p.number}](${p.html_url}) ${short(p.title, 70)} \u2014 ${who(p.user?.login)}${p.draft ? " \u00B7 \u{1F4DD} draft" : ""}`);
       return editOriginal(env, i, message("", {
-        embeds: [{ title: `🔀 Open pull requests (${prs.length})`, color: BLUE, description: short(lines.join("\n"), 4000),
+        embeds: [{ title: `\u{1F500} Open pull requests (${prs.length})`, color: BLUE, description: short(lines.join("\n"), 4000),
           footer: { text: "Pick one below to approve or merge it" } }],
         components: [{ type: ROW, components: [{
-          type: SELECT, custom_id: "pick", placeholder: "Choose a pull request…",
+          type: SELECT, custom_id: "pick", placeholder: "Choose a pull request\u2026",
           options: prs.map((p) => ({ label: short(`#${p.number} ${p.title}`, 100), value: String(p.number),
             description: short(who(p.user?.login), 100) })),
         }] }],
@@ -472,8 +480,8 @@ async function onComponent(i, env, ctx, userId) {
     return later(ctx, env, i, DEFER_UPDATE, async () => {
       const result = await gh(auth.token, "PUT", `/repos/${repo}/pulls/${number}/merge`,
         { sha, merge_method: env.MERGE_METHOD || "merge" });
-      await editOriginal(env, i, message(`🟣 Merged PR #${number} (\`${(result?.sha || "").slice(0, 7)}\`).`, { components: [] }));
-      return followUp(env, i, message(`🟣 **PR #${number}** was merged by **${who(auth.login)}** from Discord.`));
+      await editOriginal(env, i, message(`\u{1F7E3} Merged PR #${number} (\`${(result?.sha || "").slice(0, 7)}\`).`, { components: [] }));
+      return followUp(env, i, message(`\u{1F7E3} **PR #${number}** was merged by **${who(auth.login)}** from Discord.`));
     });
   }
 

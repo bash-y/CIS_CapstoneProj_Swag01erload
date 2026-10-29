@@ -341,6 +341,26 @@ test("unknown or malformed buttons are refused", async () => {
   assert.ok(!calls.some((c) => ["PUT", "DELETE"].includes(c.method)));
 });
 
+test("a reply Discord rejects is replaced with plain text instead of hanging on 'thinking'", async () => {
+  await link();
+  let patches = 0;
+  on("PATCH", /discord\.com\/api\/v10\/webhooks\//, ({ body }) => (++patches === 1 ? [400, { message: "Invalid emoji" }] : [200, {}]));
+  await send(command("pr", [{ name: "number", value: 91 }]));
+  const edits = discordCalls("PATCH");
+  assert.equal(edits.length, 2);
+  assert.ok(edits[0].body.embeds, "first try is the rich card");
+  assert.deepEqual(edits[1].body.embeds, []);
+  assert.deepEqual(edits[1].body.components, []);
+  assert.match(edits[1].body.content, /Discord rejected the bot's reply/);
+});
+
+test("worker.js is pure ASCII, so copy-paste into the Cloudflare editor cannot garble it", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const src = await readFile(new URL("../worker.js", import.meta.url));
+  const bad = [...src].findIndex((b) => b > 127);
+  assert.equal(bad, -1, `non-ASCII byte at offset ${bad}`);
+});
+
 // ----------------------------------------------------------------------------- routes
 
 test("health check and unknown routes", async () => {
