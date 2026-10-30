@@ -238,7 +238,7 @@ async function userToken(env, discordId) {
       Object.assign(rec, await oauthToken(env, { grant_type: "refresh_token", refresh_token: rec.refresh_token }));
       await saveLink(env, discordId, rec);
     } catch {
-      await env.LINKS.delete(`user:${discordId}`);
+      // Keep the record: a failed refresh is often transient (network, or KV still serving a refresh token GitHub already rotated).
       return null;
     }
   }
