@@ -24,3 +24,10 @@ alert tcp $GUEST_NET any -> $BUSINESS_NET 445 (msg:"SWAGPC LATERAL SMB access at
 alert tcp $GUEST_NET any -> $BUSINESS_NET 3389 (msg:"SWAGPC LATERAL RDP access attempt from Guest to Business"; classtype:policy-violation; sid:9000021; rev:1;)
 
 alert tcp $GUEST_NET any -> $BUSINESS_NET 22 (msg:"SWAGPC LATERAL SSH access attempt from Guest to Business"; classtype:policy-violation; sid:9000022; rev:1;)
+
+# ─── Brute-Force (US-10, #109) ────────────────────────────────────
+# Repeated requests to the DVWA brute-force module login from the Guest network.
+# Threshold-based: alerts when one source makes many login attempts in a short
+# window, which is the network signature of password guessing (US-10 defense:
+# throttling/lockout; integrates with Wazuh/Suricata monitoring).
+alert http $GUEST_NET any -> $BUSINESS_NET $HTTP_PORTS (msg:"SWAGPC WEB Brute-force login attempts from Guest (DVWA brute module)"; flow:to_server,established; http.uri; content:"/vulnerabilities/brute/"; nocase; content:"Login"; http.uri; threshold: type threshold, track by_src, count 5, seconds 30; classtype:web-application-attack; sid:9000030; rev:1;)
