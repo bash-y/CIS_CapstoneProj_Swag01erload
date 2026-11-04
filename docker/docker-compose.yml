@@ -193,6 +193,10 @@ services:
     volumes:
       - suricata_logs:/var/log/suricata
       - ../configs/monitoring/suricata.yaml:/etc/suricata/suricata.yaml:ro
+      # Mount the custom SwagPc signatures where suricata.yaml's rule-files expects
+      # them (/etc/suricata/rules/swagpc-custom.rules); without this the custom
+      # sids (9000001-9000030) never load. (US-11 #52)
+      - ../configs/monitoring/swagpc-custom.rules:/etc/suricata/rules/swagpc-custom.rules:ro
     command: -i eth0 -i eth1 --af-packet
     depends_on:
       - firewall
