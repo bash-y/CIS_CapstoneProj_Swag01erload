@@ -103,7 +103,7 @@
 - [x] End-to-end tests, setup guide (`wiki/Discord-PR-Bot.md`) and live verification in Discord — *M* — **B**
 
 **US-15 (#122) (2 pts) — As a team member, I want every AI agent skill in the repo scanned with NVIDIA SkillSpector before it merges, so that a malicious or risky skill cannot reach `main` unnoticed.** *(Added; tooling)*
-- [x] `scripts/skill-scan.sh` finds every `SKILL.md`, scans each skill folder with SkillSpector in static-only mode (`--no-llm`), and fails on a risk score above 50 or a scanner error — *S* — **B**
+- [x] `scripts/skill-scan.sh` finds every `SKILL.md`, scans each skill folder with SkillSpector in static-only mode (`--no-llm`), and fails when SkillSpector rates a skill DO NOT INSTALL or the scanner errors — *S* — **B**
 - [ ] `.github/workflows/skill-scan.yml` runs the script on pull requests and pushes to `main`, pinned to SkillSpector `v2.13.3`, and uploads SARIF reports as an artifact — *S* — **B**
 - [x] Local checks: a clean fixture exits 0, a bad fixture exits 1, a missing path exits 2 — *XS* — **B**
 - [x] `CONTRIBUTING.md` documents the gate and how to run it locally — *XS* — **B**
