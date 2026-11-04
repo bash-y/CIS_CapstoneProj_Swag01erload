@@ -78,7 +78,7 @@
 
 - **Story points (1, 2, 3, 5)** live **only on user stories** (no story exceeds 5 points).
 - **Sizes (XS, S, M, L, XL)** live **only on subtasks**.
-- Backlog was balanced at **18 points per team member** (54 points); US-14 (5 pts, Sebastian Cadena) was added later, for 59 points total. US-15 (2 pts, Sebastian Cadena) was added after that, for 61 points total.
+- Backlog was balanced at **18 points per team member** (54 points); US-14 (5 pts, Sebastian Cadena) was added later, for 59 points total. US-15 (2 pts, Sebastian Cadena) was added after that, for 61 points total. US-16 (3 pts, Sebastian Cadena) followed, for 64 points total.
 
 ### Milestone 1 — Proposal Approved
 
@@ -108,6 +108,13 @@
 - [x] Local checks: a clean fixture exits 0, a bad fixture exits 1, a missing path exits 2 — *XS* — **B**
 - [x] `CONTRIBUTING.md` documents the gate and how to run it locally — *XS* — **B**
 - [ ] The workflow runs green on a pull request — *S* — **B**
+
+**US-16 (#124) (3 pts) — As a team member, I want repeatable agent skills for our recurring project tasks, so that verification runs, new user stories, evidence files and documentation status stay consistent with the project rules.** *(Added; tooling)*
+- [x] `lab-verify` skill (`.claude/skills/lab-verify/`): run the lab checks inside the lab subnets only and save each result as evidence — *S* — **B**
+- [x] `new-user-story` skill: plan entry, GitHub issue and README contribution table — *S* — **B**
+- [x] `evidence-capture` skill and `scripts/capture-evidence.sh` (dated evidence file with title, date, host, command and exit code) — *S* — **B**
+- [x] `docs-sync` skill: find status text that contradicts the evidence folder; check AGENTS.md, CLAUDE.md and GEMINI.md are identical — *S* — **B**
+- [ ] All four skills pass the US-15 SkillSpector gate — *XS* — **B**
 
 ---
 
@@ -187,10 +194,10 @@
 
 | Team Member | GitHub | Assigned Stories | Total Points | % Contribution |
 |---|---|---|---|---|
-| **Ant Huynh** | `@UiwAntHuynhCIS` | US-1 (3), US-3 (5), US-8 (5), US-12 (partial / 5) | **18 pts** | **29.5%** |
-| **Sebastian Cadena** | `@bash-y` | US-2 (3), US-4 (5), US-9 (5), US-13 (partial / 5), US-14 (5), US-15 (2) | **25 pts** | **41.0%** |
-| **joromanii** | `@joromanii` | US-5 (3), US-6 (5), US-7 (5), US-10 (partial / 5) | **18 pts** | **29.5%** |
-| **Total Team Backlog** | | **15 User Stories** | **61 pts** | **100%** |
+| **Ant Huynh** | `@UiwAntHuynhCIS` | US-1 (3), US-3 (5), US-8 (5), US-12 (partial / 5) | **18 pts** | **28.1%** |
+| **Sebastian Cadena** | `@bash-y` | US-2 (3), US-4 (5), US-9 (5), US-13 (partial / 5), US-14 (5), US-15 (2), US-16 (3) | **28 pts** | **43.8%** |
+| **joromanii** | `@joromanii` | US-5 (3), US-6 (5), US-7 (5), US-10 (partial / 5) | **18 pts** | **28.1%** |
+| **Total Team Backlog** | | **16 User Stories** | **64 pts** | **100%** |
 
 ---
 
