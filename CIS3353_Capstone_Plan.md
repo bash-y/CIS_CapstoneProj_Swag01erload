@@ -78,7 +78,7 @@
 
 - **Story points (1, 2, 3, 5)** live **only on user stories** (no story exceeds 5 points).
 - **Sizes (XS, S, M, L, XL)** live **only on subtasks**.
-- Backlog was balanced at **18 points per team member** (54 points); US-14 (5 pts, Sebastian Cadena) was added later, for 59 points total.
+- Backlog was balanced at **18 points per team member** (54 points); US-14 (5 pts, Sebastian Cadena) was added later, for 59 points total. US-15 (2 pts, Sebastian Cadena) was added after that, for 61 points total.
 
 ### Milestone 1 — Proposal Approved
 
@@ -101,6 +101,13 @@
 - [x] PR cards with Approve, Merge (private confirmation) and Ready for review, pinned to the shown commit — *M* — **B**
 - [x] Restrict the bot to the team server and `#swagpc-updates`; slash-command registration script — *S* — **B**
 - [x] End-to-end tests, setup guide (`wiki/Discord-PR-Bot.md`) and live verification in Discord — *M* — **B**
+
+**US-15 (#122) (2 pts) — As a team member, I want every AI agent skill in the repo scanned with NVIDIA SkillSpector before it merges, so that a malicious or risky skill cannot reach `main` unnoticed.** *(Added; tooling)*
+- [x] `scripts/skill-scan.sh` finds every `SKILL.md`, scans each skill folder with SkillSpector in static-only mode (`--no-llm`), and fails on a risk score above 50 or a scanner error — *S* — **B**
+- [ ] `.github/workflows/skill-scan.yml` runs the script on pull requests and pushes to `main`, pinned to SkillSpector `v2.13.3`, and uploads SARIF reports as an artifact — *S* — **B**
+- [x] Local checks: a clean fixture exits 0, a bad fixture exits 1, a missing path exits 2 — *XS* — **B**
+- [x] `CONTRIBUTING.md` documents the gate and how to run it locally — *XS* — **B**
+- [ ] The workflow runs green on a pull request — *S* — **B**
 
 ---
 
@@ -180,10 +187,10 @@
 
 | Team Member | GitHub | Assigned Stories | Total Points | % Contribution |
 |---|---|---|---|---|
-| **Ant Huynh** | `@UiwAntHuynhCIS` | US-1 (3), US-3 (5), US-8 (5), US-12 (partial / 5) | **18 pts** | **30.5%** |
-| **Sebastian Cadena** | `@bash-y` | US-2 (3), US-4 (5), US-9 (5), US-13 (partial / 5), US-14 (5) | **23 pts** | **39.0%** |
-| **joromanii** | `@joromanii` | US-5 (3), US-6 (5), US-7 (5), US-10 (partial / 5) | **18 pts** | **30.5%** |
-| **Total Team Backlog** | | **14 User Stories** | **59 pts** | **100%** |
+| **Ant Huynh** | `@UiwAntHuynhCIS` | US-1 (3), US-3 (5), US-8 (5), US-12 (partial / 5) | **18 pts** | **29.5%** |
+| **Sebastian Cadena** | `@bash-y` | US-2 (3), US-4 (5), US-9 (5), US-13 (partial / 5), US-14 (5), US-15 (2) | **25 pts** | **41.0%** |
+| **joromanii** | `@joromanii` | US-5 (3), US-6 (5), US-7 (5), US-10 (partial / 5) | **18 pts** | **29.5%** |
+| **Total Team Backlog** | | **15 User Stories** | **61 pts** | **100%** |
 
 ---
 

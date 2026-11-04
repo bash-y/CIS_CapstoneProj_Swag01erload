@@ -54,3 +54,21 @@ git config core.hooksPath scripts/hooks
 ```
 
 This hook validates every commit message before it is accepted.
+
+---
+
+## 4. Agent Skill Security Scan (US-15)
+
+Any agent skill in the repo (a folder with a `SKILL.md`) is scanned with [NVIDIA SkillSpector](https://github.com/NVIDIA/SkillSpector) on every pull request and push to `main` (`.github/workflows/skill-scan.yml`).
+
+* **Static analysis only:** the gate runs with `--no-llm`, so it needs no API keys and makes no LLM calls.
+* **Pinned:** the workflow installs SkillSpector `v2.13.3`. Upgrading means changing that tag in the workflow and reviewing the new release.
+* **Gate:** the job fails if a skill scores above 50 or if the scanner errors. A repo with no `SKILL.md` files passes.
+* **Reports:** SARIF reports are uploaded as the `skill-scan-sarif` artifact on each run.
+
+To run the same check locally, install the pinned release and run the script from the repo root:
+
+```bash
+uv tool install "git+https://github.com/NVIDIA/SkillSpector.git@v2.13.3"
+sh scripts/skill-scan.sh        # reports go to skill-scan-results/
+```
