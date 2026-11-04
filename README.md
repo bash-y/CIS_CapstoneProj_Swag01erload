@@ -201,7 +201,7 @@ Contribution % = a member's story points ÷ team total story points. **This tabl
 | joromanii (`@joromanii`) | 18 | 28.1% | #46 US-5 DVWA & Kali Attacker, #47 US-6 Reconnaissance, #48 US-7 Web Exploit & Pivot, #51 US-10 App Security, #52 US-11 Wazuh Monitoring |
 | **Team total** | **64** | **100%** | 16 User Stories (#42–#54, #100, #122, #124) |
 
-**Story points:** 1, 2, 3, 5, or 8 only.
+**Story points:** 1, 2, 3, or 5 only.
 
 Tasks underneath stories should use **XS, S, M, L, or XL**, not story points.
 
