@@ -114,7 +114,7 @@
 - [x] `new-user-story` skill: plan entry, GitHub issue and README contribution table — *S* — **B**
 - [x] `evidence-capture` skill and `scripts/capture-evidence.sh` (dated evidence file with title, date, host, command and exit code) — *S* — **B**
 - [x] `docs-sync` skill: find status text that contradicts the evidence folder; check AGENTS.md, CLAUDE.md and GEMINI.md are identical — *S* — **B**
-- [ ] All four skills pass the US-15 SkillSpector gate — *XS* — **B**
+- [x] All four skills pass the US-15 SkillSpector gate — *XS* — **B**
 
 ---
 
