@@ -64,6 +64,7 @@ Any agent skill in the repo (a folder with a `SKILL.md`) is scanned with [NVIDIA
 * **Static analysis only:** the gate runs with `--no-llm`, so it needs no API keys and makes no LLM calls.
 * **Pinned:** the workflow installs SkillSpector `v2.13.3`. Upgrading means changing that tag in the workflow and reviewing the new release.
 * **Gate:** the job fails if SkillSpector rates a skill *DO NOT INSTALL* (the exit code is 1), or if the scanner errors. A skill rated *CAUTION* does not fail the job. A repo with no `SKILL.md` files passes.
+* **Partial coverage does not fail the job:** project skills point to repo files outside their own folder (scripts, the plan, `CLAUDE.md`), which SkillSpector cannot inspect, so it marks those scans partial. The note stays in the SARIF report. Those repo files are covered by normal pull-request review instead.
 * **Reports:** SARIF reports are uploaded as the `skill-scan-sarif` artifact on each run.
 
 To run the same check locally, install the pinned release and run the script from the repo root:
