@@ -25,3 +25,6 @@ auto_sync.log
 # Python cache
 __pycache__/
 *.py[cod]
+
+# Local skill-scan reports
+skill-scan-results/

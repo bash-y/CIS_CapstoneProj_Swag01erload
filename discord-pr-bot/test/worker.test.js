@@ -212,6 +212,25 @@ test("expired GitHub tokens are refreshed before use", async () => {
   assert.equal(prRead.headers.Authorization, "Bearer ghu_refreshed_UiwAntHuynhCIS");
 });
 
+for (const [why, refreshFails] of [
+  ["a network error", () => { throw new Error("network down"); }],
+  ["a refresh token GitHub already rotated", () => [400, { error: "bad_refresh_token" }]],
+]) {
+  test(`a failed token refresh (${why}) keeps the link, so the next command recovers`, async () => {
+    on("POST", /github\.com\/login\/oauth\/access_token/, ({ body }) => body.refresh_token ? refreshFails()
+      : [200, { access_token: "ghu_UiwAntHuynhCIS", refresh_token: "ghr_1", expires_in: 30 }]);
+    await link();
+    const failed = await send(command("pr", [{ name: "number", value: 91 }]));
+    assert.match(failed.data.content, /\/link/);
+    assert.equal(env._kv.has("user:u-anthony"), true, "record kept after a failed refresh");
+
+    on("POST", /github\.com\/login\/oauth\/access_token/, () =>
+      [200, { access_token: "ghu_refreshed_UiwAntHuynhCIS", refresh_token: "ghr_2", expires_in: 28800 }]);
+    await send(command("pr", [{ name: "number", value: 91 }]));
+    assert.equal(lastEdit().embeds[0].title, "PR #91: US-1 #42: Discord update bot");
+  });
+}
+
 // ----------------------------------------------------------------------------- cards
 
 test("commands that act on GitHub require a linked account", async () => {

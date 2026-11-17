@@ -48,6 +48,7 @@ Runs three checks **from the workstation** (`192.168.20.25`) against the server 
 ## Verification status
 
 - ✅ `docker compose config` parses cleanly.
-- ✅ The `swagpc-business-server` image **builds successfully** (`docker compose build business-server`).
+- ✅ The `swagpc-business-server` image **builds successfully** (`docker compose build business-server`) on Docker Desktop.
 - ✅ Scripts pass `bash -n` / `sh -n`.
-- ⛔ **The live `verify-workstation-to-server.sh` run has NOT been executed.** It was attempted but the Docker engine on the test machine was unstable — containers hung in the "created" state on start (a Docker Desktop VM issue, not a defect in this configuration). Run the verify script on a healthy Docker host to capture the actual PASS/FAIL output as M2 evidence.
+- ✅ **Live run recorded:** `verify-workstation-to-server.sh` passed on 2026-10-27 (Docker Desktop 4.48.0, macOS 13.7.8): ping, TCP 80 and the HTTP business portal all PASS. Evidence: [`evidence/build/us4-workstation-to-server.txt`](../../evidence/build/us4-workstation-to-server.txt).
+- ⚠️ **Build needs outside package hosts.** The business-server image installs the Wazuh agent from `packages.wazuh.com`, and the compose `workstation` installs curl and netcat from `dl-cdn.alpinelinux.org`. A host that can't reach those hosts fails at those steps (seen 2026-11-02 in a sandbox whose egress policy returns 403 for `packages.wazuh.com` and cannot reach the Alpine CDN).

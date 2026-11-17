@@ -83,6 +83,7 @@ Do not push, open a pull request, publish, or change repository settings unless 
 - Whenever `AGENTS.md`, `CLAUDE.md`, or `GEMINI.md` changes, immediately apply identical content to all three files.
 - Keep shared rules tool-neutral.
 - Supporting briefs, prompts, and role files must agree with these root rules.
+- Step-by-step procedures for recurring tasks (lab verification, new user stories, evidence capture, documentation sync) live in `.claude/skills/<name>/SKILL.md` as plain Markdown. They apply to every tool: Claude Code loads them automatically, and other tools read the matching file before doing that task.
 - Document only observed behavior as verified; clearly label plans and TODOs.
 
 ## Approval and Escalation
