@@ -151,6 +151,9 @@ services:
       - wazuh_data:/var/ossec/data
       - wazuh_logs:/var/ossec/logs
       - ../configs/monitoring/wazuh_ossec.conf:/var/ossec/etc/ossec.conf:ro
+      # Suricata writes eve.json into the suricata_logs volume; mount it here
+      # read-only so the manager's logcollector can ingest it (US-11 #129).
+      - suricata_logs:/var/log/suricata:ro
     networks:
       business-net:
         ipv4_address: 192.168.20.100
