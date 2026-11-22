@@ -1,0 +1,30 @@
+US-25 (#145 and #146) isolated WAF routing verification
+Date: 2026-11-22T16:06:50Z
+Host: MSYS_NT-10.0-26200 3.6.6-1cdd4371.x86_64, Docker engine 29.8.2
+Command: sh security-tool/verify-waf-live.sh
+----------------------------------------------------------------
+Test scope: café validation Compose project, four containers and no published ports.
+Docker server 29.8.2
+/cafe-validation-firewall sha256:b1a7f8a75a67a64d7d18dde8e4cb6f862ae8fff7ed6c5b5206967d5d584cc860
+/cafe-validation-kali sha256:b1a7f8a75a67a64d7d18dde8e4cb6f862ae8fff7ed6c5b5206967d5d584cc860
+/cafe-validation-dvwa sha256:dae203fe11646a86937bf04db0079adef295f426da68a92b40e3b181f337daa7
+/cafe-validation-waf sha256:697812147e7eada5c668e9728c6439d4663476c69f68635d24fb7878aac0f26a
+Verified the base lab container identities, attachments and DVWA Low default.
+Custom starting policy:
+-P FORWARD ACCEPT
+-A FORWARD -s 192.168.20.0/24 -d 192.168.20.0/24 -j ACCEPT
+Baseline: Guest reached the direct origin with HTTP 200.
+WAF routing: scoped rules installed; prior policy journal retained
+Origin healthy; Guest WAF login page returned 200; fresh direct connection timed out and Guest deny counter increased.
+WAF routing: managed policy already in place
+Origin healthy; Guest WAF login page returned 200; fresh direct connection timed out and Guest deny counter increased.
+Repeated apply left the active policy identical.
+Origin healthy; Guest WAF login page returned 200; fresh direct connection timed out and Guest deny counter increased.
+WAF routing: original FORWARD policy restored
+Rollback restored the complete prior FORWARD policy and direct HTTP 200.
+WAF routing: scoped rules installed; prior policy journal retained
+WAF routing: original FORWARD policy restored
+Operation incomplete: The Guest login-page request through the WAF did not return HTTP 200.
+Verified the base lab container identities, attachments and DVWA Low default.
+Failed apply restored the complete prior FORWARD policy. DVWA default still Low.
+Exit code: 0
