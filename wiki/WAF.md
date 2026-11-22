@@ -1,48 +1,18 @@
-# Web Application Firewall (WAF)
+# Web application firewall
 
-> Issue #25: *Document WAF*. Status as of 2026-10-27.
+The café lab uses an nginx reverse proxy with ModSecurity and the OWASP Core Rule Set in front of DVWA. The base Compose configuration publishes the proxy on the host at `127.0.0.1:8081`. Inside the base lab the proxy listens at `192.168.20.15:8080`. Requests that reach DVWA directly skip inspection. [Compose configuration](../docker/docker-compose.yml)
 
-## Status: planned, not implemented
+## What the lab demonstrated
 
-The project **has no working WAF**. Nothing in the repository deploys one yet. A WAF is planned as a milestone M3 story, tracked in these issues:
+On October 27, 2026, a benign lookup through the proxy returned HTTP 200 and one row. The tested SQL injection and command injection requests each returned HTTP 403 with no requested data. The audit log recorded rule IDs 942100 and 932160, respectively. These observations cover the requests in that run. They establish WAF behavior at the proxy. End-to-end Suricata and Wazuh delivery requires separate evidence. [Verification record](WAF-Verification.md) · [Audit event mapping](Detection-Mapping.md)
 
-| Issue | Title | Milestone | Assignee |
-|---|---|---|---|
-| [#7](https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/7) | WAF (ModSecurity+CRS) + verification | M3: Defenses Implemented & Verified | **none** |
-| [#23](https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/23) | Add Web Application Firewall (WAF) | none | **none** |
-| [#24](https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/24) | Verify WAF capabilities | none | **none** |
-| [#25](https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/issues/25) | Document WAF (this page) | none | bash-y |
+## When the proxy enforced the policy
 
-So this page documents the WAF's status and design. It does not document a working control. Issue #7 defines the acceptance criteria: the WAF proxies to DVWA, the exact SQL injection from #2 returns 403 with no data, and a ModSecurity rule match is logged.
-
-## What protects the web app today
-
-The closest planned control is **application-layer hardening**, US-10 (#51), described in [`wiki/Defense.md`](Defense.md) §3:
-
-- Raise DVWA's security level so input is validated and sanitized.
-- Restrict the web management interface to localhost or an authorized admin subnet.
-
-Neither is built. `defense/application-security/` is empty, and the live DVWA is still at `security=low` (the default). The matrix row for this control, row 4 in [`wiki/Defense-Test-Matrix.md`](Defense-Test-Matrix.md), is still planned.
-
-## What a WAF would add
-
-A WAF is a reverse proxy in front of the web app that inspects each HTTP request and blocks known attack patterns, such as SQL injection and command injection, before they reach the application. It is different from US-10. US-10 fixes the application code or its settings; a WAF filters traffic without changing the app.
-
-If the team adds one, it would look like this:
-
-| Part | Choice | Note |
+| Recorded configuration | Direct Guest access to DVWA | Evidence |
 |---|---|---|
-| Position | Reverse proxy between Guest and DVWA | Traffic to `192.168.20.10:80` goes through it |
-| Engine | ModSecurity with the OWASP Core Rule Set | Common, free, and has rules for both attacks in this lab |
-| Mode | Blocking, with logs | Blocked requests are logged, which also meets US-8/US-11 logging |
-| Test | Re-run `scripts/attack/sqli-exploit.sh` and the command-injection step through it | Expect 403 and no injected rows or `/etc/passwd` (per #7) |
+| Initial proxy check | The origin remained reachable. The proxy blocked the tested requests sent through it. | [7 passes, 1 known gap](../evidence/defense/waf-verify-20261027T133314Z.txt) |
+| Routed configuration | The direct origin check was blocked. | [8 passes, 0 known gaps](../evidence/defense/waf-routed-verify-20261027T135519Z.txt) |
+| Monitoring capture | The direct path was reachable during this capture. Its audit events describe traffic sent through the WAF. | [8 passes, 1 known gap](../evidence/defense/waf-monitoring-verify-20261027T142318Z.txt) |
+| Three-segment configuration | Guest could reach the proxy at `192.168.10.15`. Direct access to the origin at `192.168.30.10` was blocked, and the proxy refused the Guest setup-page request. | [9 passes, 0 known gaps](../evidence/defense/segmented-verify-20261027T143306Z.txt) · [Network layout](Network-Segmentation.md) |
 
-This would be a new service in `docker/docker-compose.yml`. It is **not** built here.
-
-## Open items
-
-1. **Nobody is assigned to build the WAF.** #7 (M3) has no assignee, and #23 and #24 have none either. The team needs to assign an owner before M3.
-2. **#23 and #7 overlap.** #23 is the build and #7 is the build plus verification. One should be closed as a duplicate of the other, which is the team's call.
-3. **Matrix row.** The Defense Test Matrix has no WAF row yet. Once #7 is owned, add one that re-runs `scripts/attack/sqli-exploit.sh` through the WAF and expects no injected rows.
-
-Until the WAF is built and verified, no result should be reported as "WAF blocks X."
+The [defense matrix](Defense-Test-Matrix.md) tracks application hardening separately. A 403 from ModSecurity measures proxy enforcement. Verifying DVWA's own input handling requires a direct application comparison.
