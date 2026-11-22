@@ -1,0 +1,44 @@
+US-17 (#127) - Firewall modes on a stand-in topology (Ubuntu containers on private subnets 10.77.10.0/24 and 10.77.20.0/24, NOT the real lab)
+Date: 2026-11-22T20:20:03Z
+Host: Linux 6.18.44-fc-v726, Docker engine 29.9.2
+Command: bash scripts/testing/test-lab-modes.sh
+----------------------------------------------------------------
+=== Building the stand-in image (Ubuntu with iptables, curl, python3) ===
+=== Building the stand-in topology ===
+=== positive control: baseline must forward, or every 'dropped' result below would mean nothing ===
+  [PASS] baseline forwards Guest -> WAF and Guest -> Business
+=== defended: start ===
+  [PASS] firewall reports defended
+  [PASS] firewall container is running
+  [PASS] Guest -> WAF :8080 is allowed (got 200)
+  [PASS] Guest -> Business server is dropped (got 000)
+=== defended: rules are idempotent ===
+  [PASS] applying twice leaves identical rules
+=== defended: container restart ===
+  [PASS] rules are back after restart
+  [PASS] firewall container is running
+  [PASS] Guest -> WAF :8080 still allowed (got 200)
+  [PASS] Guest -> Business server still dropped (got 000)
+=== defended: container recreation ===
+  [PASS] rules are back after recreation
+  [PASS] firewall container is running
+  [PASS] Guest -> WAF :8080 still allowed (got 200)
+  [PASS] Guest -> Business server still dropped (got 000)
+=== unknown mode fails closed ===
+  [PASS] container exits with code 2
+  [PASS] Guest -> WAF is not forwarded (got 000)
+  [PASS] Guest -> Business server is not forwarded (got 000)
+=== rules that cannot be applied fail closed (no NET_ADMIN) ===
+  [PASS] container exits non-zero
+  [PASS] Guest -> WAF is not forwarded (got 000)
+  [PASS] Guest -> Business server is not forwarded (got 000)
+=== baseline is an explicit choice ===
+  [PASS] firewall reports baseline
+  [PASS] Guest -> Business server is reachable (got 200)
+=== back to defended ===
+  [PASS] firewall reports defended again
+  [PASS] firewall container is running
+  [PASS] Guest -> Business server is dropped again (got 000)
+  [PASS] Guest -> WAF :8080 is allowed (got 200)
+=== Result: 25 passed, 0 failed ===
+Exit code: 0

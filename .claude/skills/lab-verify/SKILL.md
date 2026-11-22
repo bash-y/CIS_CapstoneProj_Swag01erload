@@ -16,13 +16,13 @@ Follow the root rules in `CLAUDE.md`, especially "Authorized Lab and Security Te
 
 ## Steps
 
-1. Check the lab is up: `bash lab.sh status`. If services are missing, ask before starting them. `bash lab.sh start` builds images and downloads packages.
+1. Check the lab is up: `bash lab.sh status`. If services are missing, ask before starting them. `bash lab.sh start` builds images and downloads packages, and starts the lab in the defended mode; the baseline needs `bash lab.sh start baseline` (see `wiki/Lab-Modes.md`).
 2. Run each check through the evidence helper so the result is saved (see the `evidence-capture` skill):
 
    | Check | Story | Needs | Command |
    |---|---|---|---|
    | Workstation to business server | US-4 (#45) | `business-server`, `workstation` | `sh scripts/testing/verify-workstation-to-server.sh` |
-   | Segmentation blocks Guest to Business | US-8 (#49) | segmentation applied (`bash lab.sh defend`) | `bash scripts/testing/verify-defenses.sh` |
+   | Segmentation blocks Guest to Business | US-8 (#49) | defended mode (`bash lab.sh defend`) | `bash scripts/testing/verify-defenses.sh` |
    | WAF blocks SQL injection and command injection | US-10 (#24, #7) | `firewall dvwa kali waf` running | `bash scripts/testing/verify-waf.sh` |
 
    Example:
@@ -31,7 +31,7 @@ Follow the root rules in `CLAUDE.md`, especially "Authorized Lab and Security Te
    sh scripts/capture-evidence.sh verification us8-segmentation-verify "US-8 (#49) - Segmentation re-test" bash scripts/testing/verify-defenses.sh
    ```
 
-3. If a defense has to be turned off for a before and after comparison (`bash lab.sh undefend`), say so, and turn it back on afterwards (`bash lab.sh defend`).
+3. If a defense has to be turned off for a before and after comparison (`bash lab.sh undefend` switches to the baseline), say so, and switch back afterwards (`bash lab.sh defend`). Check the mode with `bash lab.sh mode`.
 4. Report each check as PASS, FAIL, BLOCKED (could not run) or NOT RUN, with its evidence file path. Do not call a check verified without a saved evidence file.
 5. Update the Defense Test Matrix only to match what the evidence shows. Use the `docs-sync` skill.
 

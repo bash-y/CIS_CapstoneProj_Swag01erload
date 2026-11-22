@@ -28,11 +28,20 @@ services:
 
   # ─────────────────────────────────────────────────────────────────
   # FIREWALL / ROUTER — Dual-Homed (simulates pfSense)
+  # US-17 (#127): LAB_MODE selects the rules and defaults to defended. "baseline" is the
+  # intentionally vulnerable flat network and must be chosen explicitly (bash lab.sh start baseline).
+  # The rules are rebuilt on every start, restart and recreation, so a restart cannot silently
+  # remove the defense. If the rules cannot be applied the container exits and forwards nothing.
   # ─────────────────────────────────────────────────────────────────
   firewall:
-    image: alpine:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.firewall
+    image: swagpc-firewall:local
     container_name: swagpc-firewall
     hostname: swagpc-fw
+    environment:
+      - LAB_MODE=${LAB_MODE:-defended}
     cap_add:
       - NET_ADMIN
     sysctls:
@@ -41,11 +50,9 @@ services:
       - ../defense/firewall:/scripts/firewall:ro
     entrypoint: >
       sh -c "
-        apk add --no-cache iptables iproute2 tcpdump &&
-        iptables -F &&
-        iptables -P FORWARD ACCEPT &&
-        echo '=== [UNDEFENDED] pfSense Router Active — all forwarding allowed ===' &&
-        tail -f /dev/null
+        sh /scripts/firewall/firewall-init.sh apply &&
+        echo \"=== pfSense stand-in active, LAB_MODE=$$LAB_MODE ===\" &&
+        exec tail -f /dev/null
       "
     networks:
       guest-net:
@@ -58,7 +65,7 @@ services:
   # DVWA — Café Web App (Business Network / 192.168.20.10)
   # ─────────────────────────────────────────────────────────────────
   dvwa:
-    image: vulnerables/web-dvwa
+    image: vulnerables/web-dvwa:latest@sha256:dae203fe11646a86937bf04db0079adef295f426da68a92b40e3b181f337daa7
     container_name: swagpc-dvwa
     hostname: swagpc-dvwa
     ports:
@@ -95,7 +102,7 @@ services:
   # DVWA stays on 192.168.20.10 so the undefended baseline is unchanged.
   # ─────────────────────────────────────────────────────────────────
   waf:
-    image: owasp/modsecurity-crs:nginx
+    image: owasp/modsecurity-crs:nginx@sha256:697812147e7eada5c668e9728c6439d4663476c69f68635d24fb7878aac0f26a
     container_name: swagpc-waf
     hostname: swagpc-waf
     environment:
@@ -120,7 +127,7 @@ services:
   # EMPLOYEE WORKSTATION — Business Network (192.168.20.25)
   # ─────────────────────────────────────────────────────────────────
   workstation:
-    image: alpine:latest
+    image: alpine:3.24.3@sha256:be2656061b536c1883c4034790e21d0a09c5aaaf51968b89368a3c0371ea2c9a
     container_name: swagpc-workstation
     hostname: swagpc-employee
     cap_add:
@@ -142,7 +149,7 @@ services:
   # WAZUH MANAGER — Security Monitoring (Business Network)
   # ─────────────────────────────────────────────────────────────────
   wazuh:
-    image: wazuh/wazuh-manager:4.9.2
+    image: wazuh/wazuh-manager:4.9.2@sha256:b906ebfc77d78446e9b676e1a0b3cd78e2bf3ac2341688f1726b09c29e0aa826
     container_name: swagpc-wazuh
     hostname: swagpc-wazuh
     environment:
@@ -165,7 +172,7 @@ services:
   # WAZUH DASHBOARD — Kibana UI for SIEM visibility
   # ─────────────────────────────────────────────────────────────────
   dashboard:
-    image: wazuh/wazuh-dashboard:4.9.2
+    image: wazuh/wazuh-dashboard:4.9.2@sha256:7622129f46c44f9fceb06a5e3ef7366f965e45aac60da1bafd828705e582100a
     container_name: swagpc-dashboard
     hostname: swagpc-dashboard
     environment:
@@ -184,7 +191,7 @@ services:
   # SURICATA IDS — Network Intrusion Detection on Guest Gateway
   # ─────────────────────────────────────────────────────────────────
   suricata:
-    image: jasonish/suricata:latest
+    image: jasonish/suricata:latest@sha256:d5a3a1785299ab40918d465e54fedf8e3afeeedba76bb64b0cc74dbc20bda2c3
     container_name: swagpc-suricata
     cap_add:
       - NET_ADMIN

@@ -1,7 +1,7 @@
 # Three-Segment Network Layout
 
 > Issue #8: *Network segmentation + verification*. Captured live on 2026-10-27.
-> Opt-in layout: `docker/docker-compose.segmented.yml`. The base layout in `docker/docker-compose.yml` is unchanged and remains the undefended baseline.
+> Opt-in layout: `docker/docker-compose.segmented.yml`. The base layout in `docker/docker-compose.yml` is the undefended baseline only when started with `bash lab.sh start baseline`; since US-17 (#127) it starts in the defended mode by default (see [Lab Modes](Lab-Modes.md)).
 
 ## The three segments
 
