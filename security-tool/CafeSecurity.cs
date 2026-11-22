@@ -91,21 +91,32 @@ internal static class CafeSecurity
                 string script = reader.ReadToEnd().Replace("\r\n", "\n");
                 Func<string, string> policy = action => Run(docker,
                     new[] { "exec", "-i", targets["firewall"], "sh", "-s", "--", action }, script);
-                string outcome = policy(verb);
-                Console.WriteLine(outcome);
                 if (verb == "apply")
-                {
-                    try { VerifyTraffic(targets, inspect); }
-                    catch
-                    {
-                        if (outcome == "WAF routing: scoped rules installed; prior policy journal retained")
-                            Console.WriteLine(policy("rollback"));
-                        throw;
-                    }
-                }
+                    ApplyAndVerify(policy, () => VerifyTraffic(targets, inspect));
+                else
+                    Console.WriteLine(policy("rollback"));
             }
         }
         return 0;
+    }
+
+    internal static void ApplyAndVerify(Func<string,string> policy, Action check)
+    {
+        string outcome = policy("apply");
+        Console.WriteLine(outcome);
+        try { check(); }
+        catch (Exception failure)
+        {
+            if (outcome == "WAF routing: scoped rules installed; prior policy journal retained")
+            {
+                try { Console.WriteLine(policy("rollback")); }
+                catch (Exception recovery)
+                {
+                    throw new InvalidOperationException(failure.Message + " Recovery failed: " + recovery.Message);
+                }
+            }
+            throw;
+        }
     }
 
     private static void CheckServices(string docker, string state, params string[] query)
