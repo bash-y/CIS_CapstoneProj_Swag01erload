@@ -23,7 +23,5 @@ services:
 networks:
   guest-net:
     name: cafe-validation-guest
-    internal: true
   business-net:
     name: cafe-validation-business
-    internal: true
