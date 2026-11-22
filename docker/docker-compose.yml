@@ -209,12 +209,47 @@ services:
       - firewall
     restart: unless-stopped
 
+  # ─────────────────────────────────────────────────────────────────
+  # OWASP ZAP — web scanner runner on the Guest network (US-19, #130)
+  # Opt-in: it starts only with the zap profile (docker compose --profile zap up -d zap).
+  # Guest network only, never Business, so every scan reaches the café through the firewall's rules.
+  # No published ports and no ZAP API. Scans are started on purpose with docker exec; targets must
+  # be on configs/zap/targets.allowlist. It starts as root with a few capabilities to set up its route
+  # and report folder (scripts/zap/zap-init.sh), then runs as the zap user with none.
+  # Reports persist in the zap_reports volume.
+  # ─────────────────────────────────────────────────────────────────
+  zap:
+    profiles: ["zap"]
+    image: zaproxy/zap-stable:2.17.0@sha256:9624669db72f54d86c4b46a7064518bd9bf79d8c61a4c31befa9923489f328af
+    container_name: swagpc-zap
+    hostname: swagpc-zap
+    user: "0:0"
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - NET_ADMIN
+      - SETUID
+      - SETGID
+      - SETPCAP
+    security_opt:
+      - no-new-privileges:true
+    entrypoint: ["sh", "/scripts/zap/zap-init.sh"]
+    volumes:
+      - ../scripts/zap:/scripts/zap:ro
+      - zap_reports:/zap/wrk
+    networks:
+      guest-net:
+        ipv4_address: 192.168.10.60
+    restart: "no"
+
 volumes:
   wazuh_data:
   wazuh_logs:
   suricata_logs:
   waf_audit:
   waf_nginx:
+  zap_reports:
 
 networks:
   guest-net:

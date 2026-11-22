@@ -1,0 +1,25 @@
+US-19 (#130) - ZAP runner: start, restart and recreation keep reports and leave other data alone (real compose zap service, real pinned image, no scan run, lab-dependent checks NOT run)
+Date: 2026-11-22T20:36:14Z
+Host: Linux 6.18.44-fc-v726, Docker engine 29.9.2
+Command: bash scripts/testing/test-zap-runner.sh
+----------------------------------------------------------------
+=== start the runner (opt-in profile) ===
+  [PASS] compose starts the zap service
+  [PASS] first start: init finished
+  [PASS] first start: check-ready.sh --no-lab passes (identity, Guest-only network, route, reports, version, add-ons)
+=== data to keep ===
+  [PASS] a report file is written as zap
+  [PASS] a sibling volume holds other data
+=== stop and start ===
+  [PASS] stop then start
+  [PASS] after restart: init finished
+  [PASS] after restart: check-ready.sh --no-lab passes (identity, Guest-only network, route, reports, version, add-ons)
+  [PASS] the report file survived the restart
+=== remove the container and create it again ===
+  [PASS] remove then up
+  [PASS] after recreation: init finished
+  [PASS] after recreation: check-ready.sh --no-lab passes (identity, Guest-only network, route, reports, version, add-ons)
+  [PASS] the report file survived the recreation
+  [PASS] the sibling volume is untouched
+=== Result: 14 passed, 0 failed ===
+Exit code: 0
