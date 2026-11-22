@@ -1,0 +1,34 @@
+# Compose override for scripts/testing/test-lab-switch.sh (US-17, #127). Test fixture, not for real use.
+# Use together with docker/docker-compose.yml. It swaps only the services whose images cannot be built
+# without the Alpine package CDN, the Wazuh repository or the Kali archive, for one Ubuntu image
+# (swagpc-labstandin:local, with iptables, iproute2, curl and python3), and switches the two heavy Wazuh
+# services off. The real firewall-init.sh, DVWA, WAF and Suricata images are used unchanged.
+# Docker 28 and newer can drop traffic between bridges before the firewall sees it, so both networks turn
+# that filter off (gateway_mode_ipv4=nat-unprotected); see wiki/Lab-Modes.md.
+
+services:
+  firewall:
+    build: !reset null
+    image: swagpc-labstandin:local
+  kali:
+    build: !reset null
+    image: swagpc-labstandin:local
+  workstation:
+    image: swagpc-labstandin:local
+    entrypoint: !override ["sleep", "infinity"]
+  business-server:
+    build: !reset null
+    image: swagpc-labstandin:local
+    entrypoint: !override ["sh", "-c", "cd /tmp && exec python3 -m http.server 80"]
+  wazuh:
+    profiles: ["off"]
+  dashboard:
+    profiles: ["off"]
+
+networks:
+  guest-net:
+    driver_opts:
+      com.docker.network.bridge.gateway_mode_ipv4: nat-unprotected
+  business-net:
+    driver_opts:
+      com.docker.network.bridge.gateway_mode_ipv4: nat-unprotected

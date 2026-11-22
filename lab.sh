@@ -7,7 +7,8 @@
 # and recreation, so restarting the lab cannot silently remove the defense.
 
 set -e
-COMPOSE="docker compose -f docker/docker-compose.yml"
+# LAB_COMPOSE replaces the compose command; scripts/testing/test-lab-switch.sh uses it to add an override file.
+COMPOSE="${LAB_COMPOSE:-docker compose -f docker/docker-compose.yml}"
 FW="swagpc-firewall"
 INIT="/scripts/firewall/firewall-init.sh"
 
@@ -39,7 +40,7 @@ show_mode() {
   live=$(live_mode)
   echo "Lab mode: configured=$(configured_mode) live=$live"
   if [ "$live" = baseline ]; then
-    echo "WARNING: baseline is the intentionally vulnerable flat network; Guest can reach Business." >&2
+    echo "WARNING: baseline is the intentionally vulnerable flat network; the firewall lets Guest reach Business." >&2
   fi
 }
 

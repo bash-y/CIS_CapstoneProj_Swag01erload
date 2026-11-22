@@ -1,7 +1,7 @@
 # Lab Modes: Baseline and Defended
 
 > **User story:** US-17 (#127), *Reproducible baseline and persistent defended lab modes* (M3).
-> **Status:** implemented. The firewall rules pass a stand-in test (25 of 25 checks). **The change has not been run on the real lab** (see [Verification status](#verification-status)).
+> **Status:** implemented and verified in two partial runs: the firewall rules on a stand-in topology (25 of 25 checks), and the real `lab.sh` and compose file through every mode switch with the real DVWA, WAF and Suricata images (57 of 57). **Not yet run with the real firewall, Kali, workstation and business-server images, or with Wazuh**, and the lab's networks need a workaround on some hosts (see [Environment notes](#environment-notes)).
 
 ## The two modes
 
@@ -20,6 +20,8 @@ bash lab.sh mode                        # show the configured mode and the mode 
 bash lab.sh defend                      # switch to defended (recreates the firewall and Suricata)
 bash lab.sh undefend                    # switch to baseline (recreates the firewall and Suricata)
 ```
+
+`LAB_COMPOSE` replaces the compose command `lab.sh` runs (default `docker compose -f docker/docker-compose.yml`). The mode-switch test uses it to add an override file.
 
 Switching modes recreates only the `firewall` and `suricata` containers. Named volumes (Wazuh data and logs, Suricata logs, WAF logs) are kept. `bash lab.sh reset` still deletes volumes (`docker compose down -v`) and is not part of mode switching.
 
@@ -65,7 +67,20 @@ Not pinned: the Wazuh agent package inside the business-server image (version-pi
 
 ## Environment notes
 
-- **Docker 28 and newer can drop Guest traffic before the firewall sees it.** On a host with bridge netfilter on, Docker adds a rule that drops packets addressed to a container's IP when they arrive from another bridge. The Guest to Business path then fails in the **host**, not in the lab firewall, and a "dropped" result proves nothing. The stand-in test showed this on Docker 29.9.2 (`iptables -t raw` listed `-d <container ip> ! -i <bridge> -j DROP`). Always capture a **baseline that succeeds** (the positive control) next to every "blocked" result. The stand-in test creates its own networks with `com.docker.network.bridge.gateway_mode_ipv4=nat-unprotected` to avoid the filter. The lab's own networks do not set that option, and I did not test whether they need it.
+- **Docker 28 and newer can block the Guest path on the host, even in baseline.** On a host with bridge netfilter on, Docker adds a rule that drops packets addressed to a container's IP when they arrive from another bridge. The Guest to Business path then fails in the **host**, not in the lab firewall. Observed on Docker 29.9.2 with the lab's own networks (real `lab.sh start baseline`): Kali got no answer from the WAF, DVWA or the business server, while the workstation inside Business reached all three, and `iptables -t raw -S PREROUTING` listed `-d 192.168.20.x ! -i <bridge> -j DROP` for every Business address ([evidence](../evidence/verification/us17-docker29-baseline-blocked-20261122T230710Z.txt)). The earlier lab evidence from Docker Desktop 4.48.0 (engine 28.5.1) shows the path working, so this depends on the host. Always capture a **baseline that succeeds** (the positive control) next to every "blocked" result: on an affected host a "dropped" result proves nothing.
+- **Workaround, tested on Docker 29.9.2 on Linux only.** Put this in an override file, for example `lab-networks.override.yml`, run `bash lab.sh stop` so the networks are recreated, then start with `LAB_COMPOSE="docker compose -f docker/docker-compose.yml -f lab-networks.override.yml" bash lab.sh start baseline`:
+
+  ```yaml
+  networks:
+    guest-net:
+      driver_opts:
+        com.docker.network.bridge.gateway_mode_ipv4: nat-unprotected
+    business-net:
+      driver_opts:
+        com.docker.network.bridge.gateway_mode_ipv4: nat-unprotected
+  ```
+
+  The committed compose file does not set this option, because an older Docker engine may reject it. I did not test that.
 - Building the firewall and workstation images needs the Alpine package CDN (`dl-cdn.alpinelinux.org`), and the business-server image needs `packages.wazuh.com`.
 
 ## Verification status
@@ -74,11 +89,12 @@ Not pinned: the Wazuh agent package inside the business-server image (version-pi
 |---|---|---|
 | `docker compose config` parses (base file and the segmented override) | Verified, Docker Compose 5.6.1 | this change |
 | Firewall rule logic: defended survives restart and recreation, baseline is explicit, an unknown mode or a missing `NET_ADMIN` fails closed, applying twice is identical | Verified on a **stand-in** topology (Ubuntu containers, private subnets), Linux 6.18, Docker 29.9.2: 25 passed, 0 failed | `evidence/verification/us17-lab-modes-standin-*.txt` |
-| The test catches a regression | Verified: with the DROP rule removed, 8 checks fail and the exit code is 1 | session log, not saved as evidence |
-| `lab.sh start`, `mode`, `defend`, `undefend` on the **real lab** | **NOT RUN.** The sandbox cannot build the firewall image (Alpine package CDN) or the business-server image (Wazuh repository). | none |
-| Guest to Business denial and permitted employee and WAF traffic after a restart of the real lab | **NOT RUN** | none |
-| Persistent data (named volumes) kept across a mode switch | **NOT RUN.** Rests on how compose recreates containers, not on a test. | none |
-| Suricata and Wazuh behavior in each mode | **NOT RUN** | none |
+| The tests catch a regression | Verified: with the DROP rule removed, the stand-in test fails 8 checks and the real-compose test fails 14, both with exit code 1 | session log, not saved as evidence |
+| `lab.sh start [mode]`, `mode`, `defend`, `undefend`, `stop` and the `attack` guard with the real compose file; defended allows Guest to the WAF and blocks DVWA direct and Business, baseline is flat, employee (Business-internal) paths work in every mode; all of it after a mode switch, a firewall restart, and a stop and start; a plain start is defended | Verified with the **real DVWA, WAF and Suricata** images and the real `firewall-init.sh`. The firewall, Kali, workstation and business server are Ubuntu stand-ins and Wazuh is off. 57 passed, 0 failed on Linux 6.18, Docker 29.9.2, Compose 5.6.1, with the Docker 28 workaround above | `evidence/verification/us17-lab-switch-realcompose-20261122T230745Z.txt` |
+| Data in a named volume kept across mode switches and across stop and start | Verified (a marker file in a named volume) | same file |
+| DVWA's database across `lab.sh stop` and `start` | **Not kept, by configuration. Not tested.** The DVWA image declares no volume and the compose file adds none, so the database lives in the container, and a new container starts with a fresh one (create it again at `/setup.php`). Mode switches do not touch DVWA. | none |
+| Committed lab networks in baseline on Docker 29.9.2 | **Guest cannot reach Business even in baseline** without the workaround | `evidence/verification/us17-docker29-baseline-blocked-20261122T230710Z.txt` |
+| The real firewall, Kali, workstation and business-server images; Wazuh; Suricata alerts in each mode; macOS and Windows Docker Desktop | **NOT RUN.** The sandbox cannot build the Alpine, Kali and Wazuh-agent images. | none |
 
 ## Verify on the real lab
 
@@ -99,3 +115,5 @@ bash lab.sh defend
 ```
 
 To run the stand-in test on any Docker host: `bash scripts/testing/test-lab-modes.sh`.
+
+To run the real `lab.sh` and compose file through every mode switch (stand-ins for the firewall, Kali, workstation and business server; real DVWA, WAF and Suricata): `bash scripts/testing/test-lab-switch.sh`. Stop the lab first. The test refuses to run if any `swagpc-*` container or the `guest-net` or `business-net` network exists, runs under its own compose project name (`labswitch`), and removes what it created. On an affected Docker 28 host it needs the workaround above, which its override file already includes.
