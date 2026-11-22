@@ -2,11 +2,12 @@
 # Exercises the embedded transaction against a temporary, file-backed FORWARD chain.
 # No Docker daemon, elevated privileges or real firewall utilities are needed.
 set -eu
+tool_dir=$(CDPATH= cd "$(dirname "$0")" && pwd)
 root=$(mktemp -d)
 trap 'rm -rf "$root"' EXIT
 export CAFE_FIXTURE="$root"
 mkdir "$root/bin"
-sed 's|^dir=/run/swagpc-cafe-waf$|dir=$CAFE_FIXTURE/journal|' security-tool/waf-policy.sh > "$root/policy"
+sed 's|^dir=/run/swagpc-cafe-waf$|dir=$CAFE_FIXTURE/journal|' "$tool_dir/waf-policy.sh" > "$root/policy"
 grep -Fq 'dir=$CAFE_FIXTURE/journal' "$root/policy"
 cat > "$root/bin/iptables" <<'MOCK'
 #!/bin/sh
