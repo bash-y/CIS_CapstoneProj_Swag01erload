@@ -50,7 +50,7 @@ internal static class CafeSecurity
     private static void CheckServices(string docker, string query, string state)
     {
         var start = new ProcessStartInfo(docker,
-            "--host npipe:////./pipe/dockerDesktopLinuxEngine compose -f docker/docker-compose.yml " + query);
+            "--host npipe:////./pipe/dockerDesktopLinuxEngine compose -p docker -f docker/docker-compose.yml " + query);
         start.UseShellExecute = false;
         start.RedirectStandardOutput = true;
         start.RedirectStandardError = true;
