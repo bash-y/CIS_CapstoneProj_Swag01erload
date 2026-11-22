@@ -168,6 +168,7 @@
 - [ ] #145 Apply the WAF route and restore previous rules — L — A
 - [ ] #146 Verify permitted traffic, isolation and recovery — M — A
 - [ ] #147 Qualify segmentation and Alpine endpoint controls — M — A
+- [ ] #148 Record prerequisites and eligibility for future integrations — M — A
 
 **US-8 (#49) (5 pts) — As a network security engineer, I want pfSense firewall segmentation so that guest traffic cannot reach business assets.** *(Sprint 4)*
 - [ ] Configure pfSense firewall rules: `GUEST -> BUSINESS` DENY and LOG — *S* — **A**
