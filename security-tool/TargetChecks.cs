@@ -68,8 +68,30 @@ internal static class TargetChecks
         Console.WriteLine("PASS " + scenario);
     }
 
+    private static void Recovery(bool fresh, bool verified)
+    {
+        var calls = new List<string>();
+        bool passed = true;
+        try
+        {
+            CafeSecurity.ApplyAndVerify(action => {
+                calls.Add(action);
+                if (action == "rollback") return "restored";
+                return fresh ? "WAF routing: scoped rules installed; prior policy journal retained"
+                    : "WAF routing: managed policy already in place";
+            }, () => { if (!verified) throw new InvalidOperationException("traffic failed"); });
+        }
+        catch (InvalidOperationException) { passed = false; }
+        if (passed != verified || string.Join(",", calls) != (fresh && !verified ? "apply,rollback" : "apply"))
+            throw new Exception("Unexpected recovery decision.");
+        Console.WriteLine("PASS recovery fresh=" + fresh + " verified=" + verified);
+    }
+
     private static void Main()
     {
+        Recovery(true, true);
+        Recovery(true, false);
+        Recovery(false, false);
         Traffic("defended", true);
         foreach (string failure in new[] { "origin-down", "proxy-down", "no-drops", "refused", "bypass" })
             Traffic(failure, false);
