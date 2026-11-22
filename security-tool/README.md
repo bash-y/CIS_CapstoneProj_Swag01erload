@@ -1,23 +1,30 @@
 # Café security tool for Windows
 
-Run from the café repository root on Windows with Docker Desktop and its Linux engine. The first release inventories the four services needed for the team's existing base WAF configuration. It checks the local Docker Desktop named pipe.
-
-Build in PowerShell using the .NET Framework compiler:
+Use Windows with Docker Desktop's Linux engine and the base café Compose project. Run from the repository root.
 
 ```powershell
 Push-Location security-tool
 try {
-    & "$env:WINDIR\Microsoft.NET\Framework64\v4.0.30319\csc.exe" /nologo /target:exe /out:CafeSecurity.exe CafeSecurity.cs
-    if ($LASTEXITCODE -ne 0) { throw 'Build failed' }
+    & "$env:WINDIR\Microsoft.NET\Framework64\v4.0.30319\csc.exe" /nologo /target:exe /out:CafeSecurity.exe /resource:waf-policy.sh,waf-policy.sh CafeSecurity.cs
+    if ($LASTEXITCODE) { throw 'Build failed' }
 } finally { Pop-Location }
-
 .\security-tool\CafeSecurity.exe preflight
 .\security-tool\CafeSecurity.exe status
+.\security-tool\CafeSecurity.exe check-target
 ```
 
-`preflight` lists the required services declared in the base Compose file. `status` additionally checks which services Docker reports as running. Exit 0 means the requested inventory passed, 1 means the check failed or was blocked, and 2 indicates invalid usage. Service inventory provides no measurement of routing, origin isolation, application readiness or the DVWA level.
+| Command | Behavior |
+|---|---|
+| `preflight` | Reads the base Compose configuration and checks for the four required services. |
+| `status` | Additionally checks whether Docker lists those services as running. |
+| `check-target` | Inspects the running containers on the local Docker Desktop Linux pipe. Requires the base checkout and Compose labels, expected bridge attachments and addresses, IPv4 forwarding, Guest routes through the router, and DVWA's configured Low default. |
+| `verify-waf` | Verifies the DVWA Low default and topology, checks the origin login page locally and the WAF login page from Guest, then checks a fresh Guest connection to the direct origin. A timeout with an increased router deny counter is required. |
+| `apply-waf` | Runs the target checks and installs the café Guest-to-Business WAF policy on the identified router. The transaction admits the base WAF port and established flows and drops other new Guest-to-Business traffic. Existing sessions may continue. After installation the executable runs the same benign checks as `verify-waf`. Other traffic continues through the original policy. |
+| `rollback-waf` | Checks the same router's identity and removes the tool-owned rules. Recovery can run while the other three services are down. |
 
-US-25 tracks enforcement and recovery in #145, live verification in #146, and qualification of other existing project defenses in #147. Keep DVWA on Low during the demonstration. [Existing WAF evidence](../wiki/WAF-Verification.md).
+The compiler command above and the optional `build.ps1` helper both embed the firewall policy in the executable. Exit 0 means the requested operation succeeded, 1 means it failed or was blocked, and 2 indicates invalid usage. If the traffic checks fail immediately after a fresh installation, the tool attempts to restore the prior rules. Failure on an already-managed configuration leaves it available for inspection. The deny counter covers the Guest subnet; perform the live acceptance run (#146) in a quiet, isolated lab. DVWA's configured default and a browser session's selected level are separate.
+
+**Recovery scope.** The router needs `iptables`, `iptables-restore` and `flock`. Before changing FORWARD the tool records the previous policy listing inside the router under `/run/swagpc-cafe-waf`. Repeated operations recognize the managed rules. If another administrator changes FORWARD, inspect the router and journal before retrying. Keep the same router container for recovery; recreating it can discard its rules and journal. #145 still requires an isolated live apply, repeat and rollback. [Historical WAF evidence](../wiki/WAF-Verification.md).
 
 ## Eligibility for the executable
 
@@ -25,7 +32,7 @@ Ant Huynh (@UiwAntHuynhCIS) owns the integration decisions and follow-ups below.
 
 | Capability and intended target | Project evidence or prerequisite | Decision |
 |---|---|---|
-| WAF-only routing on the base café stack | [Routed WAF run](../evidence/defense/waf-routed-verify-20261027T135519Z.txt); restore the actual previous policy (#145) and demonstrate it through the tool (#146). | Service inventory available. Enforcement pending. |
+| WAF-only routing on the base café stack | [Routed WAF run](../evidence/defense/waf-routed-verify-20261027T135519Z.txt); restore the actual previous policy (#145) and demonstrate it through the tool (#146). | Scoped routing implementation available. Live enforcement and recovery acceptance pending. |
 | Guest isolation on the Alpine router | [Baseline and defended comparison](../evidence/verification/segmentation-before-after.md); finish allowed-flow and denial evidence (#104, #105). | Hold integration pending #104, #105 and #150. |
 | Alpine employee workstation | [Endpoint comparison](../evidence/verification/us9-endpoint-hardening.md); demonstrate identity checks, permitted business traffic and recovery. | Hold integration pending endpoint-specific evidence and #150. |
 | Login throttling | Existing project issue #109 requires paired results for legitimate login, throttling and recovery. | Project prerequisite open. |
