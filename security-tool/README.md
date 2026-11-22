@@ -32,7 +32,7 @@ if ($LASTEXITCODE) { throw 'Build failed' }
 
 The compiler command above and the optional `build.ps1` helper both embed the firewall policy in the executable. Exit 0 means the requested operation succeeded, 1 means it failed or was blocked, and 2 indicates invalid usage. If the traffic checks fail immediately after a fresh installation, the tool attempts to restore the prior rules. Failure on an already-managed configuration leaves it available for inspection. The deny counter covers the Guest subnet; perform the live acceptance run (#146) in a quiet, isolated lab. DVWA's configured default and a browser session's selected level are separate.
 
-**Recovery scope.** The router needs `iptables`, `iptables-restore` and `flock`. Before changing FORWARD the tool records the previous policy listing inside the router under `/run/swagpc-cafe-waf`. Repeated operations recognize the managed rules. If another administrator changes FORWARD, inspect the router and journal before retrying. Keep the same router container for recovery; recreating it can discard its rules and journal. #145 still requires an isolated live apply, repeat and rollback. [Historical WAF evidence](../wiki/WAF-Verification.md).
+**Recovery scope.** The router needs `iptables`, `iptables-restore` and `flock`. Before changing FORWARD the tool records the previous policy listing inside the router under `/run/swagpc-cafe-waf`. Repeated operations recognize the managed rules. If another administrator changes FORWARD, inspect the router and journal before retrying. Keep the same router container for recovery; recreating it can discard its rules and journal. The isolated Windows replay exercised apply, repeat, explicit rollback and automatic recovery after a failed verification. [Historical WAF evidence](../wiki/WAF-Verification.md).
 
 ## Eligibility for the executable
 
@@ -40,7 +40,7 @@ Ant Huynh (@UiwAntHuynhCIS) owns the integration decisions and follow-ups below.
 
 | Capability and intended target | Project evidence or prerequisite | Decision |
 |---|---|---|
-| WAF-only routing on the base café stack | [Routed WAF run](../evidence/defense/waf-routed-verify-20261027T135519Z.txt); restore the actual previous policy (#145) and demonstrate it through the tool (#146). | Scoped routing implementation available. Live enforcement and recovery acceptance pending. |
+| WAF-only routing on the base café stack | [Routed WAF run](../evidence/defense/waf-routed-verify-20261027T135519Z.txt); restore the actual previous policy (#145) and demonstrate it through the tool (#146). | Live enforcement and recovery demonstrated in the isolated fixture. Verification against #127's supported startup modes is pending. |
 | Guest isolation on the Alpine router | [Baseline and defended comparison](../evidence/verification/segmentation-before-after.md); finish allowed-flow and denial evidence (#104, #105). | Hold integration pending #104, #105 and #150. |
 | Alpine employee workstation | [Endpoint comparison](../evidence/verification/us9-endpoint-hardening.md); demonstrate identity checks, permitted business traffic and recovery. | Hold integration pending endpoint-specific evidence and #150. |
 | Login throttling | Existing project issue #109 requires paired results for legitimate login, throttling and recovery. | Project prerequisite open. |
@@ -66,3 +66,16 @@ Ant Huynh (@UiwAntHuynhCIS) owns the integration decisions and follow-ups below.
 |---|---|
 | Workstation firewall | The [apply script](../defense/endpoint-hardening/harden-workstation-firewall.sh) selects a fixed container name and replaces its INPUT rules. Its [baseline reset](../defense/endpoint-hardening/unharden-workstation-firewall.sh) opens inbound traffic. Identify the intended Alpine workstation and Business network first. Record a permitted Business-to-workstation check against a healthy lab service, a denied Guest check with open router forwarding, and restoration of the exact prior INPUT policy (#128, #150). |
 | Local accounts | The [account script](../defense/endpoint-hardening/harden-workstation-accounts.sh) changes group membership, aging policy and account locks. The October record proves selected resulting settings. Capture which accounts will change and demonstrate restoration of the previous settings on disposable lab accounts before packaging this operation (#150). |
+
+## Isolated live verification
+
+The fixture uses separately named bridges and containers, with no published ports. Start only the four listed services. The replay removes the fixture's default routes and adds return routes through the café router. Run the replay against a fresh validation router. It temporarily changes that router's FORWARD policy and restores it.
+
+```powershell
+docker compose -p cafe-waf-validation -f docker/docker-compose.yml -f docker/docker-compose.waf-validation.yml build firewall
+docker compose -p cafe-waf-validation -f docker/docker-compose.yml -f docker/docker-compose.waf-validation.yml up -d --no-build firewall kali dvwa waf
+```
+
+From the repository root with the Windows tool built and the WAF service healthy, run `sh security-tool/verify-waf-live.sh` with a shell that can invoke Docker Desktop. Stop the fixture afterward with the same Compose project and files and the `stop` command.
+
+The November 22 run used Docker Engine 29.8.2 and implementation commit `e8bcb39`. Before apply and after rollback, the Guest reached the direct login page with HTTP 200. During enforcement the healthy WAF returned 200, a new direct connection timed out, and the deny counter increased. Repeated apply left the rules identical. The run also proved automatic restoration after a deliberately interrupted WAF return path. DVWA's configured default was Low before and after. The fixture is separate from the persistent startup modes tracked by #127, which still gate final acceptance of #146. [Live evidence](../evidence/verification/us25-waf-live-20261122T160650Z.txt).
