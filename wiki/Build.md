@@ -40,7 +40,7 @@ docker compose up -d
 ```powershell
 docker compose ps
 ```
-You should see all 4 containers in `Up` status.
+From the `docker` directory, compare `docker compose config --services` with `docker compose ps --all` to identify missing or exited services. Check application readiness separately. The [Windows Compose preflight](../evidence/build/us3-compose-preflight-20261122T024106Z.txt) records configuration parsing and the unavailable Linux engine. Startup, connectivity and restart persistence still require an isolated runtime check.
 
 ---
 
