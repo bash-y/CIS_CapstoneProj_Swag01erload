@@ -6,19 +6,20 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 internal static class CafeSecurity
 {
     internal static readonly string[] Required = { "firewall", "dvwa", "waf", "kali" };
-    private static readonly string[] Commands = { "preflight", "status", "check-target", "apply-waf", "rollback-waf" };
+    private static readonly string[] Commands = { "preflight", "status", "check-target", "verify-waf", "apply-waf", "rollback-waf" };
     private static readonly string[] Compose = { "compose", "-p", "docker", "-f", "docker/docker-compose.yml" };
 
     private static int Main(string[] args)
     {
         if (args.Length != 1 || !Commands.Contains(args[0]))
         {
-            Console.WriteLine("CafeSecurity.exe preflight | status | check-target | apply-waf | rollback-waf | --help");
+            Console.WriteLine("CafeSecurity.exe preflight | status | check-target | verify-waf | apply-waf | rollback-waf | --help");
             Console.WriteLine("Run from the cafe repository root. apply-waf and rollback-waf change the lab router.");
             return args.Length == 1 && args[0] == "--help" ? 0 : 2;
         }
@@ -48,30 +49,63 @@ internal static class CafeSecurity
                 return 0;
             }
 
-            string firewall = VerifyTarget(mode == "rollback-waf", cmd => Run(docker, cmd, null));
-            if (mode == "check-target")
+            using (var operation = new Mutex(false, @"Global\SwagPcCafeWafPolicy"))
             {
-                Console.WriteLine("Verified the base lab container identities, attachments and DVWA Low default.");
-                return 0;
+                bool acquired;
+                try { acquired = operation.WaitOne(0); }
+                catch (AbandonedMutexException) { acquired = true; }
+                if (!acquired)
+                    throw new InvalidOperationException("Another cafe WAF operation is active.");
+                try { return Execute(docker, mode); }
+                finally { operation.ReleaseMutex(); }
             }
-            using (Stream resource = Assembly.GetExecutingAssembly().GetManifestResourceStream("waf-policy.sh"))
-            {
-                if (resource == null)
-                    throw new InvalidOperationException("Missing embedded firewall policy. Rebuild using build.ps1.");
-                using (var reader = new StreamReader(resource))
-                {
-                    string verb = mode == "apply-waf" ? "apply" : "rollback";
-                    var command = new[] { "exec", "-i", firewall, "sh", "-s", "--", verb };
-                    Console.WriteLine(Run(docker, command, reader.ReadToEnd().Replace("\r\n", "\n")));
-                }
-            }
-            return 0;
         }
         catch (Exception error)
         {
             Console.Error.WriteLine("Operation incomplete: " + error.Message);
             return 1;
         }
+    }
+
+    private static int Execute(string docker, string mode)
+    {
+        Func<string[], string> inspect = cmd => Run(docker, cmd, null);
+        var targets = VerifyTarget(mode == "rollback-waf", inspect);
+        if (mode == "check-target")
+        {
+            Console.WriteLine("Verified the base lab container identities, attachments and DVWA Low default.");
+            return 0;
+        }
+        if (mode == "verify-waf")
+        {
+            VerifyTraffic(targets, inspect);
+            return 0;
+        }
+        using (Stream resource = Assembly.GetExecutingAssembly().GetManifestResourceStream("waf-policy.sh"))
+        {
+            if (resource == null)
+                throw new InvalidOperationException("Missing embedded firewall policy. Rebuild using build.ps1.");
+            using (var reader = new StreamReader(resource))
+            {
+                string verb = mode == "apply-waf" ? "apply" : "rollback";
+                string script = reader.ReadToEnd().Replace("\r\n", "\n");
+                Func<string, string> policy = action => Run(docker,
+                    new[] { "exec", "-i", targets["firewall"], "sh", "-s", "--", action }, script);
+                string outcome = policy(verb);
+                Console.WriteLine(outcome);
+                if (verb == "apply")
+                {
+                    try { VerifyTraffic(targets, inspect); }
+                    catch
+                    {
+                        if (outcome == "WAF routing: scoped rules installed; prior policy journal retained")
+                            Console.WriteLine(policy("rollback"));
+                        throw;
+                    }
+                }
+            }
+        }
+        return 0;
     }
 
     private static void CheckServices(string docker, string state, params string[] query)
@@ -91,7 +125,7 @@ internal static class CafeSecurity
         "{{index .Config.Labels \"com.docker.compose.project.config_files\"}}\n" +
         "{{range $name, $net := .NetworkSettings.Networks}}{{$name}}={{$net.IPAddress}}/{{$net.IPPrefixLen}};{{end}}";
 
-    internal static string VerifyTarget(bool recovery, Func<string[], string> run)
+    internal static Dictionary<string,string> VerifyTarget(bool recovery, Func<string[], string> run)
     {
         var networks = new Dictionary<string,string[]> {
             { "firewall", new[] { "guest-net=192.168.10.254/24", "business-net=192.168.20.254/24" } },
@@ -140,7 +174,40 @@ internal static class CafeSecurity
             if (run(new[] { "exec", ids["dvwa"], "php", "-r", level }).Trim() != "low")
                 throw new InvalidOperationException("DVWA must have a verified Low default.");
         }
-        return ids["firewall"];
+        return ids;
+    }
+
+    internal static void VerifyTraffic(Dictionary<string,string> ids, Func<string[], string> run)
+    {
+        const string originHealth = "$h = get_headers('http://127.0.0.1/login.php'); " +
+            "echo is_array($h) ? $h[0] : 'unavailable';";
+        string health = run(new[] { "exec", ids["dvwa"], "php", "-r", originHealth });
+        if (!Regex.IsMatch(health, @"^HTTP/\d\.\d 200\b"))
+            throw new InvalidOperationException("DVWA did not return HTTP 200 for its local login page.");
+
+        const string curl = "curl --noproxy '*' -s --connect-timeout 3 --max-time 5 " +
+            "-o /dev/null -w '%{http_code}' ";
+        // Each curl opens a new connection. Keep exit status separate from HTTP status.
+        Func<string,string> probe = url => run(new[] { "exec", ids["kali"], "sh", "-c",
+            curl + url + "; printf ' %s' \"$?\"" });
+        if (probe("http://192.168.20.15:8080/login.php") != "200 0")
+            throw new InvalidOperationException("The Guest login-page request through the WAF did not return HTTP 200.");
+
+        Func<ulong> drops = () => {
+            string listing = run(new[] { "exec", ids["firewall"], "iptables", "-w", "5", "-nvxL", "FORWARD" });
+            var lines = listing.Split('\n').Where(line => line.Contains("/* SWAGPC_CAFE_WAF_V1_DENY */")).ToArray();
+            if (lines.Length != 1)
+                throw new InvalidOperationException("The managed Guest deny counter is missing or ambiguous.");
+            var count = Regex.Match(lines[0], @"^\s*(\d+)\s+\d+\s+DROP\s");
+            ulong packets;
+            if (!count.Success || !ulong.TryParse(count.Groups[1].Value, out packets))
+                throw new InvalidOperationException("Cannot read the managed Guest deny counter.");
+            return packets;
+        };
+        ulong before = drops();
+        if (probe("http://192.168.20.10/login.php") != "000 28" || drops() <= before)
+            throw new InvalidOperationException("Direct-origin timeout and increased Guest deny counter were not both observed.");
+        Console.WriteLine("Origin healthy; Guest WAF login page returned 200; fresh direct connection timed out and Guest deny counter increased.");
     }
 
     // All arguments, including Go templates and the PHP expression, go directly to docker.exe.
