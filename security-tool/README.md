@@ -1,16 +1,24 @@
 # Café security tool for Windows
 
-Use Windows with Docker Desktop's Linux engine and the base café Compose project. Run from the repository root.
+Use Windows with Docker Desktop's Linux engine and the base café Compose project. Build and run from the `security-tool` directory. The existing repository-root entry point also works.
+
+| Tool file | Purpose |
+|---|---|
+| [CafeSecurity.cs](CafeSecurity.cs) | Windows command-line application |
+| [waf-policy.sh](waf-policy.sh) | Router policy embedded in the executable at build time |
+| [build.ps1](build.ps1) | Builds `CafeSecurity.exe` in this directory |
+| [TargetChecks.cs](TargetChecks.cs) and [test-waf-policy.sh](test-waf-policy.sh) | Offline Windows and routing regression checks |
+
+The parent repository owns the Docker Compose lab definition. The tool uses it to identify the supported café stack.
 
 ```powershell
-Push-Location security-tool
-try {
-    & "$env:WINDIR\Microsoft.NET\Framework64\v4.0.30319\csc.exe" /nologo /target:exe /out:CafeSecurity.exe /resource:waf-policy.sh,waf-policy.sh CafeSecurity.cs
-    if ($LASTEXITCODE) { throw 'Build failed' }
-} finally { Pop-Location }
-.\security-tool\CafeSecurity.exe preflight
-.\security-tool\CafeSecurity.exe status
-.\security-tool\CafeSecurity.exe check-target
+# From the capstone repository
+cd security-tool
+& "$env:WINDIR\Microsoft.NET\Framework64\v4.0.30319\csc.exe" /nologo /target:exe /out:CafeSecurity.exe /resource:waf-policy.sh,waf-policy.sh CafeSecurity.cs
+if ($LASTEXITCODE) { throw 'Build failed' }
+.\CafeSecurity.exe preflight
+.\CafeSecurity.exe status
+.\CafeSecurity.exe check-target
 ```
 
 | Command | Behavior |
