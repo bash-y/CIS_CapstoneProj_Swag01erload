@@ -78,7 +78,7 @@
 
 - **Story points (1, 2, 3, 5)** live **only on user stories** (no story exceeds 5 points).
 - **Sizes (XS, S, M, L, XL)** live **only on subtasks**.
-- Backlog was balanced at **18 points per team member** (54 points); US-14 (5 pts, Sebastian Cadena) was added later, for 59 points total. US-15 (2 pts, Sebastian Cadena) was added after that, for 61 points total. US-16 (3 pts, Sebastian Cadena) followed, for 64 points total.
+- Backlog was balanced at **18 points per team member** (54 points); US-14 (5 pts, Sebastian Cadena) was added later, for 59 points total. US-15 (2 pts, Sebastian Cadena) was added after that, for 61 points total. US-16 (3 pts, Sebastian Cadena) followed, for 64 points total. US-17 through US-24 added 23 points. US-25 adds 5, bringing the backlog to 92 points.
 
 ### Milestone 1 — Proposal Approved
 
@@ -151,6 +151,24 @@
 
 ### Milestone 3 — Defenses Implemented & Verified
 
+**US-17 (#127) (3 pts) — Reproducible baseline and persistent defended lab modes.** Assigned to @bash-y.
+
+**US-18 (#128) (3 pts) — Verify each defense layer independently and in combination.** Assigned to @joromanii.
+
+**US-19 (#130) (3 pts) — Integrate ZAP into the isolated café lab.** Assigned to @bash-y.
+
+**US-20 (#131) (3 pts) — Automate authenticated DVWA baseline scanning with ZAP.** Assigned to @joromanii.
+
+**US-21 (#132) (3 pts) — Compare bounded ZAP active scans before and through the WAF.** Assigned to @joromanii.
+
+**US-22 (#133) (3 pts) — Correlate ZAP requests with WAF, Suricata and Wazuh evidence.** Assigned to @UiwAntHuynhCIS.
+
+**US-25 (#143) (5 pts) — Package the café’s verified Docker defenses in a security tool.** Assigned to @UiwAntHuynhCIS.
+- [ ] #144 Build the Windows executable and inspect the local café services — M — A
+- [ ] #145 Apply the WAF route and restore previous rules — L — A
+- [ ] #146 Verify permitted traffic, isolation and recovery — M — A
+- [ ] #147 Qualify segmentation and Alpine endpoint controls — M — A
+
 **US-8 (#49) (5 pts) — As a network security engineer, I want pfSense firewall segmentation so that guest traffic cannot reach business assets.** *(Sprint 4)*
 - [ ] Configure pfSense firewall rules: `GUEST -> BUSINESS` DENY and LOG — *S* — **A**
 - [ ] Configure rule: `GUEST -> INTERNET` ALLOW (captive/isolated guest access) — *S* — **A**
@@ -178,6 +196,10 @@
 
 ### Milestone 4 — Documentation & Presentation
 
+**US-23 (#134) (2 pts) — Document and independently reproduce the ZAP setup and scanning runbook.** Assigned to @bash-y.
+
+**US-24 (#135) (3 pts) — Document ZAP findings, before/after results and detection evidence.** Assigned to @UiwAntHuynhCIS.
+
 **US-12 (#53) (4 pts) — As a documentation lead, I want a comprehensive Wiki report with before-and-after evidence so that the capstone is fully documented.** *(Sprint 6)*
 - [ ] Compile complete Build, Attack, and Defend sections in the GitHub Wiki — *M* — **C**
 - [ ] Format before vs. after side-by-side comparison tables, screenshots, and log snippets — *M* — **A**
@@ -194,10 +216,12 @@
 
 | Team Member | GitHub | Assigned Stories | Total Points | % Contribution |
 |---|---|---|---|---|
-| **Ant Huynh** | `@UiwAntHuynhCIS` | US-1 (3), US-3 (5), US-8 (5), US-12 (partial / 5) | **18 pts** | **28.1%** |
-| **Sebastian Cadena** | `@bash-y` | US-2 (3), US-4 (5), US-9 (5), US-13 (partial / 5), US-14 (5), US-15 (2), US-16 (3) | **28 pts** | **43.8%** |
-| **joromanii** | `@joromanii` | US-5 (3), US-6 (5), US-7 (5), US-10 (partial / 5) | **18 pts** | **28.1%** |
-| **Total Team Backlog** | | **16 User Stories** | **64 pts** | **100%** |
+| **Ant Huynh** | `@UiwAntHuynhCIS` | US-1 (3), US-3 (5), US-8 (5), US-12 (partial / 5), US-22 (#133), US-24 (#135), US-25 (#143) | **29 pts** | **31.5%** |
+| **Sebastian Cadena** | `@bash-y` | US-2 (3), US-4 (5), US-9 (5), US-13 (partial / 5), US-14 (5), US-15 (2), US-16 (3), US-17 (#127), US-19 (#130), US-23 (#134) | **36 pts** | **39.1%** |
+| **joromanii** | `@joromanii` | US-5 (3), US-6 (5), US-7 (5), US-10 (partial / 5), US-18 (#128), US-20 (#131), US-21 (#132) | **27 pts** | **29.3%** |
+| **Total Team Backlog** | | **25 User Stories** | **92 pts** | **100%** |
+
+Member percentages are rounded independently to one decimal place.
 
 ---
 
