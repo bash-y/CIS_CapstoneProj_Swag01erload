@@ -39,7 +39,7 @@ Ant Huynh (@UiwAntHuynhCIS) owns the integration decisions and follow-ups below.
 
 | Integration gate | Evidence required to release the control |
 |---|---|
-| Scope and policy | Identify the local café router, Guest and Business interfaces, and selected policy before applying it (#150). Full Guest isolation drops traffic to the base layout's Business-side WAF as well. WAF-only routing needs its own policy (#145). |
+| Scope and policy | Identify the local café router, Guest and Business interfaces, and selected policy before applying it (#150). Full Guest isolation drops new Guest connections to the base layout's Business-side WAF. Its earlier ESTABLISHED,RELATED rule permits existing flows. WAF-only routing needs its own policy (#145). |
 | Permitted traffic | The [workstation-to-server check](../evidence/build/us4-workstation-to-server.txt) passed during the build. Record paired allowed flows and a blocked Guest control with segmentation active (#105). The same-subnet workstation check alone cannot establish that a forwarded route works. |
 | Recovery | The [baseline reset](../defense/firewall/disable-segmentation.sh) flushes FORWARD and selects ACCEPT. Preserve and restore an existing non-default policy, including unrelated rules, and exercise recovery after a partial apply (#150). |
 
