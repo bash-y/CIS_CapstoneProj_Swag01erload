@@ -36,6 +36,8 @@ Defending a small café against **guest-network compromise, web application atta
 | Windows endpoint hardening               | Re-attempt unauthorized access → endpoint should deny/restrict access               |
 | Wazuh/Suricata security monitoring       | Re-run reconnaissance/web attacks → relevant security events should generate alerts |
 
+Web scanning with OWASP ZAP is opt-in and runs from the Guest network only; setup and scope are in the [ZAP Runbook](wiki/ZAP-Runbook.md) (draft; the scan procedures are planned).
+
 ### Planned Network
 
 ```text

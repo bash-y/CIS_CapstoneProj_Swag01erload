@@ -29,3 +29,7 @@ Every implemented defense is verified by re-running the exact same attack tools 
 ### Visibility & Detection:
 * **Before:** Port scans and web attacks proceeded undetected with 0 alerts.
 * **After:** Suricata and Wazuh log alerts with timestamp, attacker source IP, and signature descriptions.
+
+---
+
+**See also:** [ZAP Runbook](ZAP-Runbook.md) for the web scanner's setup, scope rules and readiness checks (US-23, #134; draft, scans planned), and [Lab Modes](Lab-Modes.md) for how the firewall modes are verified.
