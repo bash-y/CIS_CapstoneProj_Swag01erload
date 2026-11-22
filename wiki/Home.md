@@ -29,8 +29,8 @@ Welcome to the **SwagPc Café** Capstone Wiki for **CIS 3353: Computer Systems S
 
 | Member | GitHub Handle | Role | Assigned Story Points |
 |---|---|---|---|
-| **Ant Huynh** | `@UiwAntHuynhCIS` | Project Lead | 18 pts (28.1%) |
-| **Sebastian Cadena** | `@bash-y` | System Architect | 28 pts (43.8%) |
-| **joromanii** | `@joromanii` | Security-Documentation Lead | 18 pts (28.1%) |
+| **Ant Huynh** | `@UiwAntHuynhCIS` | Project Lead | 29 pts (31.5%) |
+| **Sebastian Cadena** | `@bash-y` | System Architect | 36 pts (39.1%) |
+| **joromanii** | `@joromanii` | Security-Documentation Lead | 27 pts (29.3%) |
 
 *Commit Approach:* **Individual Commits** (Unanimously declared on proposal).
