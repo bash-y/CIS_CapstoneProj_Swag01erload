@@ -1,0 +1,29 @@
+# Use with docker-compose.yml and project name cafe-waf-validation.
+x-probe-image: &probe-image
+  image: swagpc-waf-validation:local
+  build:
+    context: .
+    dockerfile: Dockerfile.waf-validation
+
+services:
+  firewall:
+    <<: *probe-image
+    container_name: cafe-validation-firewall
+    entrypoint: ["sleep", "infinity"]
+  kali:
+    <<: *probe-image
+    container_name: cafe-validation-kali
+  dvwa:
+    container_name: cafe-validation-dvwa
+    ports: !reset []
+  waf:
+    container_name: cafe-validation-waf
+    ports: !reset []
+
+networks:
+  guest-net:
+    name: cafe-validation-guest
+    internal: true
+  business-net:
+    name: cafe-validation-business
+    internal: true
