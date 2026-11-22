@@ -57,6 +57,8 @@ Set-NetFirewallProfile -Profile Domain,Private,Public `
 
 ## Verification (owned by @joromanii per US-9)
 
+Run this in the **baseline** mode (`bash lab.sh undefend`). In the defended mode the router already drops Guest traffic to the workstation, so a refused connection would not show that the host firewall works. Keep the baseline run as the positive control (see [Lab Modes](../../wiki/Lab-Modes.md)).
+
 With the defense applied, re-run the lateral-movement probe from Kali (`192.168.10.50`):
 
 ```bash

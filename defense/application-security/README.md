@@ -50,6 +50,8 @@ has not been executed in the authoring environment — run it against the live l
 
 ## Verification (owned by @UiwAntHuynhCIS per US-10)
 
+To test the application control alone, use the **baseline** mode (`bash lab.sh undefend`). In the defended mode the router blocks Kali's direct path to DVWA (`192.168.20.10`) and allows only the WAF at `192.168.20.15:8080`, so a blocked request there is the router's or the WAF's doing, not DVWA's hardening (see [Lab Modes](../../wiki/Lab-Modes.md)).
+
 With the defense applied, re-run the web-exploit payloads from Kali (`192.168.10.50`):
 
 ```bash
