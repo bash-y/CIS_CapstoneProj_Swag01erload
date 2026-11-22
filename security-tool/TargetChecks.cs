@@ -40,15 +40,39 @@ internal static class TargetChecks
             });
         };
         bool accepted;
-        try { accepted = CafeSecurity.VerifyTarget(recovery, fixture) == firewall; }
+        try { accepted = CafeSecurity.VerifyTarget(recovery, fixture)["firewall"] == firewall; }
         catch (InvalidOperationException) { accepted = false; }
         if (accepted != accept || (recovery && calls.Count != 1))
             throw new Exception("Unexpected decision: " + scenario);
         Console.WriteLine("PASS " + scenario);
     }
 
+    private static void Traffic(string scenario, bool accept)
+    {
+        int counter = 0;
+        var ids = CafeSecurity.Required.ToDictionary(service => service);
+        Func<string[],string> fixture = args => {
+            if (args[1] == "dvwa") return scenario == "origin-down" ? "unavailable" : "HTTP/1.1 200 OK";
+            if (args[1] == "firewall")
+            {
+                if (scenario != "no-drops") counter++;
+                return counter + " 40 DROP all -- * * 192.168.10.0/24 192.168.20.0/24 /* SWAGPC_CAFE_WAF_V1_DENY */";
+            }
+            if (args.Last().Contains(":8080")) return scenario == "proxy-down" ? "000 7" : "200 0";
+            return scenario == "bypass" ? "200 0" : scenario == "refused" ? "000 7" : "000 28";
+        };
+        bool passed = true;
+        try { CafeSecurity.VerifyTraffic(ids, fixture); }
+        catch (InvalidOperationException) { passed = false; }
+        if (passed != accept) throw new Exception("Unexpected traffic result: " + scenario);
+        Console.WriteLine("PASS " + scenario);
+    }
+
     private static void Main()
     {
+        Traffic("defended", true);
+        foreach (string failure in new[] { "origin-down", "proxy-down", "no-drops", "refused", "bypass" })
+            Traffic(failure, false);
         Check("base", false, true);
         foreach (string scenario in new[] { "foreign-project", "foreign-network", "invalid-id",
             "override", "stopped", "wrong-address", "high", "forwarding-off", "wrong-route" })
