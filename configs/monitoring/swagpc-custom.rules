@@ -12,7 +12,7 @@ alert tcp $GUEST_NET any -> $BUSINESS_NET any (msg:"SWAGPC RECON Port scan - mul
 # ─── Web Application Attacks ──────────────────────────────────────
 alert http $GUEST_NET any -> $BUSINESS_NET $HTTP_PORTS (msg:"SWAGPC WEB SQL Injection attempt from Guest network"; http.uri; content:"union"; nocase; content:"select"; nocase; distance:0; classtype:web-application-attack; sid:9000010; rev:1;)
 
-alert http $GUEST_NET any -> $BUSINESS_NET $HTTP_PORTS (msg:"SWAGPC WEB Command Injection attempt - semicolon payload"; http.request_body; content:";"; pcre:"/;\s*(cat|ls|id|whoami|pwd|etc\/passwd)/i"; classtype:web-application-attack; sid:9000011; rev:1;)
+alert http $GUEST_NET any -> $BUSINESS_NET $HTTP_PORTS (msg:"SWAGPC WEB Command Injection attempt - semicolon payload"; http.request_body; content:"|3b|"; pcre:"/\;\s*(cat|ls|id|whoami|pwd|etc\/passwd)/i"; classtype:web-application-attack; sid:9000011; rev:1;)
 
 alert http $GUEST_NET any -> $BUSINESS_NET $HTTP_PORTS (msg:"SWAGPC WEB DVWA Command Injection - /etc/passwd exfil"; http.request_body; content:"etc/passwd"; classtype:web-application-attack; sid:9000012; rev:1;)
 
