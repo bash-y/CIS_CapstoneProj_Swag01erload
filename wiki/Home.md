@@ -6,7 +6,7 @@ Welcome to the **SwagPc Café** Capstone Wiki for **CIS 3353: Computer Systems S
 
 * **Organization:** *SwagPc Café* — a small coffee shop providing free public guest Wi-Fi while operating internal business workstations and a Linux server running the café's web portal.
 * **Core Vulnerability:** A flat, unsegmented network allows untrusted guests on the public Wi-Fi to discover internal business hosts, exploit a vulnerable web application, and pivot laterally toward sensitive employee workstations.
-* **Core Defense:** Network segmentation and firewall access controls using **pfSense** (VLAN 10 Guest vs. VLAN 20 Business), application-layer security hardening, Windows endpoint hardening, and security monitoring via **Suricata IDS + Wazuh SIEM**.
+* **Planned defenses:** pfSense segmentation between Guest VLAN 10 and Business VLAN 20, Windows endpoint hardening, application controls, and Suricata/Wazuh monitoring. The Docker lab models the network segments with bridges and uses Alpine containers for the router and workstation. See [[Network Architecture & IP Plan|Architecture]] for platform evidence and outstanding rubric decisions.
 * **Methodology:** Strict **Build → Attack → Defend** lifecycle with verifiable before-and-after tests.
 
 ---
@@ -15,9 +15,9 @@ Welcome to the **SwagPc Café** Capstone Wiki for **CIS 3353: Computer Systems S
 
 1. [[Project Proposal|Proposal]] — Problem statement, threat model, course modules, and commit approach.
 2. [[Network Architecture & IP Plan|Architecture]] — Detailed VLAN layout, routing policies, and system topology.
-3. [[Environment Build Guide|Build]] — Step-by-step setup of pfSense, Docker networks, DVWA, and endpoints.
+3. [[Environment Build Guide|Build]] — Lab build instructions and planned platform requirements.
 4. [[Undefended Attack Demonstration|Attack]] — Guest network reconnaissance, DVWA web exploitation, and lateral pivot evidence.
-5. [[Defense Implementation|Defense]] — pfSense segmentation rules, endpoint hardening, and monitoring deployment.
+5. [[Defense Implementation|Defense]] — Segmentation policy, endpoint hardening, and monitoring configuration.
 6. [[Testing & Verification|Testing-and-Verification]] — Repeat-attack tests proving attacks are blocked, sanitized, or alerted.
 7. [[Team Contribution Log|Contribution-Log]] — Individual story points, task breakdowns, and board mapping.
 8. [[Discord Update Bot|Discord-Bot]] — Commit, pull request, issue and CI alerts plus daily/weekly digests in Discord.
