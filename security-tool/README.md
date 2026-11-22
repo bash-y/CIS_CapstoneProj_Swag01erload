@@ -42,3 +42,12 @@ Ant Huynh (@UiwAntHuynhCIS) owns the integration decisions and follow-ups below.
 | Scope and policy | Identify the local café router, Guest and Business interfaces, and selected policy before applying it (#150). Full Guest isolation drops traffic to the base layout's Business-side WAF as well. WAF-only routing needs its own policy (#145). |
 | Permitted traffic | The [workstation-to-server check](../evidence/build/us4-workstation-to-server.txt) passed during the build. Record paired allowed flows and a blocked Guest control with segmentation active (#105). The same-subnet workstation check alone cannot establish that a forwarded route works. |
 | Recovery | The [baseline reset](../defense/firewall/disable-segmentation.sh) flushes FORWARD and selects ACCEPT. Preserve and restore an existing non-default policy, including unrelated rules, and exercise recovery after a partial apply (#150). |
+
+### Alpine workstation qualification (#147)
+
+**Decision: keep the host firewall and account policy out of the executable until each can be recovered independently.** With router forwarding open, Guest ping changed from three replies to 100% loss. The workstation INPUT counters recorded six packets each for LOG and DROP. The same dated record shows the employee group membership, password-aging settings and root lock state. [Endpoint evidence](../evidence/verification/us9-endpoint-hardening.md)
+
+| Control | Qualification finding and release condition |
+|---|---|
+| Workstation firewall | The [apply script](../defense/endpoint-hardening/harden-workstation-firewall.sh) selects a fixed container name and replaces its INPUT rules. Its [baseline reset](../defense/endpoint-hardening/unharden-workstation-firewall.sh) opens inbound traffic. Identify the intended Alpine workstation and Business network first. Record a permitted Business-to-workstation check against a healthy lab service, a denied Guest check with open router forwarding, and restoration of the exact prior INPUT policy (#128, #150). |
+| Local accounts | The [account script](../defense/endpoint-hardening/harden-workstation-accounts.sh) changes group membership, aging policy and account locks. The October record proves selected resulting settings. Capture which accounts will change and demonstrate restoration of the previous settings on disposable lab accounts before packaging this operation (#150). |
