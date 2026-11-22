@@ -1,0 +1,37 @@
+US-3 (#106) — Compose preflight
+UTC: 2026-11-22 02:41:06 UTC
+Environment: Windows / PowerShell / desktop-linux context
+Local checkout HEAD: 34c294849acd40e3292045bb95da0f625556b63d (working tree cleanliness unconfirmed)
+
+$ docker compose version
+Docker Compose version v5.6.0
+Exit: 0
+
+$ docker compose -f docker/docker-compose.yml config --services
+workstation
+wazuh
+dashboard
+firewall
+kali
+suricata
+dvwa
+waf
+business-server
+Exit: 0
+
+$ docker compose -f docker/docker-compose.yml -f docker/docker-compose.segmented.yml config --services
+business-server
+dvwa
+firewall
+kali
+suricata
+wazuh
+dashboard
+waf
+workstation
+Exit: 0
+
+$ docker version --format '{{.Client.Version}} / {{.Server.Version}}'
+29.8.2 / 
+failed to connect to the docker API at npipe:////./pipe/dockerDesktopLinuxEngine; check if the path is correct and if the daemon is running: open //./pipe/dockerDesktopLinuxEngine: The system cannot find the file specified.
+Exit: 1
