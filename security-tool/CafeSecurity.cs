@@ -13,13 +13,24 @@ internal static class CafeSecurity
 {
     internal static readonly string[] Required = { "firewall", "dvwa", "waf", "kali" };
     private static readonly string[] Commands = { "preflight", "status", "check-target", "verify-waf", "apply-waf", "rollback-waf" };
-    private static readonly string[] Compose = { "compose", "-p", "docker", "-f", "docker/docker-compose.yml" };
+    private const string BaseFile = "docker/docker-compose.yml";
+    private const string ValidationFile = "docker/docker-compose.waf-validation.yml";
+    private static bool validationLab;
+    private static string Project { get { return validationLab ? "cafe-waf-validation" : "docker"; } }
+
+    private static string Network(string name)
+    {
+        return validationLab ? "cafe-validation-" + name.Replace("-net", "") : name;
+    }
 
     private static int Main(string[] args)
     {
+        validationLab = args.Length == 2 && args[1] == "--validation-lab";
+        if (validationLab) args = new[] { args[0] };
         if (args.Length != 1 || !Commands.Contains(args[0]))
         {
             Console.WriteLine("CafeSecurity.exe preflight | status | check-target | verify-waf | apply-waf | rollback-waf | --help");
+            Console.WriteLine("Append --validation-lab to select the isolated verification fixture.");
             Console.WriteLine("Run from security-tool or the cafe repository root. apply-waf and rollback-waf change the lab router.");
             return args.Length == 1 && args[0] == "--help" ? 0 : 2;
         }
@@ -33,6 +44,8 @@ internal static class CafeSecurity
 
             if (!File.Exists("docker/docker-compose.yml") || !File.Exists("defense/firewall/route-waf-only.sh"))
                 throw new InvalidOperationException("Run from security-tool or the cafe repository root.");
+            if (validationLab && !File.Exists(ValidationFile))
+                throw new InvalidOperationException("The isolated validation Compose file is missing.");
             string docker = new[] {
                 Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
                              @"Docker\Docker\resources\bin\docker.exe"),
@@ -126,7 +139,9 @@ internal static class CafeSecurity
 
     private static void CheckServices(string docker, string state, params string[] query)
     {
-        string result = Run(docker, Compose.Concat(query).ToArray(), null);
+        var compose = new[] { "compose", "-p", Project, "-f", BaseFile };
+        if (validationLab) compose = compose.Concat(new[] { "-f", ValidationFile }).ToArray();
+        string result = Run(docker, compose.Concat(query).ToArray(), null);
         var names = result.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
         var missing = Required.Except(names).ToArray();
         if (missing.Length != 0)
@@ -144,20 +159,21 @@ internal static class CafeSecurity
     internal static Dictionary<string,string> VerifyTarget(bool recovery, Func<string[], string> run)
     {
         var networks = new Dictionary<string,string[]> {
-            { "firewall", new[] { "guest-net=192.168.10.254/24", "business-net=192.168.20.254/24" } },
-            { "dvwa", new[] { "business-net=192.168.20.10/24" } },
-            { "waf", new[] { "business-net=192.168.20.15/24" } },
-            { "kali", new[] { "guest-net=192.168.10.50/24" } }
+            { "firewall", new[] { Network("guest-net") + "=192.168.10.254/24", Network("business-net") + "=192.168.20.254/24" } },
+            { "dvwa", new[] { Network("business-net") + "=192.168.20.10/24" } },
+            { "waf", new[] { Network("business-net") + "=192.168.20.15/24" } },
+            { "kali", new[] { Network("guest-net") + "=192.168.10.50/24" } }
         };
         var ids = new Dictionary<string,string>();
-        string expectedConfig = Path.GetFullPath("docker/docker-compose.yml");
+        string expectedConfig = Path.GetFullPath(BaseFile);
+        if (validationLab) expectedConfig += "," + Path.GetFullPath(ValidationFile);
         foreach (string service in recovery ? new[] { "firewall" } : Required)
         {
-            string name = "swagpc-" + service;
+            string name = (validationLab ? "cafe-validation-" : "swagpc-") + service;
             string[] lines = run(new[] { "container", "inspect", "--format", Identity, name })
                 .TrimEnd().Replace("\r\n", "\n").Split('\n');
             if (lines.Length != 7 || !Regex.IsMatch(lines[0], "^[0-9a-f]{64}$") ||
-                lines[1] != "/" + name || lines[2] != "true" || lines[3] != "docker" ||
+                lines[1] != "/" + name || lines[2] != "true" || lines[3] != Project ||
                 lines[4] != service ||
                 !string.Equals(lines[5].Replace('/', '\\'), expectedConfig, StringComparison.OrdinalIgnoreCase) ||
                 !lines[6].Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries).OrderBy(n => n)
@@ -172,8 +188,8 @@ internal static class CafeSecurity
             foreach (string name in new[] { "guest-net", "business-net" })
             {
                 string subnet = name == "guest-net" ? "192.168.10.0/24" : "192.168.20.0/24";
-                if (run(new[] { "network", "inspect", "--format", networkDetails, name }).Trim() !=
-                    "bridge|docker|" + subnet + ";")
+                if (run(new[] { "network", "inspect", "--format", networkDetails, Network(name) }).Trim() !=
+                    "bridge|" + Project + "|" + subnet + ";")
                     throw new InvalidOperationException("Unsupported network owner, driver or subnet for " + name + ".");
             }
             if (run(new[] { "exec", ids["firewall"], "cat", "/proc/sys/net/ipv4/ip_forward" }).Trim() != "1")
