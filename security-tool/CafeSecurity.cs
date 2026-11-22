@@ -20,14 +20,19 @@ internal static class CafeSecurity
         if (args.Length != 1 || !Commands.Contains(args[0]))
         {
             Console.WriteLine("CafeSecurity.exe preflight | status | check-target | verify-waf | apply-waf | rollback-waf | --help");
-            Console.WriteLine("Run from the cafe repository root. apply-waf and rollback-waf change the lab router.");
+            Console.WriteLine("Run from security-tool or the cafe repository root. apply-waf and rollback-waf change the lab router.");
             return args.Length == 1 && args[0] == "--help" ? 0 : 2;
         }
 
         try
         {
+            var current = new DirectoryInfo(Environment.CurrentDirectory);
+            if (current.Name.Equals("security-tool", StringComparison.OrdinalIgnoreCase) &&
+                current.Parent != null && File.Exists(Path.Combine(current.Parent.FullName, "docker/docker-compose.yml")))
+                Directory.SetCurrentDirectory(current.Parent.FullName);
+
             if (!File.Exists("docker/docker-compose.yml") || !File.Exists("defense/firewall/route-waf-only.sh"))
-                throw new InvalidOperationException("Run from the cafe repository root.");
+                throw new InvalidOperationException("Run from security-tool or the cafe repository root.");
             string docker = new[] {
                 Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
                              @"Docker\Docker\resources\bin\docker.exe"),
