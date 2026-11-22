@@ -3,26 +3,30 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 internal static class CafeSecurity
 {
-    private static readonly string[] Required = { "firewall", "dvwa", "waf", "kali" };
+    internal static readonly string[] Required = { "firewall", "dvwa", "waf", "kali" };
+    private static readonly string[] Commands = { "preflight", "status", "check-target", "apply-waf", "rollback-waf" };
+    private static readonly string[] Compose = { "compose", "-p", "docker", "-f", "docker/docker-compose.yml" };
 
     private static int Main(string[] args)
     {
-        if (args.Length != 1 || (args[0] != "preflight" && args[0] != "status"))
+        if (args.Length != 1 || !Commands.Contains(args[0]))
         {
-            Console.WriteLine("CafeSecurity.exe preflight | status | --help");
-            Console.WriteLine("Run from the cafe repository root. Both commands are read-only.");
+            Console.WriteLine("CafeSecurity.exe preflight | status | check-target | apply-waf | rollback-waf | --help");
+            Console.WriteLine("Run from the cafe repository root. apply-waf and rollback-waf change the lab router.");
             return args.Length == 1 && args[0] == "--help" ? 0 : 2;
         }
 
         try
         {
-            if (!File.Exists("docker/docker-compose.yml") ||
-                !File.Exists("defense/firewall/route-waf-only.sh"))
+            if (!File.Exists("docker/docker-compose.yml") || !File.Exists("defense/firewall/route-waf-only.sh"))
                 throw new InvalidOperationException("Run from the cafe repository root.");
-
             string docker = new[] {
                 Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
                              @"Docker\Docker\resources\bin\docker.exe"),
@@ -34,24 +38,124 @@ internal static class CafeSecurity
             if (docker == null)
                 throw new InvalidOperationException("Docker Desktop CLI was not found.");
 
-            CheckServices(docker, "config --services", "declared");
-            if (args[0] == "status")
-                CheckServices(docker, "ps --status running --services", "running");
-            Console.WriteLine("WAF enforcement and DVWA security level require separate lab checks.");
+            string mode = args[0];
+            if (mode == "preflight" || mode == "status")
+            {
+                CheckServices(docker, "declared", "config", "--services");
+                if (mode == "status")
+                    CheckServices(docker, "running", "ps", "--status", "running", "--services");
+                Console.WriteLine("Service inventory only. WAF enforcement requires a live traffic check.");
+                return 0;
+            }
+
+            string firewall = VerifyTarget(mode == "rollback-waf", cmd => Run(docker, cmd, null));
+            if (mode == "check-target")
+            {
+                Console.WriteLine("Verified the base lab container identities, attachments and DVWA Low default.");
+                return 0;
+            }
+            using (Stream resource = Assembly.GetExecutingAssembly().GetManifestResourceStream("waf-policy.sh"))
+            {
+                if (resource == null)
+                    throw new InvalidOperationException("Missing embedded firewall policy. Rebuild using build.ps1.");
+                using (var reader = new StreamReader(resource))
+                {
+                    string verb = mode == "apply-waf" ? "apply" : "rollback";
+                    var command = new[] { "exec", "-i", firewall, "sh", "-s", "--", verb };
+                    Console.WriteLine(Run(docker, command, reader.ReadToEnd().Replace("\r\n", "\n")));
+                }
+            }
             return 0;
         }
         catch (Exception error)
         {
-            Console.Error.WriteLine("Check incomplete: " + error.Message);
+            Console.Error.WriteLine("Operation incomplete: " + error.Message);
             return 1;
         }
     }
 
-    private static void CheckServices(string docker, string query, string state)
+    private static void CheckServices(string docker, string state, params string[] query)
     {
-        var start = new ProcessStartInfo(docker,
-            "--host npipe:////./pipe/dockerDesktopLinuxEngine compose -p docker -f docker/docker-compose.yml " + query);
+        string result = Run(docker, Compose.Concat(query).ToArray(), null);
+        var names = result.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+        var missing = Required.Except(names).ToArray();
+        if (missing.Length != 0)
+            throw new InvalidOperationException("Missing " + state + " services: " + string.Join(", ", missing));
+        Console.WriteLine("Required services " + state + ": " + string.Join(", ", Required));
+    }
+
+    // Only request identity and network fields. Container environment variables may contain credentials.
+    private const string Identity = "{{.Id}}\n{{.Name}}\n{{.State.Running}}\n" +
+        "{{index .Config.Labels \"com.docker.compose.project\"}}\n" +
+        "{{index .Config.Labels \"com.docker.compose.service\"}}\n" +
+        "{{index .Config.Labels \"com.docker.compose.project.config_files\"}}\n" +
+        "{{range $name, $net := .NetworkSettings.Networks}}{{$name}}={{$net.IPAddress}}/{{$net.IPPrefixLen}};{{end}}";
+
+    internal static string VerifyTarget(bool recovery, Func<string[], string> run)
+    {
+        var networks = new Dictionary<string,string[]> {
+            { "firewall", new[] { "guest-net=192.168.10.254/24", "business-net=192.168.20.254/24" } },
+            { "dvwa", new[] { "business-net=192.168.20.10/24" } },
+            { "waf", new[] { "business-net=192.168.20.15/24" } },
+            { "kali", new[] { "guest-net=192.168.10.50/24" } }
+        };
+        var ids = new Dictionary<string,string>();
+        string expectedConfig = Path.GetFullPath("docker/docker-compose.yml");
+        foreach (string service in recovery ? new[] { "firewall" } : Required)
+        {
+            string name = "swagpc-" + service;
+            string[] lines = run(new[] { "container", "inspect", "--format", Identity, name })
+                .TrimEnd().Replace("\r\n", "\n").Split('\n');
+            if (lines.Length != 7 || !Regex.IsMatch(lines[0], "^[0-9a-f]{64}$") ||
+                lines[1] != "/" + name || lines[2] != "true" || lines[3] != "docker" ||
+                lines[4] != service ||
+                !string.Equals(lines[5].Replace('/', '\\'), expectedConfig, StringComparison.OrdinalIgnoreCase) ||
+                !lines[6].Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries).OrderBy(n => n)
+                    .SequenceEqual(networks[service].OrderBy(n => n)))
+                throw new InvalidOperationException("Unsupported identity, checkout or network layout for " + name + ".");
+            ids.Add(service, lines[0]);
+        }
+        if (!recovery)
+        {
+            const string networkDetails = "{{.Driver}}|{{index .Labels \"com.docker.compose.project\"}}|" +
+                "{{range .IPAM.Config}}{{.Subnet}};{{end}}";
+            foreach (string name in new[] { "guest-net", "business-net" })
+            {
+                string subnet = name == "guest-net" ? "192.168.10.0/24" : "192.168.20.0/24";
+                if (run(new[] { "network", "inspect", "--format", networkDetails, name }).Trim() !=
+                    "bridge|docker|" + subnet + ";")
+                    throw new InvalidOperationException("Unsupported network owner, driver or subnet for " + name + ".");
+            }
+            if (run(new[] { "exec", ids["firewall"], "cat", "/proc/sys/net/ipv4/ip_forward" }).Trim() != "1")
+                throw new InvalidOperationException("The cafe router is not forwarding IPv4 packets.");
+            foreach (string destination in new[] { "192.168.20.15", "192.168.20.10" })
+            {
+                string route = run(new[] { "exec", ids["kali"], "ip", "-4", "route", "get", destination });
+                if (!Regex.IsMatch(route, @"\bvia 192\.168\.10\.254\b") ||
+                    !Regex.IsMatch(route, @"\bsrc 192\.168\.10\.50\b"))
+                    throw new InvalidOperationException("The Guest route to " + destination + " does not use the cafe router.");
+            }
+            const string level = "require '/var/www/html/config/config.inc.php'; " +
+                "echo isset($_DVWA['default_security_level']) ? $_DVWA['default_security_level'] : 'unknown';";
+            if (run(new[] { "exec", ids["dvwa"], "php", "-r", level }).Trim() != "low")
+                throw new InvalidOperationException("DVWA must have a verified Low default.");
+        }
+        return ids["firewall"];
+    }
+
+    // All arguments, including Go templates and the PHP expression, go directly to docker.exe.
+    private static string Quote(string value)
+    {
+        return "\"" + Regex.Replace(value, "(\\\\*)\"", "$1$1\\\"")
+            .TrimEnd('\\') + new string('\\', 2 * (value.Length - value.TrimEnd('\\').Length)) + "\"";
+    }
+
+    private static string Run(string docker, string[] command, string input)
+    {
+        var args = new[] { "--host", "npipe:////./pipe/dockerDesktopLinuxEngine" }.Concat(command);
+        var start = new ProcessStartInfo(docker, string.Join(" ", args.Select(Quote)));
         start.UseShellExecute = false;
+        start.RedirectStandardInput = input != null;
         start.RedirectStandardOutput = true;
         start.RedirectStandardError = true;
         start.CreateNoWindow = true;
@@ -61,22 +165,26 @@ internal static class CafeSecurity
         {
             var output = process.StandardOutput.ReadToEndAsync();
             var errors = process.StandardError.ReadToEndAsync();
+            Task writer = input == null ? Task.FromResult(0) : Task.Run(async () => {
+                try {
+                    byte[] bytes = new UTF8Encoding(false).GetBytes(input);
+                    await process.StandardInput.BaseStream.WriteAsync(bytes, 0, bytes.Length);
+                } finally { process.StandardInput.Close(); }
+            });
             if (!process.WaitForExit(30000))
             {
                 process.Kill();
-                throw new InvalidOperationException("Docker timed out checking " + state + " services.");
+                throw new InvalidOperationException("Docker timed out. Check the router state before retrying.");
             }
-            errors.GetAwaiter().GetResult();
             if (process.ExitCode != 0)
-                throw new InvalidOperationException("Docker could not list " + state +
-                    " services (exit " + process.ExitCode + "). Check Docker Desktop and the Compose file.");
-            var services = new HashSet<string>(output.Result.Split(
-                new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries));
-            var missing = Required.Where(service => !services.Contains(service)).ToArray();
-            if (missing.Length > 0)
-                throw new InvalidOperationException("Services missing from " + state +
-                    " list: " + string.Join(", ", missing));
-            Console.WriteLine("Required services " + state + ": " + string.Join(", ", Required));
+            {
+                // Print only messages emitted by our embedded policy, never raw inspect/config output.
+                var diagnostics = errors.Result.Split('\n').Where(l => l.StartsWith("WAF routing:")).ToArray();
+                throw new InvalidOperationException("Docker " + command[0] + " exited " + process.ExitCode +
+                    ". " + string.Join(" ", diagnostics));
+            }
+            writer.GetAwaiter().GetResult();
+            return output.Result.TrimEnd();
         }
     }
 }
