@@ -34,7 +34,10 @@ seed_rule() {
 active=
 cleanup() {
     if [ -n "$active" ]; then
-        sh "$ctl" "$active" rollback || true
+        sh "$ctl" "$active" rollback || {
+            echo "Recovery journal retained for $active. Inspect the validation container." >&2
+            return 1
+        }
         docker exec "$target" iptables -P "$chain" ACCEPT || true
         docker exec "$target" iptables -D "$chain" -j ACCEPT || true
         seed_rule "$target" -D "$chain" || true
