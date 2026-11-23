@@ -26,6 +26,12 @@ done
 echo 'Allowed: workstation 192.168.20.25 to business server 192.168.20.20 (ICMP, TCP/80 and HTTP).'
 echo 'Negative control: Guest 192.168.10.50 to the same HTTP service.'
 echo 'WAN: NOT RUN. The router has no modeled WAN and this fixture uses no default routes.'
+prior=$(docker exec "$router" iptables -S FORWARD)
+[ "$prior" = '-P FORWARD ACCEPT' ] || {
+    echo 'BLOCKED: expected an empty FORWARD chain with ACCEPT policy in the disposable router.' >&2
+    exit 1
+}
+
 for service in firewall kali workstation business-server; do
     docker exec "cafe-validation-$service" sh -ec \
         'while ip route show default | grep -q .; do ip route del default; done'
@@ -34,11 +40,6 @@ docker exec cafe-validation-business-server ip route replace 192.168.10.0/24 via
 docker exec "$guest" ip -4 route get "$server" | grep -F 'via 192.168.10.254'
 docker exec cafe-validation-business-server ip -4 route get 192.168.10.50 | grep -F 'via 192.168.20.254'
 
-prior=$(docker exec "$router" iptables -S FORWARD)
-[ "$prior" = '-P FORWARD ACCEPT' ] || {
-    echo 'BLOCKED: expected an empty FORWARD chain with ACCEPT policy in the disposable router.' >&2
-    exit 1
-}
 
 portal() {
     sh scripts/testing/verify-workstation-to-server.sh --validation-lab
