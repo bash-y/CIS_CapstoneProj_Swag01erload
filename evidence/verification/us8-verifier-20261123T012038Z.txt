@@ -1,0 +1,28 @@
+US-8 (#64) defended verifier with fresh Suricata alert
+Date: 2026-11-23T01:20:38Z
+Host: MSYS_NT-10.0-26200 3.6.6-1cdd4371.x86_64, Docker engine 29.8.2
+Command: sh scripts/testing/verify-defenses.sh --validation-lab
+----------------------------------------------------------------
+=== US-4 verification: workstation (cafe-validation-workstation) -> business server (192.168.20.20) ===
+--- [1/3] ICMP reachability (ping) ---
+PASS: server responds to ping.
+--- [2/3] TCP port 80 open ---
+PASS: TCP 80 reachable.
+--- [3/3] HTTP business service responds ---
+PASS: business portal returned HTTP 200 with 'Business Operations'.
+=== Result: ALL CHECKS PASSED ===
+[PASS] Workstation to business portal.
+curl: (28) Connection timed out after 3001 milliseconds
+Guest HTTP status / curl exit: 000 28
+Guest DROP packets: 16 -> 19
+[PASS] Guest HTTP timed out and the DROP counter increased.
+[NOT RUN] Internet access. The lab has no modeled WAN.
+Guest ICMP exit 1
+PING 192.168.20.20 (192.168.20.20): 56 data bytes
+
+--- 192.168.20.20 ping statistics ---
+5 packets transmitted, 0 packets received, 100% packet loss
+[PASS] Guest received no ICMP replies.
+11/23/2026-01:20:50.418313  [**] [1:9000002:1] SWAGPC RECON ICMP ping sweep from Guest to Business [**] [Classification: Detection of a Network Scan] [Priority: 3] {ICMP} 192.168.10.50:8 -> 192.168.20.20:0
+[PASS] Fresh Suricata ICMP alert (SID 9000002), Guest to business server.
+Exit code: 0
