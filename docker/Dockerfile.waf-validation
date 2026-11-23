@@ -1,2 +1,2 @@
 FROM alpine:3.23
-RUN apk add --no-cache curl iptables iproute2 util-linux
+RUN apk add --no-cache curl iptables iproute2 util-linux netcat-openbsd
