@@ -1,0 +1,118 @@
+US-25 (#150) router and workstation policy recovery
+Date: 2026-11-23T02:09:42Z
+Host: MSYS_NT-10.0-26200 3.6.6-1cdd4371.x86_64, Docker engine 29.8.2
+Command: sh scripts/testing/verify-firewall-recovery.sh
+----------------------------------------------------------------
+192.168.20.25 via 192.168.10.254 dev eth0 src 192.168.10.50 uid 0 
+Test targets: disposable router FORWARD and workstation INPUT. No login or account modifications.
+
+=== router custom starting policy ===
+-P FORWARD DROP
+-A FORWARD -s 192.168.20.20/32 -d 192.168.20.25/32 -p icmp -m icmp --icmp-type 8 -m length --length 92 -j DROP
+-A FORWARD -j ACCEPT
+Guest ICMP to 192.168.20.20, exit 0:
+PING 192.168.20.20 (192.168.20.20): 56 data bytes
+64 bytes from 192.168.20.20: seq=0 ttl=63 time=1.293 ms
+64 bytes from 192.168.20.20: seq=1 ttl=63 time=0.112 ms
+
+--- 192.168.20.20 ping statistics ---
+2 packets transmitted, 2 packets received, 0% packet loss
+round-trip min/avg/max = 0.112/0.702/1.293 ms
+Managed FORWARD policy active.
+-A FORWARD -s 192.168.20.20/32 -d 192.168.20.25/32 -p icmp -m icmp --icmp-type 8 -m length --length 92 -j DROP
+Managed FORWARD policy already active.
+Repeated apply left the policy identical.
+=== US-4 verification: workstation (cafe-validation-workstation) -> business server (192.168.20.20) ===
+--- [1/3] ICMP reachability (ping) ---
+PASS: server responds to ping.
+--- [2/3] TCP port 80 open ---
+PASS: TCP 80 reachable.
+--- [3/3] HTTP business service responds ---
+PASS: business portal returned HTTP 200 with 'Business Operations'.
+=== Result: ALL CHECKS PASSED ===
+Guest ICMP to 192.168.20.20, exit 1:
+PING 192.168.20.20 (192.168.20.20): 56 data bytes
+
+--- 192.168.20.20 ping statistics ---
+2 packets transmitted, 0 packets received, 100% packet loss
+       2      168 DROP       all  --  *      *       0.0.0.0/0            0.0.0.0/0            /* CAFE150-3 */
+Original FORWARD policy restored.
+Guest ICMP to 192.168.20.20, exit 0:
+PING 192.168.20.20 (192.168.20.20): 56 data bytes
+64 bytes from 192.168.20.20: seq=0 ttl=63 time=0.143 ms
+64 bytes from 192.168.20.20: seq=1 ttl=63 time=0.158 ms
+
+--- 192.168.20.20 ping statistics ---
+2 packets transmitted, 2 packets received, 0% packet loss
+round-trip min/avg/max = 0.143/0.150/0.158 ms
+Apply interrupted after the kernel commit, exit 1.
+Original FORWARD policy restored.
+=== US-4 verification: workstation (cafe-validation-workstation) -> business server (192.168.20.20) ===
+--- [1/3] ICMP reachability (ping) ---
+PASS: server responds to ping.
+--- [2/3] TCP port 80 open ---
+PASS: TCP 80 reachable.
+--- [3/3] HTTP business service responds ---
+PASS: business portal returned HTTP 200 with 'Business Operations'.
+=== Result: ALL CHECKS PASSED ===
+PASS router: custom starting rules restored exactly after both applies.
+
+=== workstation custom starting policy ===
+-P INPUT DROP
+-A INPUT -s 192.168.20.20/32 -d 192.168.20.25/32 -p icmp -m icmp --icmp-type 8 -m length --length 92 -j DROP
+-A INPUT -j ACCEPT
+Guest ICMP to 192.168.20.25, exit 0:
+PING 192.168.20.25 (192.168.20.25): 56 data bytes
+64 bytes from 192.168.20.25: seq=0 ttl=63 time=0.329 ms
+64 bytes from 192.168.20.25: seq=1 ttl=63 time=0.109 ms
+
+--- 192.168.20.25 ping statistics ---
+2 packets transmitted, 2 packets received, 0% packet loss
+round-trip min/avg/max = 0.109/0.219/0.329 ms
+Managed INPUT policy active.
+-A INPUT -s 192.168.20.20/32 -d 192.168.20.25/32 -p icmp -m icmp --icmp-type 8 -m length --length 92 -j DROP
+Managed INPUT policy already active.
+Repeated apply left the policy identical.
+=== US-4 verification: workstation (cafe-validation-workstation) -> business server (192.168.20.20) ===
+--- [1/3] ICMP reachability (ping) ---
+PASS: server responds to ping.
+--- [2/3] TCP port 80 open ---
+PASS: TCP 80 reachable.
+--- [3/3] HTTP business service responds ---
+PASS: business portal returned HTTP 200 with 'Business Operations'.
+=== Result: ALL CHECKS PASSED ===
+PING 192.168.20.25 (192.168.20.25): 56 data bytes
+64 bytes from 192.168.20.25: seq=0 ttl=64 time=0.089 ms
+64 bytes from 192.168.20.25: seq=1 ttl=64 time=0.103 ms
+
+--- 192.168.20.25 ping statistics ---
+2 packets transmitted, 2 packets received, 0% packet loss
+round-trip min/avg/max = 0.089/0.096/0.103 ms
+Existing Business ICMP restriction still denies the seeded 64-byte ping.
+Guest ICMP to 192.168.20.25, exit 1:
+PING 192.168.20.25 (192.168.20.25): 56 data bytes
+
+--- 192.168.20.25 ping statistics ---
+2 packets transmitted, 0 packets received, 100% packet loss
+       2      168 DROP       all  --  *      *       192.168.10.0/24      0.0.0.0/0            /* CAFE150-5 */
+Original INPUT policy restored.
+Guest ICMP to 192.168.20.25, exit 0:
+PING 192.168.20.25 (192.168.20.25): 56 data bytes
+64 bytes from 192.168.20.25: seq=0 ttl=63 time=0.118 ms
+64 bytes from 192.168.20.25: seq=1 ttl=63 time=0.108 ms
+
+--- 192.168.20.25 ping statistics ---
+2 packets transmitted, 2 packets received, 0% packet loss
+round-trip min/avg/max = 0.108/0.113/0.118 ms
+Apply interrupted after the kernel commit, exit 1.
+Original INPUT policy restored.
+=== US-4 verification: workstation (cafe-validation-workstation) -> business server (192.168.20.20) ===
+--- [1/3] ICMP reachability (ping) ---
+PASS: server responds to ping.
+--- [2/3] TCP port 80 open ---
+PASS: TCP 80 reachable.
+--- [3/3] HTTP business service responds ---
+PASS: business portal returned HTTP 200 with 'Business Operations'.
+=== Result: ALL CHECKS PASSED ===
+PASS workstation: custom starting rules restored exactly after both applies.
+Exit code: 0
