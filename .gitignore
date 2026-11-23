@@ -28,3 +28,6 @@ __pycache__/
 
 # Local skill-scan reports
 skill-scan-results/
+
+# ZAP local credentials (never commit)
+configs/zap/.env

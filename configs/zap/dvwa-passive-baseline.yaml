@@ -1,0 +1,80 @@
+# ZAP Automation Framework plan — authenticated passive baseline of DVWA (US-20, #131)
+#
+# Runs on the opt-in ZAP runner from US-19 (#130), which places ZAP on Guest VLAN 10
+# and routes through the simulated pfSense firewall. This plan does an authenticated
+# crawl + PASSIVE analysis only (no active attacks), so reports reflect protected
+# application coverage rather than just the login page.
+#
+# Secrets are NOT in this file: ${DVWA_USER}/${DVWA_PASS} come from the environment
+# (see .env.example and README.md). Keep credentials out of source control.
+#
+# STATUS: automation plan — not yet executed. Needs the #130 runtime to run and verify.
+---
+env:
+  contexts:
+    - name: dvwa
+      urls:
+        - "http://192.168.20.10"
+      includePaths:
+        - "http://192.168.20.10/.*"
+      excludePaths:
+        # Exclude state-changing / unwanted routes so the passive crawl stays bounded.
+        - "http://192.168.20.10/logout.php"
+        - "http://192.168.20.10/setup.php"
+        - "http://192.168.20.10/security.php.*"   # do not let the crawler change the security level
+        - ".*/vulnerabilities/csrf/.*"            # avoid changing the admin password
+        - ".*action=(reset|delete).*"
+      authentication:
+        method: "form"
+        parameters:
+          loginPageUrl: "http://192.168.20.10/login.php"
+          loginRequestUrl: "http://192.168.20.10/login.php"
+          loginRequestBody: "username={%username%}&password={%password%}&Login=Login"
+        verification:
+          method: "response"
+          loggedInRegex: "(?s)Logout"
+          loggedOutRegex: "(?s)login\\.php"
+      sessionManagement:
+        method: "cookie"
+      users:
+        - name: "dvwa-staff"
+          credentials:
+            username: "${DVWA_USER}"
+            password: "${DVWA_PASS}"
+  parameters:
+    failOnError: true
+    failOnWarning: false
+    progressToStdout: true
+
+jobs:
+  # DVWA uses a per-form anti-CSRF token (user_token). ZAP must be told to handle it,
+  # or form login will fail. Verify on the runtime; see README "Anti-CSRF note".
+  - type: "spider"
+    parameters:
+      context: "dvwa"
+      user: "dvwa-staff"
+      maxDuration: 5          # minutes — bounded
+      maxDepth: 5
+      maxChildren: 20
+  - type: "passiveScan-wait"
+    parameters:
+      maxDuration: 5
+  # Fail loudly if authentication did not actually work (coverage guard).
+  - type: "requestor"
+    parameters:
+      user: "dvwa-staff"
+    requests:
+      - url: "http://192.168.20.10/vulnerabilities/"
+        method: "GET"
+        responseCode: 200
+  - type: "report"
+    parameters:
+      template: "traditional-html"
+      reportDir: "/zap/reports"
+      reportFile: "dvwa-passive-baseline"
+      reportTitle: "SwagPc DVWA — Authenticated Passive Baseline (US-20 #131)"
+  - type: "report"
+    parameters:
+      template: "traditional-json"
+      reportDir: "/zap/reports"
+      reportFile: "dvwa-passive-baseline"
