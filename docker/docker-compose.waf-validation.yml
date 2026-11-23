@@ -23,6 +23,7 @@ services:
   business-server:
     <<: *probe-image
     container_name: cafe-validation-business-server
+    cap_add: [NET_ADMIN]
     ports: !reset []
     volumes:
       - ../build/server/www:/srv/business:ro
