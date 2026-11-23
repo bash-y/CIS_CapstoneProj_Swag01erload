@@ -90,10 +90,11 @@
 - [ ] Finalize README with team roster, roles, and Individual Contribution Summary Table — *S* — **C**
 
 **US-2 (#43) (3 pts) — As a team, we want an approved proposal so that we have formal instructor sign-off to proceed.** *(Sprint 1)*
-- [ ] Draft scenario, brainstorm sentence, and problem statement for SwagPc Café — *S* — **B**
-- [ ] Diagram initial vs. segmented network topology (WAN/pfSense/Guest VLAN 10/Business VLAN 20) — *M* — **A**
-- [ ] Map course modules (Modules 2, 5, 8, 9) to specific café infrastructure and defenses — *S* — **C**
-- [ ] Define the test verification criteria and metrics for each defense — *S* — **B**
+- [x] Draft scenario, brainstorm sentence, and problem statement for SwagPc Café (`wiki/Proposal.md` §1) — *S* — **B**
+- [x] Diagram initial vs. segmented network topology (`Documentation/Undefended vs Segmented Network Topology.png`) — *M* — **A**
+- [x] Map course modules (Modules 2, 5, 8, 9) to specific café infrastructure and defenses (README, *Course Modules Integrated*) — *S* — **C**
+- [x] Define the test verification criteria and metrics for each defense (`wiki/Defense-Test-Matrix.md`) — *S* — **B**
+- [x] Instructor sign-off: approved, confirmed by Sebastian Cadena on 2026-11-23. The date and source of the approval are not yet recorded (`wiki/Proposal.md`) — *XS* — **B**
 
 **US-14 (#100) (5 pts) — As a team member, I want to review, approve and merge pull requests from our Discord channel so that reviews keep moving without leaving the team chat, while GitHub still records who reviewed and merged.** *(Added; tooling)*
 - [x] Cloudflare Worker for Discord slash commands and buttons with Ed25519 signature checks — *M* — **B**

@@ -1,5 +1,11 @@
 # Project Proposal
 
+> **Instructor approval: approved.** Confirmed by Sebastian Cadena (`@bash-y`) on 2026-11-23. The date of the approval and where it was given (email, LMS comment or message) are **not recorded yet**. Fill in the table when they are known.
+>
+> | Approved by | Date approved | Source |
+> |---|---|---|
+> | Instructor (Dr. Gonzalo D. Parra, per the README) | *not recorded* | *not recorded* |
+
 ## 1. Scenario & Threat
 
 **Organization:** *SwagPc Café* — a small coffee shop that provides free guest Wi-Fi while maintaining internal employee workstations and a Linux business server hosting a café web application.
