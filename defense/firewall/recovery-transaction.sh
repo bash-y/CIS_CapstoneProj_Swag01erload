@@ -40,7 +40,7 @@ RULES
 fi
 
 # Number each owned rule so both membership and order survive backend formatting.
-awk '{ sub(/ -j /, " -m comment --comment CAFE150-" NR " -j "); print }' \
+awk '{ if ($0 ~ /^-j /) $0=" " $0; sub(/ -j /, " -m comment --comment CAFE150-" NR " -j "); print }' \
     "$work/expected" > "$work/numbered"
 
 read_policy() { iptables -w 5 -S "$parent" > "$work/current"; }
