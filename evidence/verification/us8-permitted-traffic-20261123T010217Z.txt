@@ -1,0 +1,47 @@
+US-8 (#105) permitted business service and blocked Guest control
+Date: 2026-11-23T01:02:17Z
+Host: MSYS_NT-10.0-26200 3.6.6-1cdd4371.x86_64, Docker engine 29.8.2
+Command: sh scripts/testing/verify-permitted-traffic.sh
+----------------------------------------------------------------
+/cafe-validation-firewall sha256:ffd7a6e86ab9767ffd9c9d6e49ce11c1b804248197e00f7b23ee021ffb55d070
+/cafe-validation-kali sha256:ffd7a6e86ab9767ffd9c9d6e49ce11c1b804248197e00f7b23ee021ffb55d070
+/cafe-validation-workstation sha256:ffd7a6e86ab9767ffd9c9d6e49ce11c1b804248197e00f7b23ee021ffb55d070
+/cafe-validation-business-server sha256:ffd7a6e86ab9767ffd9c9d6e49ce11c1b804248197e00f7b23ee021ffb55d070
+Allowed: workstation 192.168.20.25 to business server 192.168.20.20 (ICMP, TCP/80 and HTTP).
+Negative control: Guest 192.168.10.50 to the same HTTP service.
+WAN: NOT RUN. The router has no modeled WAN and this fixture uses no default routes.
+192.168.20.20 via 192.168.10.254 dev eth0 src 192.168.10.50 uid 0 
+192.168.10.50 via 192.168.20.254 dev eth0 src 192.168.20.20 uid 0 
+=== Baseline ===
+=== US-4 verification: workstation (cafe-validation-workstation) -> business server (192.168.20.20) ===
+--- [1/3] ICMP reachability (ping) ---
+PASS: server responds to ping.
+--- [2/3] TCP port 80 open ---
+PASS: TCP 80 reachable.
+--- [3/3] HTTP business service responds ---
+PASS: business portal returned HTTP 200 with 'Business Operations'.
+=== Result: ALL CHECKS PASSED ===
+Guest probe: curl --noproxy '*' --connect-timeout 3 --max-time 5 http://192.168.20.20/
+Guest HTTP status / curl exit: 200 0
+=== Defended with the project segmentation script ===
+=== Applying Firewall Segmentation Rules ===
+[SUCCESS] Guest-to-Business traffic is now BLOCKED by cafe-validation-firewall.
+Chain FORWARD (policy ACCEPT 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source               destination         
+    0     0 ACCEPT     all  --  *      *       0.0.0.0/0            0.0.0.0/0            state RELATED,ESTABLISHED
+    0     0 LOG        all  --  *      *       192.168.10.0/24      192.168.20.0/24      LOG flags 0 level 4 prefix "FW-DROP-GUEST: "
+    0     0 DROP       all  --  *      *       192.168.10.0/24      192.168.20.0/24     
+    0     0 ACCEPT     all  --  *      *       0.0.0.0/0            0.0.0.0/0           
+=== US-4 verification: workstation (cafe-validation-workstation) -> business server (192.168.20.20) ===
+--- [1/3] ICMP reachability (ping) ---
+PASS: server responds to ping.
+--- [2/3] TCP port 80 open ---
+PASS: TCP 80 reachable.
+--- [3/3] HTTP business service responds ---
+PASS: business portal returned HTTP 200 with 'Business Operations'.
+=== Result: ALL CHECKS PASSED ===
+Guest probe: curl --noproxy '*' --connect-timeout 3 --max-time 5 http://192.168.20.20/
+Guest HTTP status / curl exit: 000 28
+Guest-to-Business DROP packets: 0 -> 3
+PASS: employee service stayed reachable, Guest HTTP was denied, and the starting policy was restored.
+Exit code: 0
