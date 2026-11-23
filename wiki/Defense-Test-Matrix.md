@@ -77,3 +77,9 @@ Raw captures: [`evidence/verification/`](../evidence/verification/) — `attack-
 ---
 
 *Segmentation evidence is under [`evidence/verification/`](../evidence/verification/) (captured 2026-10-27); remaining-defense evidence lands under `evidence/defense/` at M3. Verified rows assert only measured results; planned/blocked rows assert nothing that has not been run.*
+
+## Defense verifier replay (#64)
+
+The isolated replay on November 22, 2026 (Central time) required a healthy employee-to-business service before classifying Guest HTTP. The same business portal returned HTTP 200 for the employee. Guest HTTP returned status 000 and curl exit 28, and the router's subnet-wide DROP counter increased from 16 to 19 in the quiet fixture. Five Guest ICMP requests got zero replies and generated a fresh Suricata alert with SID 9000002 and the expected source and destination. WAN access was outside this fixture.
+
+The verifier reads the sensor log inside the container and limits matches to bytes appended during the test and timestamps within the run. The offline checks cover nine outcomes, including stale alerts, missing inputs, refusal, empty allowed-flow output and unexpected Guest replies. The earlier silent-curl failure above is historical. The replay records a Suricata alert only. Wazuh event delivery remains tracked in #107. [Live replay](../evidence/verification/us8-verifier-20261123T012038Z.txt) · [Offline cases](../scripts/testing/test-verify-defenses.sh)
