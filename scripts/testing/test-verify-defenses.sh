@@ -37,9 +37,11 @@ case "$2:$3" in
             bypass) echo '200 0' ;;
             *) echo '000 28' ;;
         esac ;;
-    swagpc-kali:ping) echo '5 packets transmitted, 0 packets received'; exit 1 ;;
+    swagpc-kali:ping)
+        if [ "$SCENARIO" = ping-replies ]; then echo '5 packets transmitted, 5 received'; exit 0; fi
+        echo '5 packets transmitted, 0 packets received'; exit 1 ;;
     swagpc-suricata:stat) [ "$SCENARIO" != missing-log ] && echo '123 0' ;;
-    swagpc-suricata:date) echo '11/22/2026-18:00:00' ;;
+    swagpc-suricata:date) echo '2026-11-22T18:00:00' ;;
     swagpc-suricata:sh)
         stamp='11/22/2026-18:00:00'
         [ "$SCENARIO" != stale ] || stamp='11/22/2026-17:59:59'
@@ -68,4 +70,5 @@ check missing-log 1 '[BLOCKED/ERROR] Cannot read the Suricata log cursor'
 check empty 1 '[FAIL] Workstation to business portal.'
 check missing-container 1 '[BLOCKED/ERROR] Unexpected or missing lab container'
 check stale 1 '[FAIL] No fresh matching Suricata ICMP alert.'
+check ping-replies 1 '[FAIL] Guest ICMP did not show a complete denial.'
 check bypass 1 '[FAIL] Guest reached the business HTTP service.'
