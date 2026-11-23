@@ -1,0 +1,121 @@
+# ZAP Automation Framework plan — bounded ACTIVE scan, direct vs through the WAF (US-21, #132)
+#
+# Runs the SAME authenticated context and seed endpoints twice so the results are
+# comparable:
+#   - context "dvwa-direct" -> DVWA at 192.168.20.10 (undefended path)
+#   - context "dvwa-waf"    -> the WAF reverse proxy at 192.168.20.15:8080 (defended path)
+# The difference between the two reports shows which requests the WAF stops and which
+# application risks remain. Reuses the #131 authentication approach.
+#
+# Secrets via ${DVWA_USER}/${DVWA_PASS} from the environment (see .env.example). Bounded
+# scan policy and time limits keep this safe and repeatable.
+#
+# STATUS: automation plan — not yet executed. Needs the #130 runtime. A lower alert count
+# or an HTTP 403 ALONE is not proof; validate selected findings manually (see runbook).
+---
+env:
+  contexts:
+    - name: "dvwa-direct"
+      urls: ["http://192.168.20.10"]
+      includePaths: ["http://192.168.20.10/.*"]
+      excludePaths:
+        - "http://192.168.20.10/logout.php"
+        - "http://192.168.20.10/setup.php"
+        - "http://192.168.20.10/security.php.*"
+        - ".*/vulnerabilities/csrf/.*"
+      authentication:
+        method: "form"
+        parameters:
+          loginPageUrl: "http://192.168.20.10/login.php"
+          loginRequestUrl: "http://192.168.20.10/login.php"
+          loginRequestBody: "username={%username%}&password={%password%}&Login=Login"
+        verification:
+          method: "response"
+          loggedInRegex: "(?s)Logout"
+          loggedOutRegex: "(?s)login\\.php"
+      sessionManagement: { method: "cookie" }
+      users:
+        - name: "dvwa-staff"
+          credentials: { username: "${DVWA_USER}", password: "${DVWA_PASS}" }
+    - name: "dvwa-waf"
+      urls: ["http://192.168.20.15:8080"]
+      includePaths: ["http://192.168.20.15:8080/.*"]
+      excludePaths:
+        - "http://192.168.20.15:8080/logout.php"
+        - "http://192.168.20.15:8080/setup.php"
+        - "http://192.168.20.15:8080/security.php.*"
+        - ".*/vulnerabilities/csrf/.*"
+      authentication:
+        method: "form"
+        parameters:
+          loginPageUrl: "http://192.168.20.15:8080/login.php"
+          loginRequestUrl: "http://192.168.20.15:8080/login.php"
+          loginRequestBody: "username={%username%}&password={%password%}&Login=Login"
+        verification:
+          method: "response"
+          loggedInRegex: "(?s)Logout"
+          loggedOutRegex: "(?s)login\\.php"
+      sessionManagement: { method: "cookie" }
+      users:
+        - name: "dvwa-staff"
+          credentials: { username: "${DVWA_USER}", password: "${DVWA_PASS}" }
+  parameters:
+    failOnError: true
+    progressToStdout: true
+
+# A single bounded scan policy is reused for both runs so coverage is comparable.
+# Thresholds/strength kept modest to stay within finite time; tune on the runner.
+policies:
+  - name: "swagpc-bounded-active"
+    rules:
+      - id: 40018   # SQL Injection
+        strength: "medium"
+        threshold: "low"
+      - id: 90020   # Remote OS Command Injection
+        strength: "medium"
+        threshold: "low"
+      - id: 40012   # Cross Site Scripting (reflected)
+        strength: "medium"
+        threshold: "medium"
+
+jobs:
+  # ── Direct (undefended) ──────────────────────────────────────────
+  - type: "spider"
+    parameters: { context: "dvwa-direct", user: "dvwa-staff", maxDuration: 5, maxDepth: 5 }
+  - type: "activeScan"
+    parameters:
+      context: "dvwa-direct"
+      user: "dvwa-staff"
+      policy: "swagpc-bounded-active"
+      maxScanDurationInMins: 10
+  - type: "report"
+    parameters:
+      template: "traditional-json"
+      reportDir: "/zap/reports"
+      reportFile: "dvwa-active-direct"
+  - type: "report"
+    parameters:
+      template: "traditional-html"
+      reportDir: "/zap/reports"
+      reportFile: "dvwa-active-direct"
+      reportTitle: "SwagPc DVWA — Active Scan (direct, undefended) US-21 #132"
+  # ── Through the WAF (defended) ───────────────────────────────────
+  - type: "spider"
+    parameters: { context: "dvwa-waf", user: "dvwa-staff", maxDuration: 5, maxDepth: 5 }
+  - type: "activeScan"
+    parameters:
+      context: "dvwa-waf"
+      user: "dvwa-staff"
+      policy: "swagpc-bounded-active"
+      maxScanDurationInMins: 10
+  - type: "report"
+    parameters:
+      template: "traditional-json"
+      reportDir: "/zap/reports"
+      reportFile: "dvwa-active-waf"
+  - type: "report"
+    parameters:
+      template: "traditional-html"
+      reportDir: "/zap/reports"
+      reportFile: "dvwa-active-waf"
+      reportTitle: "SwagPc DVWA — Active Scan (through WAF, defended) US-21 #132"
