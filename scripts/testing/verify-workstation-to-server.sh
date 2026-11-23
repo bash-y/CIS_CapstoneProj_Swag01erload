@@ -22,7 +22,7 @@ echo "=== US-4 verification: workstation ($WS) -> business server ($SERVER_IP) =
 
 echo "--- [1/3] ICMP reachability (ping) ---"
 if docker exec "$WS" ping -c 3 -W 2 "$SERVER_IP" >/dev/null 2>&1; then
-  echo "PASS: server responds to ping (0% loss)."
+  echo "PASS: server responds to ping."
 else
   echo "FAIL: server not reachable via ICMP."; RC=1
 fi
@@ -35,9 +35,10 @@ else
 fi
 
 echo "--- [3/3] HTTP business service responds ---"
-BODY=$(docker exec "$WS" curl -s -m 5 "http://$SERVER_IP/" 2>/dev/null || true)
-if printf '%s' "$BODY" | grep -q "Business Operations"; then
-  echo "PASS: business portal served (found 'Business Operations')."
+if RESPONSE=$(docker exec "$WS" curl --noproxy '*' -fsS -m 5 -w '\n%{http_code}' "http://$SERVER_IP/") &&
+   [ "$(printf '%s\n' "$RESPONSE" | tail -n 1)" = 200 ] &&
+   printf '%s' "$RESPONSE" | grep -q "Business Operations"; then
+  echo "PASS: business portal returned HTTP 200 with 'Business Operations'."
   if [ "$#" -eq 0 ]; then
     echo "      orders export:"
     docker exec "$WS" curl -s -m 5 "http://$SERVER_IP/orders.csv" 2>/dev/null | head -3 | sed 's/^/        /'
