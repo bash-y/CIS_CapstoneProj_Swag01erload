@@ -54,8 +54,22 @@ The counters read 0 because this capture ran before any attack traffic. The bloc
 |---|---|---|
 | Guest → Business, any port | **No** | Rule 2 (DROP) |
 | Business → Guest, replies | Yes, for established sessions | Rule 1 |
-| Business → Internet | Yes | Rule 3 (matrix test 4) |
+| Workstation → business portal | Allowed on Business subnet | Same-subnet traffic, verified before and after segmentation |
+| Guest and Business → Internet | Planned outbound access | No modeled WAN in the Docker fixture. Unverified. |
 | Guest → Firewall itself | Not filtered | No INPUT rules |
+
+### Permitted traffic replay (#105)
+
+Run from the repository root. The validation overlay uses the café portal content and the same Python HTTP service on disposable Alpine containers with no published ports. The replay requires a fresh validation router and removes default routes from the four fixture services.
+
+```sh
+docker compose -p cafe-waf-validation -f docker/docker-compose.yml -f docker/docker-compose.waf-validation.yml build firewall
+docker compose -p cafe-waf-validation -f docker/docker-compose.yml -f docker/docker-compose.waf-validation.yml up -d --no-build --pull never firewall kali workstation business-server
+sh scripts/testing/verify-permitted-traffic.sh
+docker compose -p cafe-waf-validation -f docker/docker-compose.yml -f docker/docker-compose.waf-validation.yml stop firewall kali workstation business-server
+```
+
+The workstation at `192.168.20.25` reached the business portal at `192.168.20.20` over ICMP, TCP 80, and HTTP 200 both before and after segmentation. The same direct HTTP request from Guest `192.168.10.50` went from 200 to a timeout. The matching router DROP counter rose from zero to three, and the replay restored the starting FORWARD policy. The WAN check was skipped because the lab has no modeled WAN. [Dated evidence](../evidence/verification/us8-permitted-traffic-20261123T010217Z.txt) · [Tested implementation cceb2e5](https://github.com/bash-y/CIS_CapstoneProj_Swag01erload/commit/cceb2e5cf2a78856c8d612ee78ac9fbe64894dac)
 
 **Services listening on the firewall:** none. The container runs only `apk add`, `iptables` and `tail`, and publishes no host ports.
 
