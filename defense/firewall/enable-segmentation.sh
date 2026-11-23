@@ -27,5 +27,5 @@ docker exec "$FW" sh -ec "
   iptables -A FORWARD -j ACCEPT
 "
 
-echo "[SUCCESS] Guest-to-Business traffic is now BLOCKED by swagpc-firewall."
+echo "[SUCCESS] Guest-to-Business traffic is now BLOCKED by $FW."
 docker exec "$FW" iptables -L FORWARD -v -n
