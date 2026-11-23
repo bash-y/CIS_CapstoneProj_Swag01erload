@@ -33,6 +33,11 @@ services:
     container_name: cafe-validation-workstation
     entrypoint: ["sleep", "infinity"]
 
+  suricata:
+    container_name: cafe-validation-suricata
+    network_mode: "service:firewall"
+    entrypoint: ["suricata"]
+
 networks:
   guest-net:
     name: cafe-validation-guest
