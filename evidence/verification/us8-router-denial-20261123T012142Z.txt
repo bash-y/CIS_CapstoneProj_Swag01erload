@@ -1,0 +1,16 @@
+US-8 (#104) scoped check of the router denial log
+Date: 2026-11-23T01:21:42Z
+Host: MSYS_NT-10.0-26200 3.6.6-1cdd4371.x86_64, Docker engine 29.8.2
+Command: sh scripts/testing/verify-router-denial-log.sh
+----------------------------------------------------------------
+192.168.20.20 via 192.168.10.254 dev eth0 src 192.168.10.50 uid 0 
+Checking existing FW-DROP-GUEST LOG rule for Guest 192.168.10.50 to business portal 192.168.20.20:80/TCP.
+      27     1980 LOG        all  --  *      *       192.168.10.0/24      192.168.20.0/24      LOG flags 0 level 4 prefix "FW-DROP-GUEST: "
+      27     1980 DROP       all  --  *      *       192.168.10.0/24      192.168.20.0/24     
+HTTP 000
+curl: (28) Connection timed out after 3001 milliseconds
+curl exit: 28
+      30     2160 LOG        all  --  *      *       192.168.10.0/24      192.168.20.0/24      LOG flags 0 level 4 prefix "FW-DROP-GUEST: "
+      30     2160 DROP       all  --  *      *       192.168.10.0/24      192.168.20.0/24     
+BLOCKED: the kernel log returned no new matching record for the scoped TCP request.
+Exit code: 1
