@@ -1,0 +1,28 @@
+US-8 (#104) router denial correlation via NFLOG
+Date: 2026-11-23T01:49:40Z
+Host: MSYS_NT-10.0-26200 3.6.6-1cdd4371.x86_64, Docker engine 29.8.2
+Command: sh scripts/testing/verify-router-denial-nflog.sh
+----------------------------------------------------------------
+192.168.20.20 via 192.168.10.254 dev eth0 src 192.168.10.50 uid 0 
+=== Applying Firewall Segmentation Rules ===
+[SUCCESS] Guest-to-Business traffic is now BLOCKED by cafe-validation-firewall.
+Chain FORWARD (policy ACCEPT 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source               destination         
+    0     0 ACCEPT     all  --  *      *       0.0.0.0/0            0.0.0.0/0            state RELATED,ESTABLISHED
+    0     0 LOG        all  --  *      *       192.168.10.0/24      192.168.20.0/24      LOG flags 0 level 4 prefix "FW-DROP-GUEST: "
+    0     0 DROP       all  --  *      *       192.168.10.0/24      192.168.20.0/24     
+    0     0 ACCEPT     all  --  *      *       0.0.0.0/0            0.0.0.0/0           
+NFLOG rule and following DROP rule:
+-A FORWARD -s 192.168.10.50/32 -d 192.168.20.20/32 -p tcp -m tcp --sport 45104 --dport 80 -j NFLOG --nflog-prefix "FW-DROP-GUEST:" --nflog-group 104
+-A FORWARD -s 192.168.10.0/24 -d 192.168.20.0/24 -j DROP
+Guest probe: HTTP to 192.168.20.20:80 using local TCP port 45104.
+Business portal healthy before Guest request.
+curl: (28) Connection timed out after 3001 milliseconds
+Guest HTTP status / curl exit: 000 28
+2026-11-23 01:49:47.230841 version 0, resource ID 104, family IPv4 (2), length 184: 192.168.10.50.45104 > 192.168.20.20.80: Flags [S], seq 1575663099, win 64240, options [mss 1460,sackOK,TS val 1208940028 ecr 0,nop,wscale 10], length 0
+       3      180 LOG        all  --  *      *       192.168.10.0/24      192.168.20.0/24      LOG flags 0 level 4 prefix "FW-DROP-GUEST: "
+       3      180 NFLOG      tcp  --  *      *       192.168.10.50        192.168.20.20        tcp spt:45104 dpt:80 nflog-prefix "FW-DROP-GUEST:" nflog-group 104
+       3      180 DROP       all  --  *      *       192.168.10.0/24      192.168.20.0/24     
+Original FORWARD policy restored.
+PASS: the Guest timed out and the router emitted the matching NFLOG packet record.
+Exit code: 0
