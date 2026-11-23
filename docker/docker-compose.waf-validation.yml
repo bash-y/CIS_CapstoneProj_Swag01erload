@@ -27,7 +27,7 @@ services:
     ports: !reset []
     volumes:
       - ../build/server/www:/srv/business:ro
-    entrypoint: ["httpd", "-f", "-p", "80", "-h", "/srv/business"]
+    entrypoint: ["python3", "-m", "http.server", "80", "--directory", "/srv/business"]
   workstation:
     <<: *probe-image
     container_name: cafe-validation-workstation
