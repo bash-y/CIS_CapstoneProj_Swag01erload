@@ -79,7 +79,7 @@ fresh_alert() {
     fi
     log=/var/log/suricata/fast.log
     if ! cursor=$(docker exec "$sensor" stat -c '%i %s' "$log") ||
-       ! start=$(docker exec "$sensor" date '+%m/%d/%Y-%H:%M:%S'); then
+       ! start=$(docker exec "$sensor" date '+%Y-%m-%dT%H:%M:%S'); then
         result BLOCKED/ERROR "Cannot read the Suricata log cursor and clock."
         return
     fi
@@ -93,16 +93,23 @@ fresh_alert() {
         result BLOCKED/ERROR "Could not send the expected five ICMP requests."
         return
     fi
+    if [ "$rc" -eq 1 ] &&
+       printf '%s\n' "$probe" | grep -Eq '^5 packets transmitted, 0 (packets )?received([, ]|$)'; then
+        result PASS "Guest received no ICMP replies."
+    else
+        result FAIL "Guest ICMP did not show a complete denial."
+    fi
     if ! appended=$(docker exec "$sensor" sh -ec '
         [ "$(stat -c %i "$1")" = "$2" ] && [ "$(stat -c %s "$1")" -ge "$3" ] || exit 1
         tail -c "+$(($3 + 1))" "$1"
     ' sh "$log" "$inode" "$bytes") ||
-       ! finish=$(docker exec "$sensor" date '+%m/%d/%Y-%H:%M:%S'); then
+       ! finish=$(docker exec "$sensor" date '+%Y-%m-%dT%H:%M:%S'); then
         result BLOCKED/ERROR "Suricata log rotated or could not be read."
         return
     fi
     if matched=$(printf '%s\n' "$appended" | awk -v start="$start" -v finish="$finish" '
-        substr($1,1,19) >= start && substr($1,1,19) <= finish &&
+        { stamp = substr($1,7,4) "-" substr($1,1,2) "-" substr($1,4,2) "T" substr($1,12,8) }
+        stamp >= start && stamp <= finish &&
         /\[1:9000002:[0-9]+\]/ && /\{ICMP\} 192\.168\.10\.50(:[0-9]+)? -> 192\.168\.20\.20(:[0-9]+)?$/ { print; found=1 }
         END { exit !found }
     '); then
