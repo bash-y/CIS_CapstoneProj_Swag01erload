@@ -10,6 +10,11 @@
 set -e
 
 WS="swagpc-workstation"
+case "$#" in
+  0) ;;
+  1) [ "$1" = "--validation-lab" ] || exit 2; WS="cafe-validation-workstation" ;;
+  *) exit 2 ;;
+esac
 SERVER_IP="192.168.20.20"
 RC=0
 
@@ -33,8 +38,10 @@ echo "--- [3/3] HTTP business service responds ---"
 BODY=$(docker exec "$WS" curl -s -m 5 "http://$SERVER_IP/" 2>/dev/null || true)
 if printf '%s' "$BODY" | grep -q "Business Operations"; then
   echo "PASS: business portal served (found 'Business Operations')."
-  echo "      orders export:"
-  docker exec "$WS" curl -s -m 5 "http://$SERVER_IP/orders.csv" 2>/dev/null | head -3 | sed 's/^/        /'
+  if [ "$#" -eq 0 ]; then
+    echo "      orders export:"
+    docker exec "$WS" curl -s -m 5 "http://$SERVER_IP/orders.csv" 2>/dev/null | head -3 | sed 's/^/        /'
+  fi
 else
   echo "FAIL: business portal did not return expected content."; RC=1
 fi
