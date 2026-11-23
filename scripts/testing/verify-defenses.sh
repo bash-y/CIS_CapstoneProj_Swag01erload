@@ -101,11 +101,12 @@ fresh_alert() {
         result BLOCKED/ERROR "Suricata log rotated or could not be read."
         return
     fi
-    if printf '%s\n' "$appended" | awk -v start="$start" -v finish="$finish" '
+    if matched=$(printf '%s\n' "$appended" | awk -v start="$start" -v finish="$finish" '
         substr($1,1,19) >= start && substr($1,1,19) <= finish &&
-        /\[1:9000002:[0-9]+\]/ && /\{ICMP\} 192\.168\.10\.50 -> 192\.168\.20\.20$/ { found=1 }
+        /\[1:9000002:[0-9]+\]/ && /\{ICMP\} 192\.168\.10\.50(:[0-9]+)? -> 192\.168\.20\.20(:[0-9]+)?$/ { print; found=1 }
         END { exit !found }
-    '; then
+    '); then
+        printf '%s\n' "$matched"
         result PASS "Fresh Suricata ICMP alert (SID 9000002), Guest to business server."
     else
         result FAIL "No fresh matching Suricata ICMP alert."
