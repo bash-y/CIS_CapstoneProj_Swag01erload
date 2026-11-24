@@ -55,13 +55,15 @@ The target topology replicates a realistic small business network consisting of 
 
 The workstation and business hosts sit on the Business subnet, so they reach each other directly without the firewall.
 
-### Substitution: iptables for pfSense
+### Platform coverage for US-3
 
-The plan calls for a pfSense firewall with WAN, Guest and Business interfaces. The lab uses **`swagpc-firewall`, an Alpine container running iptables**, with two interfaces (Guest and Business) and no WAN.
+| Planned requirement | Implementation in the repository | Evidence needed for platform-specific credit |
+|---|---|---|
+| pfSense with WAN, Guest and Business interfaces | `docker/docker-compose.yml` configures an Alpine router on two networks. `defense/firewall/` contains its iptables policies. | A pfSense VM with interface assignments, the applied rules and traffic observations on the relevant interfaces. |
+| Guest VLAN 10 and Business VLAN 20 | The base Compose file defines separate Docker bridges for the Guest and Business subnets. The subnet numbers identify the intended segments. | VLAN interface or switch configuration and evidence of 802.1Q tags if the rubric requires tagged VLANs. |
+| Windows workstation hardening | The Compose workstation runs Alpine. `defense/endpoint-hardening/README.md` documents the Linux firewall policy and a proposed Windows Defender Firewall configuration. | A Windows endpoint with the applied policy and recorded results for allowed and denied connections. |
 
-- **What the simulation shows:** routing between the two subnets, and the effect of forwarding rules (allow, drop, log). The segmentation rules in `defense/firewall/` are the same rules a pfSense GUEST interface would use.
-- **What it does not show:** the pfSense web UI, its aliases and rule ordering, its captive portal, and a real WAN. The "Internet" in the plan's rules is not modeled (see #76).
-- **Decision:** this substitution is recorded here for team and instructor review (#81). It is not yet accepted.
+Instructor acceptance remains unresolved. Issues #44, #81 and #103 contain no approval in their comment histories. Record the instructor’s decision and applicable rubric criterion in #103. If native platforms are required, capture the evidence in the last column.
 
 ---
 
@@ -71,7 +73,7 @@ The plan calls for a pfSense firewall with WAN, Guest and Business interfaces. T
 In the initial baseline, inter-VLAN routing is enabled or flat networking is in place without restrictive rules. Guest hosts are able to communicate directly with business hosts.
 
 ### Defended State (Secured Configuration)
-Strict firewall rules enforced on the pfSense `GUEST` interface:
+The following table describes the planned pfSense Guest policy. The Docker router has no WAN interface.
 
 | Rule Order | Action | Source | Port | Destination | Port | Description |
 |---|---|---|---|---|---|---|
