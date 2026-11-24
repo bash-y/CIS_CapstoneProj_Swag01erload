@@ -16,7 +16,8 @@ re-run the identical command for the "after".
 ## 0. Prerequisites (once per session)
 
 ```bash
-bash lab.sh start                         # build + start all containers
+bash lab.sh start baseline                # build + start all containers in the undefended baseline
+                                          # (plain "bash lab.sh start" starts the DEFENDED mode; see Lab-Modes.md)
 docker compose -f docker/docker-compose.yml ps   # confirm every container is Up
 ```
 

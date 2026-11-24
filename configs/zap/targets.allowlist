@@ -1,0 +1,9 @@
+# Targets the ZAP runner may scan: exact local lab URLs, one per line. US-19 (#130).
+# Read by scripts/zap/zap_check.py. Allowed hosts are IPv4 addresses inside the lab subnets
+# 192.168.10.0/24, 192.168.20.0/24 and 192.168.30.0/24. No hostnames, no wildcards, nothing else.
+# A scan configuration must also stop ZAP from following links or redirects outside this list;
+# "python3 scripts/zap/zap_check.py regexes" prints the matching ZAP context include regexes.
+# Adding a line here widens what scans may touch, so it goes through pull request review.
+
+http://192.168.20.15:8080/   # WAF in front of DVWA: the defended path, reachable from Guest in both modes
+http://192.168.20.10/        # DVWA directly: reachable from Guest only in the baseline mode

@@ -1,0 +1,25 @@
+US-19 (#130) - allowlist, scope and compose-service checks (unit tests plus zap_check.py on the real files)
+Date: 2026-11-22T20:37:52Z
+Host: Linux 6.18.44-fc-v726, Docker engine 29.9.2
+Command: sh -c python3 -I -m unittest discover -s tests -p "test_zap_check.py" -v 2>&1 | tail -25; python3 -I scripts/zap/zap_check.py allowlist; python3 -I scripts/zap/zap_check.py config; python3 -I scripts/zap/zap_check.py target http://192.168.20.15:8080/dvwa/login.php; python3 -I scripts/zap/zap_check.py target http://8.8.8.8/; true
+----------------------------------------------------------------
+test_bad_entries_are_rejected (test_zap_check.Allowlist.test_bad_entries_are_rejected) ... ok
+test_comments_and_blank_lines_are_ignored (test_zap_check.Allowlist.test_comments_and_blank_lines_are_ignored) ... ok
+test_shipped_allowlist_is_valid_and_not_empty (test_zap_check.Allowlist.test_shipped_allowlist_is_valid_and_not_empty) ... ok
+test_each_unsafe_change_is_caught (test_zap_check.ComposeService.test_each_unsafe_change_is_caught) ... ok
+test_good_config_passes (test_zap_check.ComposeService.test_good_config_passes) ... ok
+test_missing_service_fails (test_zap_check.ComposeService.test_missing_service_fails) ... ok
+test_real_compose_file_passes (test_zap_check.ComposeService.test_real_compose_file_passes) ... ok
+test_covered_targets (test_zap_check.Targets.test_covered_targets) ... ok
+test_refused_targets (test_zap_check.Targets.test_refused_targets) ... ok
+test_regexes_match_only_allowed_urls (test_zap_check.Targets.test_regexes_match_only_allowed_urls) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.075s
+
+OK
+OK: allowlist (2 allowlist entries)
+OK: config
+OK: http://192.168.20.15:8080/dvwa/login.php is on the allowlist
+REFUSED: http://8.8.8.8/ is not covered by the allowlist (/home/user/CIS_CapstoneProj_Swag01erload/configs/zap/targets.allowlist)
+Exit code: 0

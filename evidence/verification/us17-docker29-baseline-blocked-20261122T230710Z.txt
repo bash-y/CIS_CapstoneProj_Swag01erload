@@ -1,0 +1,29 @@
+US-17 (#127) - On Docker 29.9.2 with bridge netfilter on, the committed lab networks block Guest to Business even in BASELINE (real lab.sh and compose file; firewall, Kali, workstation and business server are Ubuntu stand-ins, Wazuh off; no nat-unprotected option)
+Date: 2026-11-22T23:07:10Z
+Host: Linux 6.18.44-fc-v726, Docker engine 29.9.2
+Command: sh -c echo "lab.sh mode:"; LAB_COMPOSE="docker compose -p nonet -f docker/docker-compose.yml -f /tmp/claude-0/-home-user-CIS-CapstoneProj-Swag01erload/95c40aa2-1b77-5635-93bc-d7cb211861f6/scratchpad/override-nonet.yml" bash lab.sh mode; echo; echo "--- host raw table, drop rules for the lab subnets:"; iptables -t raw -S PREROUTING | grep -E "192\.168\.(10|20)\."; echo; echo "--- from Kali (Guest), baseline:"; for u in http://192.168.20.15:8080/ http://192.168.20.10/ http://192.168.20.20/; do printf "%s -> " $u; docker exec swagpc-kali curl -s -m 4 -o /dev/null -w "%{http_code}
+" $u; done; echo "--- from the workstation (inside Business), baseline:"; for u in http://192.168.20.15:8080/ http://192.168.20.10/ http://192.168.20.20/; do printf "%s -> " $u; docker exec swagpc-workstation curl -s -m 4 -o /dev/null -w "%{http_code}
+" $u; done
+----------------------------------------------------------------
+lab.sh mode:
+Lab mode: configured=baseline live=baseline
+WARNING: baseline is the intentionally vulnerable flat network; Guest can reach Business.
+
+--- host raw table, drop rules for the lab subnets:
+-A PREROUTING -d 192.168.20.20/32 ! -i br-5505e6fc3081 -j DROP
+-A PREROUTING -d 192.168.20.25/32 ! -i br-5505e6fc3081 -j DROP
+-A PREROUTING -d 192.168.20.10/32 ! -i br-5505e6fc3081 -j DROP
+-A PREROUTING -d 192.168.20.254/32 ! -i br-5505e6fc3081 -j DROP
+-A PREROUTING -d 192.168.10.254/32 ! -i br-d459592d36ae -j DROP
+-A PREROUTING -d 192.168.10.50/32 ! -i br-d459592d36ae -j DROP
+-A PREROUTING -d 192.168.20.15/32 ! -i br-5505e6fc3081 -j DROP
+
+--- from Kali (Guest), baseline:
+http://192.168.20.15:8080/ -> 000
+http://192.168.20.10/ -> 000
+http://192.168.20.20/ -> 000
+--- from the workstation (inside Business), baseline:
+http://192.168.20.15:8080/ -> 302
+http://192.168.20.10/ -> 302
+http://192.168.20.20/ -> 200
+Exit code: 0

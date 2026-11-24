@@ -1,0 +1,23 @@
+US-11 (#77) - Suricata loads swagpc-custom.rules and alerts on replayed synthetic traffic (offline pcap replay between two throwaway containers; NOT a capture from the live lab)
+Date: 2026-11-22T20:26:39Z
+Host: Linux 6.18.44-fc-v726, Docker engine 29.9.2
+Command: bash scripts/testing/test-suricata-rules.sh
+----------------------------------------------------------------
+=== Part 1: Suricata loads the custom rules (jasonish/suricata:latest@sha256:d5a3a1785299ab40918d465e54fedf8e3afeeedba76bb64b0cc74dbc20bda2c3) ===
+  [PASS] suricata -T exits 0
+  [PASS] all 11 rules in the file load, 0 fail
+    Info: detect: 1 rule files processed. 11 rules successfully loaded, 0 rules failed, 0 rules skipped
+=== Part 2: replay synthetic recon and web-attack traffic ===
+  [PASS] traffic was captured to a pcap
+  [PASS] suricata replay exits 0
+  [PASS] alert in fast.log: SWAGPC RECON (source 10.79.1.50)
+  [PASS] alert in fast.log: SWAGPC WEB SQL Injection (source 10.79.1.50)
+  [PASS] alert in fast.log: SWAGPC WEB Command Injection (source 10.79.1.50)
+--- fast.log
+    11/22/2026-20:26:44.505038  [**] [1:9000003:1] SWAGPC RECON Port scan - multiple ports from Guest [**] [Classification: Detection of a Network Scan] [Priority: 3] {TC
+    11/22/2026-20:26:44.513996  [**] [1:9000001:1] SWAGPC RECON Nmap SYN scan from Guest network [**] [Classification: Detection of a Network Scan] [Priority: 3] {TCP} 10
+    11/22/2026-20:26:44.599269  [**] [1:9000010:1] SWAGPC WEB SQL Injection attempt from Guest network [**] [Classification: Web Application Attack] [Priority: 1] {TCP} 1
+    11/22/2026-20:26:44.662559  [**] [1:9000011:1] SWAGPC WEB Command Injection attempt - semicolon payload [**] [Classification: Web Application Attack] [Priority: 1] {T
+    11/22/2026-20:26:44.662559  [**] [1:9000012:1] SWAGPC WEB DVWA Command Injection - /etc/passwd exfil [**] [Classification: Web Application Attack] [Priority: 1] {TCP}
+=== Result: 7 passed, 0 failed ===
+Exit code: 0

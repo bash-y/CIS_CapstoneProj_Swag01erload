@@ -1,0 +1,52 @@
+# ZAP 2.17.0 add-ons in zaproxy/zap-stable:2.17.0@sha256:9624669db72f54d86c4b46a7064518bd9bf79d8c61a4c31befa9923489f328af
+# Recorded 2026-11-22 with: docker exec -u zap swagpc-zap /zap/zap.sh -cmd -silent -addonlist
+# Columns (tab-separated): name, id, version, status, description. scripts/zap/check-ready.sh compares the live list with this one.
+Active scanner rules	ascanrules	v84.0.0	release	The release status Active Scanner rules
+Ajax Spider	spiderAjax	v23.33.0	release	Allows you to spider sites that make heavy use of JavaScript using Crawljax
+Alert Filters	alertFilters	v29.0.0	release	Allows you to automate the changing of alert risk levels.
+Authentication Helper	authhelper	v0.44.0	beta	Helps identify and set up authentication handling
+Automation Framework	automation	v0.62.0	beta	Automation Framework.
+Call Home	callhome	v0.23.0	release	Handles all of the calls to ZAP services.
+Client Side Integration	client	v0.34.0	alpha	Exposes client (browser) side information in ZAP using Firefox and Chrome extensions.
+Common Library	commonlib	v1.44.0	release	A common library, for use by other add-ons.
+DOM XSS Active scanner rule	domxss	v24.0.0	release	DOM XSS Active scanner rule
+Database	database	v0.9.0	alpha	Provides database engines and related infrastructure.
+Diff	diff	v18.0.0	beta	Displays a dialog showing the differences between 2 requests or responses. It uses diffutils and diff_match_patch
+Directory List v1.0	directorylistv1	v9.0.0	release	List of directory names to be used with Forced Browse or Fuzzer add-on.
+Encoder	encoder	v1.9.0	release	Adds encode/decode/hash dialog and support for scripted processors as well
+Forced Browse	bruteforce	v21.0.0	beta	Forced browsing of files and directories using code from the OWASP DirBuster tool
+Fuzzer	fuzz	v13.17.0	beta	Advanced fuzzer for manual testing
+Getting Started with ZAP Guide	gettingStarted	v20.0.0	release	A short Getting Started with ZAP Guide
+GraalVM JavaScript	graaljs	v0.14.0	alpha	Provides the GraalVM JavaScript engine for ZAP scripting.
+GraphQL Support	graphql	v0.35.0	alpha	Inspect and attack GraphQL endpoints.
+HUD - Heads Up Display	hud	v0.19.0	beta	Display information from ZAP in browser.
+Help - English	help	v22.0.0	release	English version of the ZAP help file.
+Import/Export	exim	v0.22.0	beta	Import and Export functionality
+Insights	insights	v0.7.0	alpha	An add-on providing additional insights into what ZAP finds.
+Invoke Applications	invoke	v17.0.0	beta	Invoke external applications passing context related information such as URLs and parameters
+Linux WebDrivers	webdriverlinux	v231.0.0	release	Linux WebDrivers for Firefox and Chrome.
+Network	network	v0.33.0	beta	Provides core networking capabilities.
+OAST Support	oast	v0.26.0	beta	Allows you to exploit out-of-band vulnerabilities
+Online menus	onlineMenu	v15.0.0	release	ZAP Online menu items
+OpenAPI Support	openapi	v58.0.0	beta	Imports and spiders OpenAPI definitions.
+Params	params	v0.1.0	release	Tracks parameters, cookies, and header values on a site by site basis.
+Passive Scanner	pscan	v0.6.0	alpha	Provides core passive scanning capabilities.
+Passive scanner rules	pscanrules	v77.0.0	release	The release status Passive Scanner rules
+Postman Support	postman	v0.10.0	alpha	Imports and spiders Postman collections.
+Quick Start	quickstart	v60.0.0	release	Provides a tab which allows you to quickly test a target application
+Replacer	replacer	v22.0.0	release	Easy way to replace strings in requests and responses.
+Report Generation	reports	v0.46.0	release	Official ZAP Reports.
+Requester	requester	v7.10.0	beta	Allows to manually edit and send messages.
+Retest	retest	v0.11.0	alpha	An add-on to retest for presence/absence of previously generated alerts.
+Retire.js	retire	v0.68.0	release	Use Retire.js to identify vulnerable or out-dated JavaScript packages.
+Reveal	reveal	v10.0.0	release	Show hidden fields and enable disabled fields
+SOAP Support	soap	v32.0.0	beta	Imports and scans WSDL files containing SOAP endpoints.
+Scan Policies	scanpolicies	v0.8.0	alpha	A set of standard scan policies.
+Script Console	scripts	v45.20.0	release	Supports all JSR 223 scripting languages
+Selenium	selenium	v15.60.0	release	WebDriver provider and includes HtmlUnit browser
+Sequence	sequence	v10.0.0	beta	Gives the possibility of defining a sequence of requests to be scanned.
+Spider	spider	v0.20.0	release	Spider used for automatically finding URIs on a site.
+Tips and Tricks	tips	v16.0.0	beta	Display ZAP Tips and Tricks
+Value Generator	formhandler	v6.9.0	beta	This Value Generator Add-on allows a user to define field names and values to be used when submitting values to an app. Fields can be added, modified, enabled/disabled, and deleted.
+WebSockets	websocket	v38.0.0	release	Allows you to inspect WebSocket communication.
+Zest - Graphical Security Scripting Language	zest	v48.14.0	beta	A graphical security scripting language, ZAPs macro language on steroids

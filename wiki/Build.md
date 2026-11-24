@@ -75,3 +75,7 @@ You should see all 4 containers in `Up` status.
    docker exec -it swagpc-kali /bin/bash /scripts/attack/recon-scan.sh
    ```
    *(Packets will drop with 100% loss, confirming defense verification).*
+
+---
+
+**See also:** [ZAP Runbook](ZAP-Runbook.md) for the opt-in OWASP ZAP scanner on the Guest network (US-19, #130; draft), and [Lab Modes](Lab-Modes.md) for the baseline and defended startup modes (US-17, #127).

@@ -1,0 +1,70 @@
+US-17 (#127) - Real lab.sh and docker-compose.yml through every mode switch. Real DVWA, WAF and Suricata images and the real firewall-init.sh; the firewall, Kali, workstation and business server are Ubuntu stand-ins, Wazuh is off (scripts/testing/lab-standin.override.yml). NOT the full lab.
+Date: 2026-11-22T23:07:45Z
+Host: Linux 6.18.44-fc-v726, Docker engine 29.9.2
+Command: bash scripts/testing/test-lab-switch.sh
+----------------------------------------------------------------
+=== building the stand-in image ===
+=== lab.sh start baseline (positive control: everything must be reachable) ===
+  [PASS] lab.sh start baseline exits 0
+  [PASS] baseline announces itself
+  [PASS] lab.sh mode: configured=baseline live=baseline
+  [PASS] DVWA, WAF and the business server answer the workstation
+  [PASS] kali -> WAF answers (HTTP 302)
+  [PASS] kali -> DVWA direct answers (HTTP 302)
+  [PASS] kali -> business server answers (HTTP 200)
+  [PASS] workstation -> business server answers (HTTP 200)
+  [PASS] workstation -> DVWA answers (HTTP 302)
+  [PASS] workstation -> WAF answers (HTTP 302)
+  [PASS] lab data written to a named volume
+=== lab.sh defend ===
+  [PASS] lab.sh defend exits 0
+  [PASS] the firewall container was recreated
+  [PASS] lab.sh mode: configured=defended live=defended
+  [PASS] kali -> WAF (the allowed Guest path) answers (HTTP 302)
+  [PASS] kali -> DVWA direct is blocked
+  [PASS] kali -> business server is blocked
+  [PASS] workstation -> business server answers (HTTP 200)
+  [PASS] workstation -> DVWA answers (HTTP 302)
+  [PASS] workstation -> WAF answers (HTTP 302)
+  [PASS] lab data survived the switch
+  [PASS] lab.sh attack refuses in the defended mode (exit 1)
+=== firewall container restart ===
+  [PASS] defended rules are back after the restart
+  [PASS] kali -> WAF (the allowed Guest path) answers (HTTP 302)
+  [PASS] kali -> DVWA direct is blocked
+  [PASS] kali -> business server is blocked
+  [PASS] workstation -> business server answers (HTTP 200)
+  [PASS] workstation -> DVWA answers (HTTP 302)
+  [PASS] workstation -> WAF answers (HTTP 302)
+=== lab.sh undefend, then defend again ===
+  [PASS] lab.sh undefend exits 0
+  [PASS] lab.sh mode: baseline
+  [PASS] kali -> WAF answers (HTTP 302)
+  [PASS] kali -> DVWA direct answers (HTTP 302)
+  [PASS] kali -> business server answers (HTTP 200)
+  [PASS] workstation -> business server answers (HTTP 200)
+  [PASS] workstation -> DVWA answers (HTTP 302)
+  [PASS] workstation -> WAF answers (HTTP 302)
+  [PASS] lab data survived the switch to baseline
+  [PASS] lab.sh defend exits 0 again
+  [PASS] kali -> WAF (the allowed Guest path) answers (HTTP 302)
+  [PASS] kali -> DVWA direct is blocked
+  [PASS] kali -> business server is blocked
+  [PASS] workstation -> business server answers (HTTP 200)
+  [PASS] workstation -> DVWA answers (HTTP 302)
+  [PASS] workstation -> WAF answers (HTTP 302)
+=== lab.sh stop, then a plain lab.sh start ===
+  [PASS] lab.sh stop exits 0
+  [PASS] the named volume still exists after stop
+  [PASS] plain lab.sh start exits 0
+  [PASS] a plain start is DEFENDED
+  [PASS] services answer after the restart
+  [PASS] kali -> WAF (the allowed Guest path) answers (HTTP 302)
+  [PASS] kali -> DVWA direct is blocked
+  [PASS] kali -> business server is blocked
+  [PASS] workstation -> business server answers (HTTP 200)
+  [PASS] workstation -> DVWA answers (HTTP 302)
+  [PASS] workstation -> WAF answers (HTTP 302)
+  [PASS] lab data survived stop and start
+=== Result: 57 passed, 0 failed ===
+Exit code: 0
