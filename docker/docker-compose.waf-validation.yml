@@ -20,6 +20,19 @@ services:
     container_name: cafe-validation-waf
     ports: !reset []
 
+  business-server:
+    <<: *probe-image
+    container_name: cafe-validation-business-server
+    cap_add: [NET_ADMIN]
+    ports: !reset []
+    volumes:
+      - ../build/server/www:/srv/business:ro
+    entrypoint: ["python3", "-m", "http.server", "80", "--directory", "/srv/business"]
+  workstation:
+    <<: *probe-image
+    container_name: cafe-validation-workstation
+    entrypoint: ["sleep", "infinity"]
+
 networks:
   guest-net:
     name: cafe-validation-guest

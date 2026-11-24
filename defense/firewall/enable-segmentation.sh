@@ -2,8 +2,16 @@
 # enable-segmentation.sh
 # Enforces pfSense-style firewall segmentation: Block all Guest -> Business traffic.
 
+set -e
+FW="swagpc-firewall"
+case "$#" in
+  0) ;;
+  1) [ "$1" = "--validation-lab" ] || exit 2; FW="cafe-validation-firewall" ;;
+  *) exit 2 ;;
+esac
+
 echo "=== Applying Firewall Segmentation Rules ==="
-docker exec swagpc-firewall sh -c "
+docker exec "$FW" sh -ec "
   # Flush existing FORWARD rules
   iptables -F FORWARD
 
@@ -19,5 +27,5 @@ docker exec swagpc-firewall sh -c "
   iptables -A FORWARD -j ACCEPT
 "
 
-echo "[SUCCESS] Guest-to-Business traffic is now BLOCKED by swagpc-firewall."
-docker exec swagpc-firewall iptables -L FORWARD -v -n
+echo "[SUCCESS] Guest-to-Business traffic is now BLOCKED by $FW."
+docker exec "$FW" iptables -L FORWARD -v -n
