@@ -190,16 +190,22 @@ Roles do **not** eliminate technical responsibilities. No member should be docum
 
 ---
 
+## Windows café security tool
+
+[Build and run the service inventory executable](security-tool/README.md). US-25 tracks WAF integration and live acceptance separately.
+
 ## Individual Contribution Summary Table
 
 Contribution % = a member's story points ÷ team total story points. **This table must match the Project board** — discrepancies are investigated and the board wins. Update it as work completes.
 
 | **Member**     | **Story points** | **Contribution %** | **Key contributions (link issues/PRs)**               |
 | -------------- | ---------------: | -----------------: | ----------------------------------------------------- |
-| Ant Huynh (`@UiwAntHuynhCIS`) | 18 | 28.1% | #42 US-1 Setup, #44 US-3 pfSense Dual-VLAN Architecture, #49 US-8 pfSense Segmentation, #53 US-12 Docs & Evidence |
-| Sebastian Cadena (`@bash-y`) | 28 | 43.8% | #43 US-2 Proposal & Topology, #45 US-4 Business Server & PC, #50 US-9 Windows Endpoint Hardening, #54 US-13 Presentation & Demo, #100 US-14 Discord PR Bot, #122 US-15 Skill Scanning, #124 US-16 Project Skills |
-| joromanii (`@joromanii`) | 18 | 28.1% | #46 US-5 DVWA & Kali Attacker, #47 US-6 Reconnaissance, #48 US-7 Web Exploit & Pivot, #51 US-10 App Security, #52 US-11 Wazuh Monitoring |
-| **Team total** | **64** | **100%** | 16 User Stories (#42–#54, #100, #122, #124) |
+| Ant Huynh (`@UiwAntHuynhCIS`) | 29 | 31.5% | #42 US-1 Setup, #44 US-3 pfSense Dual-VLAN Architecture, #49 US-8 pfSense Segmentation, #53 US-12 Docs & Evidence, US-22 (#133), US-24 (#135), US-25 (#143) |
+| Sebastian Cadena (`@bash-y`) | 36 | 39.1% | #43 US-2 Proposal & Topology, #45 US-4 Business Server & PC, #50 US-9 Windows Endpoint Hardening, #54 US-13 Presentation & Demo, #100 US-14 Discord PR Bot, #122 US-15 Skill Scanning, #124 US-16 Project Skills, US-17 (#127), US-19 (#130), US-23 (#134) |
+| joromanii (`@joromanii`) | 27 | 29.3% | #46 US-5 DVWA & Kali Attacker, #47 US-6 Reconnaissance, #48 US-7 Web Exploit & Pivot, #51 US-10 App Security, #52 US-11 Wazuh Monitoring, US-18 (#128), US-20 (#131), US-21 (#132) |
+| **Team total** | **92** | **100%** | 25 User Stories (#42–#54, #100, #122, #124, #127–#128, #130–#135, #143) |
+
+Member percentages are rounded independently to one decimal place.
 
 **Story points:** 1, 2, 3, or 5 only.
 
