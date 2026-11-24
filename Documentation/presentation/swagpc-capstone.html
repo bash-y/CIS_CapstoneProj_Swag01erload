@@ -132,7 +132,7 @@
     <div class="cols">
       <div>
         <h3>Network (US-8)</h3>
-        <p>Firewall drops <b>and logs</b> all <code>192.168.10.0/24 → 192.168.20.0/24</code>. Established/return traffic still allowed.</p>
+        <p>The router drops new Guest-to-Business traffic. The configured LOG rule covers <code>192.168.10.0/24 → 192.168.20.0/24</code>. Established/return traffic still allowed.</p>
       </div>
       <div>
         <h3>Endpoint (US-9)</h3>
@@ -169,17 +169,13 @@
     <h2>Outcomes &amp; Status</h2>
     <table>
       <tr><th>Dimension</th><th>Before (undefended)</th><th>Target (defended)</th><th>Result</th></tr>
-      <tr><td>Business reachability from Guest</td><td class="bad">hosts up, 0% loss</td><td class="ok">0 hosts up, 100% loss</td><td class="ok">✅ Verified 2026-10-27 — 100% loss; HTTP timed out</td></tr>
-      <tr><td>Café web app</td><td class="bad">command execution</td><td class="ok">sanitized / 403</td><td class="warn">pending — control not yet built</td></tr>
-      <tr><td>Detection</td><td class="bad">0 alerts</td><td class="ok">alert &lt; 60s</td><td class="warn">pending — IDS blocked by config bug</td></tr>
+      <tr><td>Guest to DVWA</td><td>Ping replies; HTTP 302</td><td>Guest isolation</td><td>100% ping loss; TCP 80 timed out</td></tr>
+      <tr><td>Web filtering</td><td>DVWA exposed directly</td><td>Benign lookup passes; tested injection requests blocked</td><td>Three-segment WAF run: HTTP 200 for benign lookup, 403 for both tested requests</td></tr>
+      <tr><td>Alpine workstation</td><td>3/3 Guest ping replies</td><td>Endpoint denies Guest</td><td>100% loss with routing open; six LOG and six DROP matches</td></tr>
+      <tr><td>Suricata to Wazuh</td><td>Unmeasured</td><td>Alert within 60 seconds</td><td>Delivery and latency pending</td></tr>
     </table>
-    <p><span class="ok"><b>Verified:</b> network segmentation is live-proven (2026-10-27) — Guest→Business fully reachable before, <b>100% blocked</b> (ICMP + TCP) after.</span> <span class="warn"><b>Honest status:</b> the other layers are built/designed but their live verification is still pending (app hardening not yet implemented; IDS blocked by a Suricata start-up bug). No unearned pass is claimed.</span></p>
-    <aside class="notes">
-      The headline is proven: we ran the attack, applied segmentation, and re-ran it — Guest-to-Business went from
-      fully reachable to 100% blocked, confirmed by ping, curl and nc. Evidence is committed under evidence/verification.
-      We're candid that the remaining layers aren't live-verified yet: app hardening isn't built, and the IDS test is
-      blocked by a compose config bug we've reported. We only claim the pass we actually earned.
-    </aside>
+    <p>October 27, 2026 lab observations. <a href="demo-cues.md">Timed demo and evidence index</a></p>
+    <aside class="notes">Use the matching record for each topology. The six packet matches are workstation counters. The router denial log is a separate outstanding check.</aside>
   </section>
 
   <!-- 10. Challenges / limitations -->
@@ -188,7 +184,7 @@
     <ul>
       <li>Employee "Windows PC" is an <b>Alpine container</b> → endpoint controls implemented as Linux equivalents; Windows Defender / GPO steps documented for a real host.</li>
       <li>Firewall is <b>iptables standing in for pfSense</b> — rule intent is demonstrable, not the pfSense UI.</li>
-      <li>A few wiring gaps found &amp; tracked: firewall <code>LOG</code> rule, Suricata custom-rule mount, empty app/endpoint dirs (now being filled).</li>
+      <li>The router LOG rule and Suricata rule mount exist. Correlating a denied request to a router log and a Suricata event to Wazuh still requires live evidence.</li>
       <li>Docker Desktop instability slowed live runs during development.</li>
     </ul>
     <aside class="notes">
@@ -207,8 +203,8 @@
       <div>
         <p><b>Next:</b></p>
         <ul>
-          <li>Run the live M2 attack baseline &amp; M3 defense verification</li>
-          <li>Capture before/after evidence into <code>evidence/</code></li>
+          <li>Rehearse the verified baseline and defended comparisons</li>
+          <li>Capture outstanding router and end-to-end monitoring evidence</li>
           <li>Rehearse the live demo + record the backup video</li>
         </ul>
       </div>
@@ -216,7 +212,7 @@
     <p style="margin-top:0.6em;"><b>Questions?</b></p>
     <aside class="notes">
       Bottom line: segmentation plus endpoint, application, and monitoring layers turn an open café network into a
-      defensible one — and we prove it with numbers. Next we execute the live runs and rehearse. Happy to take questions.
+      defensible one — and we prove it with numbers. The final rehearsal and backup recording remain open. Happy to take questions.
     </aside>
   </section>
 

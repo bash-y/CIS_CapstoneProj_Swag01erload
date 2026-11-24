@@ -1,0 +1,18 @@
+# Final demo cue sheet
+
+Use with the [presentation](swagpc-capstone.html). The six-minute schedule is a presenter target. The observations below come from October 27, 2026. Record fresh timings and outcomes separately during the team rehearsal.
+
+| Elapsed target | Slide and presenter cue | Evidence to show |
+|---|---|---|
+| 0:00–1:00 | **Build.** Trace the Guest and Business networks on the topology slide. Identify the Alpine router, DVWA, employee workstation and business server. Establish what legitimate traffic should still work. | [04:52:45 UTC build check](../../evidence/build/us4-workstation-to-server.txt). The workstation reached the business portal on TCP 80. |
+| 1:00–2:00 | **Attack baseline.** Show the Guest's recorded ping to DVWA and its HTTP response. A redirect to login establishes reachability. Ask what should happen to those same requests after segmentation. | [05:56:23 UTC baseline validation](../../evidence/attack/undefended-validation-20261027T055623Z.md) and [before/after record](../../evidence/verification/segmentation-before-after.md). |
+| 2:00–3:30 | **Defend.** On the same Guest-to-DVWA path, compare the same destination and port before and after router segmentation. Read the timeout line aloud. The historical suite classified the HTTP result incorrectly. | [Direct checks](../../evidence/verification/segmentation-ground-truth.txt). Guest ping changed from replies to 100% loss; HTTP changed from 302 to a timeout. |
+| 3:30–4:45 | **Web defense.** Switch to the recorded three-segment layout. Show the benign lookup and blocked requests together, then the direct-origin result. Explain which responses came from the WAF. | [14:33:06 UTC WAF run](../../evidence/defense/segmented-verify-20261027T143306Z.txt). Benign lookup 200, tested requests 403, direct origin unreachable, nine checks passed. |
+| 4:45–5:30 | **Endpoint.** Explain why the workstation comparison used open routing. Show the host counters so the audience can identify which device enforced the policy. | [Alpine endpoint comparison](../../evidence/verification/us9-endpoint-hardening.md). Three ping replies before hardening, 100% loss afterward, six matches on each host LOG and DROP rule. |
+| 5:30–6:00 | **Close.** Name what still needs evidence: a correlated router denial (#104) and end-to-end Suricata-to-Wazuh delivery (#107). | Use the Outcomes slide. Keep the 60-second detection target labeled as a target. |
+
+## Evidence provenance and rehearsal record
+
+The build artifact records `sh scripts/testing/verify-workstation-to-server.sh`. For segmentation, the direct-check artifact records the Guest probes against DVWA at `192.168.20.10`, including HTTP on port 80 and ping. For the three-segment result, the [network layout](../../wiki/Network-Segmentation.md) identifies the WAF verification script and topology parameters. The linked evidence is historical; the exact runtime checkout SHA is absent from these records. Git revisions containing the build, segmentation comparison, WAF result and endpoint comparison are respectively `a292e25`, `d322576`, `ff42af2` and `c9a8b81`.
+
+During the live rehearsal, record the UTC start and finish, checkout SHA, active mode, service readiness, actual elapsed time per cue, checks performed and observed results. Use any applicable layer-specific evidence from #128. If Docker is unavailable or the wrong mode is active, present the corresponding saved capture and mark the live segment blocked. If screen sharing or recording fails, retain timestamps and repeat the affected segment. Close #108 after a teammate opens the approved backup recording and records its location, playback duration, and timestamps covering Build, Attack and Defend.
