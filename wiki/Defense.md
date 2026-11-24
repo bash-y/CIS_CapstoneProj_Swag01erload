@@ -1,48 +1,10 @@
-# Defense Implementation
+# Defense implementation
 
-This section details the defensive controls implemented to eliminate lateral movement, secure endpoints, harden applications, and detect intrusions.
+| Control | Implementation and evidence |
+|---|---|
+| Guest isolation | The [router policy](../defense/firewall/enable-segmentation.sh) logs and drops Guest-to-Business forwarding. The October 27 run recorded loss of ICMP reachability and an HTTP timeout. Matching router log evidence remains outstanding under #104. [segmentation comparison](../evidence/verification/segmentation-before-after.md) |
+| Endpoint hardening | The [workstation controls](../defense/endpoint-hardening/README.md) apply to Alpine. The October 27 comparison records host firewall counters and local account settings. Windows Defender and SMB outcomes remain unverified. [workstation comparison](../evidence/verification/us9-endpoint-hardening.md) |
+| Application controls | ModSecurity blocked the tested requests and allowed a benign lookup in the routed configuration. Direct-origin reachability varied by topology. The [DVWA security-level control](../defense/application-security/harden-dvwa-security-level.sh) is a separate layer whose before/after result remains unverified. [routed run](../evidence/defense/waf-routed-verify-20261027T135519Z.txt) |
+| Monitoring | The [Compose configuration](../docker/docker-compose.yml) mounts the Suricata rule file. The [detection mapping](Detection-Mapping.md) records WAF rule matches. A current Suricata signature linked to a Wazuh event and measured latency remains outstanding under #107. |
 
----
-
-## 1. Network Segmentation (pfSense)
-
-* **Control:** Strict rule separation on pfSense interface `GUEST` (`VLAN 10`).
-* **Rule Added:**
-  * **Action:** `Block & Log`
-  * **Interface:** `GUEST`
-  * **Protocol:** `Any`
-  * **Source:** `Guest net`
-  * **Destination:** `Business net`
-* **Purpose:** Prevents any guest user from reaching the business subnet (`192.168.20.0/24`).
-
----
-
-## 2. Windows Endpoint Hardening
-
-* **Controls Applied on Windows Employee PC (`192.168.20.25`):**
-  1. **Windows Defender Firewall with Advanced Security:**
-     * Inbound rules adjusted to restrict SMB (port 445) and RDP (port 3389) strictly to authorized administrative IPs within VLAN 20.
-  2. **Protocol Hardening:**
-     * Disabled LLMNR (Link-Local Multicast Name Resolution) via Local Group Policy (`Computer Configuration -> Administrative Templates -> Network -> DNS Client -> Turn off multicast name resolution`).
-     * Disabled SMBv1 feature.
-  3. **Least Privilege:**
-     * Restricted local administrator privileges and enforced complex password policies.
-
----
-
-## 3. Application Security Hardening
-
-* **Controls Applied to Café Web Portal (DVWA):**
-  1. Raised security configuration level to validate and sanitize user inputs.
-  2. Implemented reverse proxy / binding restrictions ensuring web management is only accessible via localhost or authorized administrative subnet.
-
----
-
-## 4. Security Monitoring (Suricata + Wazuh)
-
-* **Suricata IDS:**
-  * Configured on the perimeter interface to detect Nmap port scans and malicious HTTP attack payloads.
-* **Wazuh SIEM:**
-  * The Ubuntu Business Server image installs and starts a version-matched Wazuh agent that enrolls with the manager and sends endpoint telemetry, including file-integrity events.
-  * The Compose `workstation` is an Alpine Linux container, not a Windows PC. It cannot run the Windows Wazuh agent, so Windows endpoint monitoring remains unimplemented until the lab includes a real Windows endpoint.
-  * Custom rules triggered for repeated failed access attempts and web exploitation signatures.
+The [defense matrix](Defense-Test-Matrix.md) lists the observed configurations and the evidence still needed for each control.
